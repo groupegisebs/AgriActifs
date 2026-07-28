@@ -8,6 +8,7 @@ public class DemoOptions
     public bool Enabled { get; set; } = true;
 
     public string PromoterName { get; set; } = "Équipe AgriActifs / GISE";
-    public string PromoterEmail { get; set; } = "commercial@agriactifs.demo";
+    /// <summary>Affiché sur le formulaire ; l'envoi réel cible toujours CEO@GISEBS.COM.</summary>
+    public string PromoterEmail { get; set; } = "CEO@GISEBS.COM";
     public string? PromoterPhone { get; set; }
 }

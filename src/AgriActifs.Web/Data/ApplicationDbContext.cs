@@ -35,6 +35,7 @@ public class ApplicationDbContext(
     public DbSet<StockArticle> StockArticles => Set<StockArticle>();
     public DbSet<StockMouvement> StockMouvements => Set<StockMouvement>();
     public DbSet<InterventionMaintenance> Interventions => Set<InterventionMaintenance>();
+    public DbSet<InterventionPiece> InterventionPieces => Set<InterventionPiece>();
     public DbSet<Fournisseur> Fournisseurs => Set<Fournisseur>();
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -142,6 +143,8 @@ public class ApplicationDbContext(
         {
             entity.HasIndex(x => new { x.ExploitationId, x.Code }).IsUnique();
             entity.Property(x => x.AreaHa).HasPrecision(18, 2);
+            entity.Property(x => x.EstimatedYieldPerHa).HasPrecision(18, 2);
+            entity.Property(x => x.ActualYieldPerHa).HasPrecision(18, 2);
             entity.HasOne(x => x.Exploitation)
                 .WithMany(x => x.Parcelles)
                 .HasForeignKey(x => x.ExploitationId)
@@ -150,6 +153,7 @@ public class ApplicationDbContext(
 
         builder.Entity<Assolement>(entity =>
         {
+            entity.Property(x => x.YieldPerHa).HasPrecision(18, 2);
             entity.HasOne(x => x.Parcelle)
                 .WithMany(x => x.Assolements)
                 .HasForeignKey(x => x.ParcelleId)
@@ -161,13 +165,20 @@ public class ApplicationDbContext(
             entity.HasIndex(x => new { x.ExploitationId, x.InternalCode }).IsUnique();
             entity.Property(x => x.AcquisitionValue).HasPrecision(18, 2);
             entity.Property(x => x.ResidualValue).HasPrecision(18, 2);
+            entity.Property(x => x.EngineHours).HasPrecision(18, 1);
+            entity.Property(x => x.OdometerKm).HasPrecision(18, 1);
+            entity.Property(x => x.NextServiceHours).HasPrecision(18, 1);
             entity.HasOne(x => x.Exploitation)
                 .WithMany(x => x.Actifs)
                 .HasForeignKey(x => x.ExploitationId)
                 .OnDelete(DeleteBehavior.Cascade);
             entity.HasOne(x => x.Parcelle)
-                .WithMany()
+                .WithMany(x => x.Actifs)
                 .HasForeignKey(x => x.ParcelleId)
+                .OnDelete(DeleteBehavior.SetNull);
+            entity.HasOne(x => x.Fournisseur)
+                .WithMany(x => x.Actifs)
+                .HasForeignKey(x => x.FournisseurId)
                 .OnDelete(DeleteBehavior.SetNull);
         });
 
@@ -190,6 +201,10 @@ public class ApplicationDbContext(
                 .WithMany(x => x.Mouvements)
                 .HasForeignKey(x => x.StockArticleId)
                 .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(x => x.Intervention)
+                .WithMany()
+                .HasForeignKey(x => x.InterventionMaintenanceId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         builder.Entity<InterventionMaintenance>(entity =>
@@ -206,6 +221,19 @@ public class ApplicationDbContext(
                 .OnDelete(DeleteBehavior.SetNull);
         });
 
+        builder.Entity<InterventionPiece>(entity =>
+        {
+            entity.Property(x => x.Quantity).HasPrecision(18, 3);
+            entity.HasOne(x => x.Intervention)
+                .WithMany(x => x.Pieces)
+                .HasForeignKey(x => x.InterventionMaintenanceId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(x => x.StockArticle)
+                .WithMany()
+                .HasForeignKey(x => x.StockArticleId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
         builder.Entity<Fournisseur>(entity =>
         {
             entity.HasOne(x => x.Exploitation)
@@ -217,11 +245,6 @@ public class ApplicationDbContext(
         builder.Entity<Exploitation>(entity =>
         {
             entity.Property(x => x.TotalAreaHa).HasPrecision(18, 2);
-        });
-
-        builder.Entity<Assolement>(entity =>
-        {
-            entity.Property(x => x.YieldPerHa).HasPrecision(18, 2);
         });
     }
 

@@ -5,28 +5,71 @@
         <h1 class="h3">Actifs</h1>
         <div class="d-flex gap-2">
             <a class="btn btn-outline-secondary" asp-action="Export">Export CSV</a>
-            <a class="btn btn-primary" asp-action="Create">Nouvel actif</a>
+            <a class="btn btn-primary" asp-action="Create">+ Ajouter un actif</a>
         </div>
     </div>
     <form method="get" class="row g-2 mb-3">
-        <div class="col-auto"><select name="categorie" class="form-select" asp-items="Html.GetEnumSelectList<ActifCategorie>()"><option value="">Toutes catégories</option></select></div>
-        <div class="col-auto"><select name="statut" class="form-select" asp-items="Html.GetEnumSelectList<ActifStatut>()"><option value="">Tous statuts</option></select></div>
+        <div class="col-md-3">
+            <input type="search" name="q" value="@ViewBag.Q" class="form-control" placeholder="Recherche code, nom…" />
+        </div>
+        <div class="col-auto">
+            <select name="categorie" class="form-select" asp-items="Html.GetEnumSelectList<ActifCategorie>()">
+                <option value="">Toutes catégories</option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <select name="statut" class="form-select" asp-items="Html.GetEnumSelectList<ActifStatut>()">
+                <option value="">Tous statuts</option>
+            </select>
+        </div>
         <div class="col-auto"><button class="btn btn-outline-primary" type="submit">Filtrer</button></div>
     </form>
-    <table class="table table-striped align-middle">
-        <thead><tr><th>Code</th><th>Nom</th><th>Catégorie</th><th>Statut</th><th>Valeur</th><th></th></tr></thead>
-        <tbody>
-        @foreach (var a in Model)
-        {
-            <tr>
-                <td>@a.InternalCode</td><td>@a.Name</td><td>@a.Categorie</td><td>@a.Statut</td>
-                <td>@a.AcquisitionValue.ToString("C")</td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@a.Id">Fiche</a> |
-                    <a asp-action="Edit" asp-route-id="@a.Id">Modifier</a>
-                </td>
-            </tr>
-        }
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Nom</th>
+                    <th>Catégorie</th>
+                    <th>État</th>
+                    <th>Valeur</th>
+                    <th>Dernière / prochain service</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var a in Model)
+            {
+                <tr>
+                    <td class="text-muted"><i class="bi bi-image"></i></td>
+                    <td>
+                        <strong>@a.Name</strong>
+                        <div class="small text-muted">@a.InternalCode @(a.Brand is not null ? $"· {a.Brand}" : "")</div>
+                    </td>
+                    <td>@a.Categorie</td>
+                    <td>
+                        <span class="badge text-bg-@(a.Statut switch {
+                            ActifStatut.EnService => "success",
+                            ActifStatut.EnPanne => "danger",
+                            ActifStatut.EnMaintenance => "warning",
+                            _ => "secondary"
+                        })">@a.Statut</span>
+                    </td>
+                    <td>@a.AcquisitionValue.ToString("C0")</td>
+                    <td class="small">
+                        @(a.NextServiceDate?.ToString("yyyy-MM-dd") ?? "—")
+                        @if (a.EngineHours is not null)
+                        {
+                            <span class="text-muted">· @a.EngineHours.Value.ToString("N0") h</span>
+                        }
+                    </td>
+                    <td class="text-nowrap">
+                        <a asp-action="Details" asp-route-id="@a.Id" title="Fiche"><i class="bi bi-eye"></i></a>
+                        <a asp-action="Edit" asp-route-id="@a.Id" class="ms-2" title="Modifier"><i class="bi bi-pencil"></i></a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
 </div>

@@ -1,35 +1,67 @@
 @model IEnumerable<InterventionMaintenance>
-@{ ViewData["Title"] = "Maintenance"; }
+@{
+    ViewData["Title"] = "Maintenance";
+    var filter = (string?)ViewBag.Filter ?? "all";
+}
 <div class="container py-4">
-    <div class="d-flex justify-content-between mb-3">
+    <div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
         <h1 class="h3">Maintenance</h1>
         <a class="btn btn-primary" asp-action="Create">Nouvelle intervention</a>
     </div>
-    <table class="table table-striped">
-        <thead><tr><th>Date</th><th>Titre</th><th>Actif</th><th>Type</th><th>Statut</th><th>Coût</th><th></th></tr></thead>
-        <tbody>
-        @foreach (var i in Model)
-        {
-            <tr>
-                <td>@i.PlannedDate.ToString("yyyy-MM-dd")</td>
-                <td>@i.Title</td>
-                <td>@(i.Actif?.Name ?? "—")</td>
-                <td>@i.Type</td>
-                <td>@i.Statut</td>
-                <td>@((i.LaborCost + i.PartsCost).ToString("C"))</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@i.Id">Modifier</a>
-                    @if (i.Statut is InterventionStatut.Ouverte or InterventionStatut.EnCours)
-                    {
-                        <form asp-action="Close" method="post" class="d-inline">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="id" value="@i.Id" />
-                            <button type="submit" class="btn btn-link btn-sm p-0">Clôturer</button>
-                        </form>
-                    }
-                </td>
-            </tr>
-        }
-        </tbody>
-    </table>
+    <div class="btn-group mb-3 flex-wrap" role="group">
+        <a class="btn btn-sm @(filter == "all" ? "btn-primary" : "btn-outline-primary")" asp-action="Index" asp-route-filter="all">Toutes</a>
+        <a class="btn btn-sm @(filter == "today" ? "btn-primary" : "btn-outline-primary")" asp-action="Index" asp-route-filter="today">Aujourd'hui</a>
+        <a class="btn btn-sm @(filter == "week" ? "btn-primary" : "btn-outline-primary")" asp-action="Index" asp-route-filter="week">Cette semaine</a>
+        <a class="btn btn-sm @(filter == "late" ? "btn-primary" : "btn-outline-primary")" asp-action="Index" asp-route-filter="late">En retard</a>
+        <a class="btn btn-sm @(filter == "done" ? "btn-primary" : "btn-outline-primary")" asp-action="Index" asp-route-filter="done">Terminées</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Actif</th>
+                    <th>Type</th>
+                    <th>Titre</th>
+                    <th>État</th>
+                    <th>Coût</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var i in Model)
+            {
+                var late = i.PlannedDate.Date < DateTime.UtcNow.Date
+                    && i.Statut is InterventionStatut.Ouverte or InterventionStatut.EnCours;
+                <tr class="@(late ? "table-warning" : null)">
+                    <td>@i.PlannedDate.ToString("yyyy-MM-dd")</td>
+                    <td>@(i.Actif?.Name ?? "—")</td>
+                    <td>@i.Type</td>
+                    <td>@i.Title</td>
+                    <td>
+                        <span class="badge text-bg-@(i.Statut switch {
+                            InterventionStatut.Cloturee => "success",
+                            InterventionStatut.EnCours => "warning",
+                            InterventionStatut.Annulee => "secondary",
+                            _ => "primary"
+                        })">@i.Statut</span>
+                        @if (late) { <span class="badge text-bg-danger">Retard</span> }
+                    </td>
+                    <td>@((i.LaborCost + i.PartsCost).ToString("C"))</td>
+                    <td class="text-nowrap">
+                        <a asp-action="Edit" asp-route-id="@i.Id">Modifier</a>
+                        @if (i.Statut is InterventionStatut.Ouverte or InterventionStatut.EnCours)
+                        {
+                            <form asp-action="Close" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@i.Id" />
+                                <button type="submit" class="btn btn-link btn-sm p-0 ms-1">Clôturer</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
 </div>

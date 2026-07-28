@@ -1,22 +1,70 @@
-@model InterventionMaintenance
-@{ ViewData["Title"] = Model.Id == 0 ? "Nouvelle intervention" : "Modifier intervention"; }
-<div class="container py-4" style="max-width:720px">
+@model InterventionFormViewModel
+@{
+    ViewData["Title"] = "Modifier intervention";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@{
+    // Réutilise le même formulaire que Create
+}
+<div class="container py-4" style="max-width:780px">
     <h1 class="h3 mb-3">@ViewData["Title"]</h1>
     <form method="post">
-        <input type="hidden" asp-for="Id" />
-        <input type="hidden" asp-for="ExploitationId" />
-        <div class="mb-3"><label asp-for="Title" class="form-label"></label><input asp-for="Title" class="form-control" /></div>
-        <div class="row">
-            <div class="col-md-6 mb-3"><label asp-for="Type" class="form-label"></label><select asp-for="Type" class="form-select" asp-items="Html.GetEnumSelectList<InterventionType>()"></select></div>
-            <div class="col-md-6 mb-3"><label asp-for="Statut" class="form-label"></label><select asp-for="Statut" class="form-select" asp-items="Html.GetEnumSelectList<InterventionStatut>()"></select></div>
+        <input type="hidden" asp-for="Intervention.Id" />
+        <input type="hidden" asp-for="Intervention.ExploitationId" />
+        <div class="mb-3">
+            <label asp-for="Intervention.Title" class="form-label">Titre</label>
+            <input asp-for="Intervention.Title" class="form-control" />
         </div>
-        <div class="mb-3"><label asp-for="ActifAgricoleId" class="form-label">Actif</label><select asp-for="ActifAgricoleId" class="form-select" asp-items="ViewBag.Actifs"><option value="">—</option></select></div>
-        <div class="mb-3"><label asp-for="PlannedDate" class="form-label">Date prévue</label><input asp-for="PlannedDate" type="date" class="form-control" /></div>
         <div class="row">
-            <div class="col-md-6 mb-3"><label asp-for="LaborCost" class="form-label">Main-d'œuvre</label><input asp-for="LaborCost" class="form-control" /></div>
-            <div class="col-md-6 mb-3"><label asp-for="PartsCost" class="form-label">Pièces</label><input asp-for="PartsCost" class="form-control" /></div>
+            <div class="col-md-6 mb-3">
+                <label asp-for="Intervention.Type" class="form-label">Type</label>
+                <select asp-for="Intervention.Type" class="form-select" asp-items="Html.GetEnumSelectList<InterventionType>()"></select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label asp-for="Intervention.Statut" class="form-label">État</label>
+                <select asp-for="Intervention.Statut" class="form-select" asp-items="Html.GetEnumSelectList<InterventionStatut>()"></select>
+            </div>
         </div>
-        <div class="mb-3"><label asp-for="Description" class="form-label"></label><textarea asp-for="Description" class="form-control"></textarea></div>
+        <div class="mb-3">
+            <label asp-for="Intervention.ActifAgricoleId" class="form-label">Actif</label>
+            <select asp-for="Intervention.ActifAgricoleId" class="form-select" asp-items="ViewBag.Actifs"><option value="">—</option></select>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Intervention.PlannedDate" class="form-label">Date prévue</label>
+            <input asp-for="Intervention.PlannedDate" type="date" class="form-control" />
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="Intervention.LaborCost" class="form-label">Main-d'œuvre</label>
+                <input asp-for="Intervention.LaborCost" class="form-control" />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label asp-for="Intervention.PartsCost" class="form-label">Coût pièces (manuel)</label>
+                <input asp-for="Intervention.PartsCost" class="form-control" />
+            </div>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Intervention.Description" class="form-label">Description</label>
+            <textarea asp-for="Intervention.Description" class="form-control"></textarea>
+        </div>
+        <h2 class="h6">Pièces stock (déduites à la clôture)</h2>
+        @for (var idx = 0; idx < Model.PieceLines.Count; idx++)
+        {
+            <div class="row g-2 mb-2">
+                <div class="col-md-8">
+                    <select asp-for="PieceLines[idx].StockArticleId" class="form-select" asp-items="ViewBag.Pieces">
+                        <option value="">— article —</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <input asp-for="PieceLines[idx].Quantity" class="form-control" placeholder="Qté" />
+                </div>
+            </div>
+        }
+        <div class="mb-3">
+            <label asp-for="Intervention.Report" class="form-label">Rapport</label>
+            <textarea asp-for="Intervention.Report" class="form-control"></textarea>
+        </div>
         <button type="submit" class="btn btn-primary">Enregistrer</button>
         <a asp-action="Index" class="btn btn-link">Annuler</a>
     </form>

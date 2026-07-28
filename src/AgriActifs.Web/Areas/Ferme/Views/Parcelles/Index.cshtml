@@ -1,22 +1,54 @@
 @model IEnumerable<Parcelle>
 @{ ViewData["Title"] = "Parcelles"; }
 <div class="container py-4">
-    <div class="d-flex justify-content-between mb-3">
+    <div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
         <h1 class="h3">Parcelles</h1>
-        <a class="btn btn-primary" asp-action="Create">Nouvelle</a>
+        <a class="btn btn-primary" asp-action="Create">+ Nouvelle parcelle</a>
     </div>
-    <table class="table table-striped">
-        <thead><tr><th>Code</th><th>Nom</th><th>Ha</th><th>Sol</th><th>Irrigation</th><th></th></tr></thead>
-        <tbody>
-        @foreach (var p in Model)
-        {
-            <tr>
-                <td>@p.Code</td><td>@p.Name</td><td>@p.AreaHa</td><td>@p.SoilType</td>
-                <td>@(p.HasIrrigation ? "Oui" : "Non")</td>
-                <td><a asp-action="Edit" asp-route-id="@p.Id">Modifier</a></td>
-            </tr>
-        }
-        </tbody>
-    </table>
-    <a asp-controller="Dashboard" asp-action="Index">Retour</a>
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-4">
+            <input type="search" name="q" value="@ViewBag.Q" class="form-control" placeholder="Recherche…" />
+        </div>
+        <div class="col-auto"><button class="btn btn-outline-primary" type="submit">Rechercher</button></div>
+    </form>
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Superficie</th>
+                    <th>Culture</th>
+                    <th>État</th>
+                    <th>Chef</th>
+                    <th>Rendement</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var p in Model)
+            {
+                var culture = p.CurrentCulture
+                    ?? p.Assolements.OrderByDescending(a => a.Season).FirstOrDefault()?.Culture
+                    ?? "—";
+                var yield = p.ActualYieldPerHa ?? p.EstimatedYieldPerHa
+                    ?? p.Assolements.OrderByDescending(a => a.Season).FirstOrDefault()?.YieldPerHa;
+                <tr>
+                    <td>
+                        <strong>@p.Name</strong>
+                        <div class="small text-muted">@p.Code</div>
+                    </td>
+                    <td>@p.AreaHa.ToString("0.##") ha</td>
+                    <td>@culture</td>
+                    <td><span class="badge text-bg-secondary">@p.Etat</span></td>
+                    <td>@(p.ResponsibleName ?? "—")</td>
+                    <td>@(yield is not null ? $"{yield:0.##} t/ha" : "—")</td>
+                    <td class="text-nowrap">
+                        <a asp-action="Details" asp-route-id="@p.Id" title="Voir"><i class="bi bi-eye"></i></a>
+                        <a asp-action="Edit" asp-route-id="@p.Id" class="ms-2" title="Modifier"><i class="bi bi-pencil"></i></a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
 </div>

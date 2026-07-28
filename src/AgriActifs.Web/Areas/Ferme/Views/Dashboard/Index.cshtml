@@ -3,14 +3,15 @@
     ViewData["Title"] = "Tableau de bord";
     var total = Math.Max(Model.ActifsTotal, 1);
     string Pct(int n) => $"{(100.0 * n / total):0.#}%";
+    var greet = string.IsNullOrEmpty(Model.UserDisplayName) ? "Bonjour" : $"Bonjour";
 }
 
 <div class="ferme-dash">
     <div class="ferme-dash-header">
         <div>
-            <p class="ferme-dash-kicker">Tableau de bord</p>
+            <p class="ferme-dash-kicker">@greet</p>
             <h1 class="ferme-dash-title">@Model.ExploitationName</h1>
-            <p class="ferme-dash-sub">Pilotage des actifs agricoles</p>
+            <p class="ferme-dash-sub">Disponibilité @Model.TauxDisponibilite.ToString("0.#")% · Pilotage du patrimoine</p>
         </div>
         @if (Model.Accessible.Count > 1)
         {
@@ -37,7 +38,7 @@
         <div class="ferme-kpi">
             <div class="ferme-kpi-icon"><i class="bi bi-truck"></i></div>
             <div>
-                <div class="ferme-kpi-label">Actifs totaux</div>
+                <div class="ferme-kpi-label">Actifs</div>
                 <div class="ferme-kpi-value">@Model.ActifsTotal</div>
             </div>
         </div>
@@ -52,28 +53,28 @@
             <div class="ferme-kpi-icon ferme-kpi-icon--warn"><i class="bi bi-wrench"></i></div>
             <div>
                 <div class="ferme-kpi-label">Maintenance</div>
-                <div class="ferme-kpi-value">@Model.ActifsMaintenance <span class="ferme-kpi-meta">@Pct(Model.ActifsMaintenance)</span></div>
+                <div class="ferme-kpi-value">@Model.ActifsMaintenance</div>
             </div>
         </div>
         <div class="ferme-kpi">
-            <div class="ferme-kpi-icon ferme-kpi-icon--danger"><i class="bi bi-exclamation-triangle"></i></div>
+            <div class="ferme-kpi-icon ferme-kpi-icon--danger"><i class="bi bi-exclamation-octagon"></i></div>
             <div>
-                <div class="ferme-kpi-label">Hors service</div>
-                <div class="ferme-kpi-value">@Model.ActifsHorsService <span class="ferme-kpi-meta">@Pct(Model.ActifsHorsService)</span></div>
-            </div>
-        </div>
-        <div class="ferme-kpi">
-            <div class="ferme-kpi-icon"><i class="bi bi-dash-circle"></i></div>
-            <div>
-                <div class="ferme-kpi-label">Réformés / loués</div>
-                <div class="ferme-kpi-value">@Model.ActifsReforme</div>
+                <div class="ferme-kpi-label">En panne</div>
+                <div class="ferme-kpi-value">@Model.ActifsEnPanne</div>
             </div>
         </div>
         <div class="ferme-kpi">
             <div class="ferme-kpi-icon ferme-kpi-icon--gold"><i class="bi bi-currency-dollar"></i></div>
             <div>
-                <div class="ferme-kpi-label">Valeur du parc</div>
+                <div class="ferme-kpi-label">Valeur</div>
                 <div class="ferme-kpi-value ferme-kpi-value--sm">@Model.ValeurParc.ToString("C0")</div>
+            </div>
+        </div>
+        <div class="ferme-kpi">
+            <div class="ferme-kpi-icon ferme-kpi-icon--warn"><i class="bi bi-bell"></i></div>
+            <div>
+                <div class="ferme-kpi-label">Alertes</div>
+                <div class="ferme-kpi-value">@Model.AlertesTotal</div>
             </div>
         </div>
     </div>
@@ -111,38 +112,38 @@
 
         <section class="ferme-panel">
             <header class="ferme-panel-head">
-                <h2>Actifs par état</h2>
-                <span class="ferme-panel-meta">@Model.CoutMaintenanceMois.ToString("C0") maint. ce mois</span>
+                <h2>Alertes</h2>
+                <span class="ferme-panel-meta">@Model.TauxDisponibilite.ToString("0.#")% dispo · @Model.CoutMaintenanceMois.ToString("C0")/mois</span>
             </header>
-            <div class="ferme-status-stack">
-                <div class="ferme-status-row">
-                    <span class="ferme-dot ferme-dot--ok"></span> Opérationnels
-                    <strong>@Model.ActifsOperationnels</strong>
-                </div>
-                <div class="ferme-status-row">
-                    <span class="ferme-dot ferme-dot--warn"></span> Maintenance
-                    <strong>@Model.ActifsMaintenance</strong>
-                </div>
-                <div class="ferme-status-row">
-                    <span class="ferme-dot ferme-dot--danger"></span> Hors service
-                    <strong>@Model.ActifsHorsService</strong>
-                </div>
-                <div class="ferme-status-row">
-                    <span class="ferme-dot"></span> Autres
-                    <strong>@Model.ActifsReforme</strong>
-                </div>
-            </div>
+            @if (Model.Alertes.Count == 0)
+            {
+                <p class="ferme-empty">Aucune alerte active.</p>
+            }
+            else
+            {
+                <ul class="ferme-list">
+                    @foreach (var al in Model.Alertes)
+                    {
+                        <li>
+                            <div>
+                                <strong>@al.Message</strong>
+                            </div>
+                            <span class="ferme-chip ferme-chip--@al.Tone">!</span>
+                        </li>
+                    }
+                </ul>
+            }
             <div class="ferme-mini-stats">
                 <div><span>Parcelles</span><strong>@Model.Parcelles</strong></div>
                 <div><span>Interventions ouvertes</span><strong>@Model.InterventionsOuvertes</strong></div>
-                <div><span>Stocks bas</span><strong class="@(Model.StocksBas > 0 ? "text-danger" : null)">@Model.StocksBas</strong></div>
+                <div><span>Hors service</span><strong>@Model.ActifsHorsService</strong></div>
             </div>
         </section>
 
         <section class="ferme-panel">
             <header class="ferme-panel-head">
                 <h2>Maintenances à venir</h2>
-                <a asp-controller="Maintenance" asp-action="Index">Agenda</a>
+                <a asp-controller="Maintenance" asp-action="Index" asp-route-filter="week">Agenda</a>
             </header>
             @if (Model.MaintenancesAVenir.Count == 0)
             {
@@ -171,11 +172,11 @@
         <section class="ferme-panel">
             <header class="ferme-panel-head">
                 <h2>Actifs critiques</h2>
-                <a asp-controller="Actifs" asp-action="Index" asp-route-statut="EnMaintenance">Filtrer</a>
+                <a asp-controller="Actifs" asp-action="Index" asp-route-statut="EnPanne">Filtrer</a>
             </header>
             @if (Model.ActifsCritiques.Count == 0)
             {
-                <p class="ferme-empty">Aucun actif en maintenance ou hors service.</p>
+                <p class="ferme-empty">Aucun actif en maintenance, panne ou hors service.</p>
             }
             else
             {
@@ -187,7 +188,7 @@
                                 <strong>@a.Code</strong>
                                 <span>@a.Name</span>
                             </div>
-                            <span class="ferme-chip ferme-chip--@a.Tone">@a.Statut</span>
+                            <a asp-controller="Actifs" asp-action="Details" asp-route-id="@a.Id" class="ferme-chip ferme-chip--@a.Tone">@a.Statut</a>
                         </li>
                     }
                 </ul>
@@ -196,7 +197,7 @@
 
         <section class="ferme-panel">
             <header class="ferme-panel-head">
-                <h2>Alertes stocks</h2>
+                <h2>Stocks faibles</h2>
                 <a asp-controller="Stocks" asp-action="Index">Stocks</a>
             </header>
             @if (Model.AlertesStock.Count == 0)
@@ -222,7 +223,7 @@
 
         <section class="ferme-panel">
             <header class="ferme-panel-head">
-                <h2>Activité récente</h2>
+                <h2>Activité du jour / récente</h2>
             </header>
             @if (Model.ActiviteRecente.Count == 0)
             {

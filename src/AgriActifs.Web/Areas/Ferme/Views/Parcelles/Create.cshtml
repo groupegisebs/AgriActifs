@@ -1,20 +1,38 @@
 @model Parcelle
 @{ ViewData["Title"] = Model.Id == 0 ? "Nouvelle parcelle" : "Modifier parcelle"; }
-<div class="container py-4" style="max-width:720px">
+<div class="container py-4" style="max-width:780px">
     <h1 class="h3 mb-3">@ViewData["Title"]</h1>
     <form method="post">
         <input type="hidden" asp-for="Id" />
         <input type="hidden" asp-for="ExploitationId" />
         <div class="row">
-            <div class="col-md-4 mb-3"><label asp-for="Code" class="form-label"></label><input asp-for="Code" class="form-control" /></div>
-            <div class="col-md-8 mb-3"><label asp-for="Name" class="form-label"></label><input asp-for="Name" class="form-control" /></div>
+            <div class="col-md-4 mb-3"><label asp-for="Code" class="form-label">Code</label><input asp-for="Code" class="form-control" /></div>
+            <div class="col-md-8 mb-3"><label asp-for="Name" class="form-label">Nom</label><input asp-for="Name" class="form-control" /></div>
         </div>
         <div class="row">
             <div class="col-md-4 mb-3"><label asp-for="AreaHa" class="form-label">Superficie (ha)</label><input asp-for="AreaHa" class="form-control" /></div>
             <div class="col-md-4 mb-3"><label asp-for="SoilType" class="form-label">Type de sol</label><input asp-for="SoilType" class="form-control" /></div>
-            <div class="col-md-4 mb-3 form-check mt-4"><input asp-for="HasIrrigation" class="form-check-input" /><label asp-for="HasIrrigation" class="form-check-label">Irrigation</label></div>
+            <div class="col-md-4 mb-3"><label asp-for="Etat" class="form-label">État</label><select asp-for="Etat" class="form-select" asp-items="Html.GetEnumSelectList<ParcelleEtat>()"></select></div>
         </div>
-        <div class="mb-3"><label asp-for="Notes" class="form-label"></label><textarea asp-for="Notes" class="form-control"></textarea></div>
+        <div class="row">
+            <div class="col-md-6 mb-3"><label asp-for="ResponsibleName" class="form-label">Chef / responsable</label><input asp-for="ResponsibleName" class="form-control" /></div>
+            <div class="col-md-6 mb-3 form-check mt-4"><input asp-for="HasIrrigation" class="form-check-input" /><label asp-for="HasIrrigation" class="form-check-label">Irrigation</label></div>
+        </div>
+        <h2 class="h6 text-muted">Cultures & rendement</h2>
+        <div class="row">
+            <div class="col-md-4 mb-3"><label asp-for="CurrentCulture" class="form-label">Culture actuelle</label><input asp-for="CurrentCulture" class="form-control" /></div>
+            <div class="col-md-4 mb-3"><label asp-for="PreviousCulture" class="form-label">Précédente</label><input asp-for="PreviousCulture" class="form-control" /></div>
+            <div class="col-md-4 mb-3"><label asp-for="PlannedCulture" class="form-label">Prévue</label><input asp-for="PlannedCulture" class="form-control" /></div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3"><label asp-for="SowingDate" class="form-label">Date semis</label><input asp-for="SowingDate" type="date" class="form-control" /></div>
+            <div class="col-md-6 mb-3"><label asp-for="HarvestDate" class="form-label">Date récolte</label><input asp-for="HarvestDate" type="date" class="form-control" /></div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3"><label asp-for="EstimatedYieldPerHa" class="form-label">Rendement estimé (t/ha)</label><input asp-for="EstimatedYieldPerHa" class="form-control" /></div>
+            <div class="col-md-6 mb-3"><label asp-for="ActualYieldPerHa" class="form-label">Rendement réel (t/ha)</label><input asp-for="ActualYieldPerHa" class="form-control" /></div>
+        </div>
+        <div class="mb-3"><label asp-for="Notes" class="form-label">Notes</label><textarea asp-for="Notes" class="form-control"></textarea></div>
         <div class="form-check mb-3"><input asp-for="IsActive" class="form-check-input" /><label asp-for="IsActive" class="form-check-label">Active</label></div>
         <button type="submit" class="btn btn-primary">Enregistrer</button>
         <a asp-action="Index" class="btn btn-link">Annuler</a>

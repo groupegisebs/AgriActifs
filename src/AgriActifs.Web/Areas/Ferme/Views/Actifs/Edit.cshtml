@@ -1,18 +1,21 @@
 @model ActifAgricole
 @{ ViewData["Title"] = Model.Id == 0 ? "Nouvel actif" : "Modifier actif"; }
-<div class="container py-4" style="max-width:800px">
+<div class="container py-4" style="max-width:900px">
     <h1 class="h3 mb-3">@ViewData["Title"]</h1>
     <form method="post">
         <input type="hidden" asp-for="Id" />
         <input type="hidden" asp-for="ExploitationId" />
         <input type="hidden" asp-for="CreatedAt" />
+
+        <h2 class="h6 text-muted">Identification</h2>
         <div class="row">
             <div class="col-md-4 mb-3"><label asp-for="InternalCode" class="form-label">Code</label><input asp-for="InternalCode" class="form-control" /></div>
             <div class="col-md-8 mb-3"><label asp-for="Name" class="form-label">Nom</label><input asp-for="Name" class="form-control" /></div>
         </div>
         <div class="row">
-            <div class="col-md-6 mb-3"><label asp-for="Categorie" class="form-label"></label><select asp-for="Categorie" class="form-select" asp-items="Html.GetEnumSelectList<ActifCategorie>()"></select></div>
-            <div class="col-md-6 mb-3"><label asp-for="Statut" class="form-label"></label><select asp-for="Statut" class="form-select" asp-items="Html.GetEnumSelectList<ActifStatut>()"></select></div>
+            <div class="col-md-4 mb-3"><label asp-for="Categorie" class="form-label">Catégorie</label><select asp-for="Categorie" class="form-select" asp-items="Html.GetEnumSelectList<ActifCategorie>()"></select></div>
+            <div class="col-md-4 mb-3"><label asp-for="SubCategory" class="form-label">Sous-catégorie</label><input asp-for="SubCategory" class="form-control" /></div>
+            <div class="col-md-4 mb-3"><label asp-for="Statut" class="form-label">Statut</label><select asp-for="Statut" class="form-select" asp-items="Html.GetEnumSelectList<ActifStatut>()"></select></div>
         </div>
         <div class="row">
             <div class="col-md-4 mb-3"><label asp-for="Brand" class="form-label">Marque</label><input asp-for="Brand" class="form-control" /></div>
@@ -21,16 +24,45 @@
         </div>
         <div class="row">
             <div class="col-md-6 mb-3"><label asp-for="SerialNumber" class="form-label">N° série</label><input asp-for="SerialNumber" class="form-control" /></div>
-            <div class="col-md-6 mb-3"><label asp-for="AcquisitionDate" class="form-label">Date acquisition</label><input asp-for="AcquisitionDate" class="form-control" type="date" /></div>
+            <div class="col-md-6 mb-3"><label asp-for="QrPayload" class="form-label">QR / code barre</label><input asp-for="QrPayload" class="form-control" /></div>
+        </div>
+        <div class="mb-3"><label asp-for="PhotoUrl" class="form-label">URL photo</label><input asp-for="PhotoUrl" class="form-control" /></div>
+
+        <h2 class="h6 text-muted mt-3">Localisation</h2>
+        <div class="row">
+            <div class="col-md-6 mb-3"><label asp-for="ParcelleId" class="form-label">Parcelle</label><select asp-for="ParcelleId" class="form-select" asp-items="ViewBag.Parcelles"><option value="">—</option></select></div>
+            <div class="col-md-6 mb-3"><label asp-for="Building" class="form-label">Bâtiment</label><input asp-for="Building" class="form-control" placeholder="Hangar A…" /></div>
         </div>
         <div class="row">
+            <div class="col-md-4 mb-3"><label asp-for="LocationNote" class="form-label">Note lieu</label><input asp-for="LocationNote" class="form-control" /></div>
+            <div class="col-md-4 mb-3"><label asp-for="GpsLat" class="form-label">GPS lat</label><input asp-for="GpsLat" class="form-control" /></div>
+            <div class="col-md-4 mb-3"><label asp-for="GpsLng" class="form-label">GPS lng</label><input asp-for="GpsLng" class="form-control" /></div>
+        </div>
+
+        <h2 class="h6 text-muted mt-3">Acquisition</h2>
+        <div class="row">
+            <div class="col-md-4 mb-3"><label asp-for="AcquisitionDate" class="form-label">Date</label><input asp-for="AcquisitionDate" class="form-control" type="date" /></div>
             <div class="col-md-4 mb-3"><label asp-for="AcquisitionValue" class="form-label">Valeur</label><input asp-for="AcquisitionValue" class="form-control" /></div>
+            <div class="col-md-4 mb-3"><label asp-for="FournisseurId" class="form-label">Fournisseur</label><select asp-for="FournisseurId" class="form-select" asp-items="ViewBag.Fournisseurs"><option value="">—</option></select></div>
+        </div>
+        <div class="row">
             <div class="col-md-4 mb-3"><label asp-for="UsefulLifeYears" class="form-label">Durée (ans)</label><input asp-for="UsefulLifeYears" class="form-control" /></div>
             <div class="col-md-4 mb-3"><label asp-for="ResidualValue" class="form-label">Valeur résiduelle</label><input asp-for="ResidualValue" class="form-control" /></div>
+            <div class="col-md-4 mb-3"><label asp-for="WarrantyEndDate" class="form-label">Fin garantie</label><input asp-for="WarrantyEndDate" class="form-control" type="date" /></div>
         </div>
-        <div class="mb-3"><label asp-for="ParcelleId" class="form-label">Parcelle</label><select asp-for="ParcelleId" class="form-select" asp-items="ViewBag.Parcelles"><option value="">—</option></select></div>
-        <div class="mb-3"><label asp-for="LocationNote" class="form-label">Localisation</label><input asp-for="LocationNote" class="form-control" /></div>
-        <div class="mb-3"><label asp-for="Notes" class="form-label"></label><textarea asp-for="Notes" class="form-control"></textarea></div>
+
+        <h2 class="h6 text-muted mt-3">Utilisation & maintenance</h2>
+        <div class="row">
+            <div class="col-md-4 mb-3"><label asp-for="EngineHours" class="form-label">Heures moteur</label><input asp-for="EngineHours" class="form-control" /></div>
+            <div class="col-md-4 mb-3"><label asp-for="OdometerKm" class="form-label">Odomètre (km)</label><input asp-for="OdometerKm" class="form-control" /></div>
+            <div class="col-md-4 mb-3"><label asp-for="LastUsedAt" class="form-label">Dernière utilisation</label><input asp-for="LastUsedAt" class="form-control" type="date" /></div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3"><label asp-for="NextServiceHours" class="form-label">Prochain service (h)</label><input asp-for="NextServiceHours" class="form-control" /></div>
+            <div class="col-md-6 mb-3"><label asp-for="NextServiceDate" class="form-label">Prochain service (date)</label><input asp-for="NextServiceDate" class="form-control" type="date" /></div>
+        </div>
+
+        <div class="mb-3"><label asp-for="Notes" class="form-label">Notes</label><textarea asp-for="Notes" class="form-control"></textarea></div>
         <div class="form-check mb-3"><input asp-for="IsActive" class="form-check-input" /><label asp-for="IsActive" class="form-check-label">Actif</label></div>
         <button type="submit" class="btn btn-primary">Enregistrer</button>
         <a asp-action="Index" class="btn btn-link">Annuler</a>

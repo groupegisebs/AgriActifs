@@ -42,7 +42,10 @@ public static class SeedData
         await permissionAdmin.EnsureSuperAdminGrantsAsync();
 
         if (configuration.GetValue("Seed:IncludeDemoData", true))
+        {
             await SeedDemoAsync(context, userManager);
+            await EnsureDemoPatrimoineAsync(context);
+        }
     }
 
     private static async Task SeedRolesAsync(RoleManager<ApplicationRole> roleManager)
@@ -215,11 +218,38 @@ public static class SeedData
 
         var parcelles = new[]
         {
-            new Parcelle { ExploitationId = exploitation.Id, Code = "P01", Name = "Champ Nord", AreaHa = 18, SoilType = "Loam", HasIrrigation = true },
-            new Parcelle { ExploitationId = exploitation.Id, Code = "P02", Name = "Champ Sud", AreaHa = 22, SoilType = "Argile", HasIrrigation = false },
-            new Parcelle { ExploitationId = exploitation.Id, Code = "P03", Name = "Vallée", AreaHa = 15, SoilType = "Sableux", HasIrrigation = true },
-            new Parcelle { ExploitationId = exploitation.Id, Code = "P04", Name = "Plateau", AreaHa = 12, SoilType = "Loam", HasIrrigation = false },
-            new Parcelle { ExploitationId = exploitation.Id, Code = "P05", Name = "Bordure", AreaHa = 13, SoilType = "Limoneux", HasIrrigation = true }
+            new Parcelle
+            {
+                ExploitationId = exploitation.Id, Code = "P01", Name = "Champ Nord", AreaHa = 18, SoilType = "Loam",
+                HasIrrigation = true, CurrentCulture = "Maïs", PreviousCulture = "Soya", PlannedCulture = "Blé",
+                EstimatedYieldPerHa = 8.5m, ActualYieldPerHa = 8.2m, ResponsibleName = "Jean",
+                Etat = ParcelleEtat.EnProduction, SowingDate = new DateTime(2026, 5, 10)
+            },
+            new Parcelle
+            {
+                ExploitationId = exploitation.Id, Code = "P02", Name = "Champ Sud", AreaHa = 22, SoilType = "Argile",
+                HasIrrigation = false, CurrentCulture = "Soya", PreviousCulture = "Maïs",
+                EstimatedYieldPerHa = 3.2m, ResponsibleName = "Marie", Etat = ParcelleEtat.EnProduction,
+                SowingDate = new DateTime(2026, 5, 18)
+            },
+            new Parcelle
+            {
+                ExploitationId = exploitation.Id, Code = "P03", Name = "Vallée", AreaHa = 15, SoilType = "Sableux",
+                HasIrrigation = true, CurrentCulture = "Blé", EstimatedYieldPerHa = 4.5m,
+                ResponsibleName = "Luc", Etat = ParcelleEtat.EnProduction
+            },
+            new Parcelle
+            {
+                ExploitationId = exploitation.Id, Code = "P04", Name = "Plateau", AreaHa = 12, SoilType = "Loam",
+                HasIrrigation = false, CurrentCulture = null, PlannedCulture = "Maïs",
+                Etat = ParcelleEtat.EnPreparation, ResponsibleName = "Jean"
+            },
+            new Parcelle
+            {
+                ExploitationId = exploitation.Id, Code = "P05", Name = "Bordure", AreaHa = 13, SoilType = "Limoneux",
+                HasIrrigation = true, CurrentCulture = "Fourrage", Etat = ParcelleEtat.EnProduction,
+                ResponsibleName = "Claire"
+            }
         };
         db.Parcelles.AddRange(parcelles);
         await db.SaveChangesAsync();
@@ -229,19 +259,7 @@ public static class SeedData
             new Assolement { ParcelleId = parcelles[1].Id, Season = "2026", Culture = "Soya", YieldPerHa = 3.1m },
             new Assolement { ParcelleId = parcelles[2].Id, Season = "2026", Culture = "Blé", YieldPerHa = 4.5m });
 
-        var actifs = new[]
-        {
-            new ActifAgricole { ExploitationId = exploitation.Id, InternalCode = "TR-01", Name = "Tracteur John Deere 6155R", Categorie = ActifCategorie.MaterielRoulant, Brand = "John Deere", Model = "6155R", Year = 2019, AcquisitionValue = 185000, AcquisitionDate = new DateTime(2019, 4, 12), ParcelleId = parcelles[0].Id },
-            new ActifAgricole { ExploitationId = exploitation.Id, InternalCode = "TR-02", Name = "Tracteur New Holland T6", Categorie = ActifCategorie.MaterielRoulant, Brand = "New Holland", Model = "T6.180", Year = 2016, AcquisitionValue = 95000, AcquisitionDate = new DateTime(2016, 6, 1) },
-            new ActifAgricole { ExploitationId = exploitation.Id, InternalCode = "MO-01", Name = "Moissonneuse Case IH", Categorie = ActifCategorie.MaterielRoulant, Brand = "Case IH", Model = "6140", Year = 2018, AcquisitionValue = 320000, AcquisitionDate = new DateTime(2018, 8, 20) },
-            new ActifAgricole { ExploitationId = exploitation.Id, InternalCode = "OU-01", Name = "Semoir de précision", Categorie = ActifCategorie.Outillage, Brand = "Kinze", Model = "3600", Year = 2020, AcquisitionValue = 78000 },
-            new ActifAgricole { ExploitationId = exploitation.Id, InternalCode = "OU-02", Name = "Pulvérisateur traîné", Categorie = ActifCategorie.Outillage, Brand = "Hardi", Model = "Navigator", Year = 2017, AcquisitionValue = 42000 },
-            new ActifAgricole { ExploitationId = exploitation.Id, InternalCode = "IR-01", Name = "Pivot d'irrigation", Categorie = ActifCategorie.Irrigation, Brand = "Valley", Year = 2015, AcquisitionValue = 110000, ParcelleId = parcelles[0].Id },
-            new ActifAgricole { ExploitationId = exploitation.Id, InternalCode = "BA-01", Name = "Hangar matériel", Categorie = ActifCategorie.Batiment, AcquisitionValue = 250000, AcquisitionDate = new DateTime(2012, 1, 1), LocationNote = "Siège" },
-            new ActifAgricole { ExploitationId = exploitation.Id, InternalCode = "BA-02", Name = "Silo à grains", Categorie = ActifCategorie.Batiment, AcquisitionValue = 65000, Year = 2014 }
-        };
-        db.ActifsAgricoles.AddRange(actifs);
-        await db.SaveChangesAsync();
+        await SeedActifsForExploitationAsync(db, exploitation.Id, parcelles);
 
         db.StockArticles.AddRange(
             new StockArticle { ExploitationId = exploitation.Id, Sku = "SEM-MAIS", Name = "Semences maïs P9870", Categorie = StockCategorie.Semences, Unit = "sac", QuantityOnHand = 12, ReorderLevel = 5, UnitCost = 320 },
@@ -258,19 +276,180 @@ public static class SeedData
             new StockArticle { ExploitationId = exploitation.Id, Sku = "PIE-COUR", Name = "Courroies", Categorie = StockCategorie.Pieces, Unit = "u", QuantityOnHand = 2, ReorderLevel = 3, UnitCost = 55 }
         );
 
-        db.Interventions.AddRange(
-            new InterventionMaintenance { ExploitationId = exploitation.Id, ActifAgricoleId = actifs[0].Id, Title = "Entretien 500h", Type = InterventionType.Preventif, Statut = InterventionStatut.Ouverte, PlannedDate = DateTime.UtcNow.Date.AddDays(3), LaborCost = 350, Description = "Vidange et filtres" },
-            new InterventionMaintenance { ExploitationId = exploitation.Id, ActifAgricoleId = actifs[2].Id, Title = "Réparation convoyeur", Type = InterventionType.Correctif, Statut = InterventionStatut.EnCours, PlannedDate = DateTime.UtcNow.Date.AddDays(-1), LaborCost = 800, PartsCost = 450 },
-            new InterventionMaintenance { ExploitationId = exploitation.Id, ActifAgricoleId = actifs[1].Id, Title = "Contrôle annuel", Type = InterventionType.Preventif, Statut = InterventionStatut.Cloturee, PlannedDate = DateTime.UtcNow.Date.AddDays(-30), CompletedDate = DateTime.UtcNow.Date.AddDays(-28), LaborCost = 200, Report = "OK" },
-            new InterventionMaintenance { ExploitationId = exploitation.Id, ActifAgricoleId = actifs[5].Id, Title = "Inspection pivot", Type = InterventionType.Preventif, Statut = InterventionStatut.Cloturee, PlannedDate = DateTime.UtcNow.Date.AddDays(-60), CompletedDate = DateTime.UtcNow.Date.AddDays(-59), LaborCost = 150 }
-        );
+        var actifs = await db.ActifsAgricoles.Where(a => a.ExploitationId == exploitation.Id).OrderBy(a => a.InternalCode).ToListAsync();
+        if (actifs.Count >= 6)
+        {
+            db.Interventions.AddRange(
+                new InterventionMaintenance { ExploitationId = exploitation.Id, ActifAgricoleId = actifs[0].Id, Title = "Entretien 500h", Type = InterventionType.Preventif, Statut = InterventionStatut.Ouverte, PlannedDate = DateTime.UtcNow.Date.AddDays(3), LaborCost = 350, Description = "Vidange et filtres" },
+                new InterventionMaintenance { ExploitationId = exploitation.Id, ActifAgricoleId = actifs[2].Id, Title = "Réparation convoyeur", Type = InterventionType.Correctif, Statut = InterventionStatut.EnCours, PlannedDate = DateTime.UtcNow.Date.AddDays(-1), LaborCost = 800, PartsCost = 450 },
+                new InterventionMaintenance { ExploitationId = exploitation.Id, ActifAgricoleId = actifs[1].Id, Title = "Contrôle annuel", Type = InterventionType.Preventif, Statut = InterventionStatut.Cloturee, PlannedDate = DateTime.UtcNow.Date.AddDays(-30), CompletedDate = DateTime.UtcNow.Date.AddDays(-28), LaborCost = 200, Report = "OK" },
+                new InterventionMaintenance { ExploitationId = exploitation.Id, ActifAgricoleId = actifs[5].Id, Title = "Inspection pivot", Type = InterventionType.Preventif, Statut = InterventionStatut.Cloturee, PlannedDate = DateTime.UtcNow.Date.AddDays(-60), CompletedDate = DateTime.UtcNow.Date.AddDays(-59), LaborCost = 150 }
+            );
+            actifs[2].Statut = ActifStatut.EnMaintenance;
+        }
 
         db.Fournisseurs.AddRange(
             new Fournisseur { ExploitationId = exploitation.Id, Name = "Machinerie Centre-du-Québec", ContactName = "Paul Tremblay", Email = "ventes@mcq.demo", Phone = "450-555-0101" },
             new Fournisseur { ExploitationId = exploitation.Id, Name = "AgriIntrants Plus", ContactName = "Sophie Roy", Email = "commande@aip.demo", Phone = "450-555-0102" }
         );
 
-        actifs[2].Statut = ActifStatut.EnMaintenance;
+        await db.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Si une exploitation existe sans actifs (seed partiel), complète le parc démo.
+    /// </summary>
+    private static async Task EnsureDemoPatrimoineAsync(ApplicationDbContext db)
+    {
+        var exploitation = await db.Exploitations
+            .FirstOrDefaultAsync(e => e.Name == "Ferme des Érables");
+        if (exploitation is null) return;
+
+        if (await db.ActifsAgricoles.AnyAsync(a => a.ExploitationId == exploitation.Id))
+            return;
+
+        var parcelles = await db.Parcelles
+            .Where(p => p.ExploitationId == exploitation.Id)
+            .OrderBy(p => p.Code)
+            .ToListAsync();
+
+        if (parcelles.Count == 0)
+        {
+            parcelles =
+            [
+                new Parcelle
+                {
+                    ExploitationId = exploitation.Id, Code = "P01", Name = "Champ Nord", AreaHa = 18,
+                    CurrentCulture = "Maïs", EstimatedYieldPerHa = 8.2m, ResponsibleName = "Jean",
+                    Etat = ParcelleEtat.EnProduction, HasIrrigation = true
+                }
+            ];
+            db.Parcelles.AddRange(parcelles);
+            await db.SaveChangesAsync();
+        }
+        else
+        {
+            foreach (var p in parcelles.Where(x => string.IsNullOrEmpty(x.CurrentCulture)))
+            {
+                var last = await db.Assolements.AsNoTracking()
+                    .Where(a => a.ParcelleId == p.Id)
+                    .OrderByDescending(a => a.Season)
+                    .FirstOrDefaultAsync();
+                if (last is null) continue;
+                p.CurrentCulture = last.Culture;
+                p.EstimatedYieldPerHa ??= last.YieldPerHa;
+                if (p.Etat == ParcelleEtat.EnJachere)
+                    p.Etat = ParcelleEtat.EnProduction;
+            }
+        }
+
+        await SeedActifsForExploitationAsync(db, exploitation.Id, parcelles.ToArray());
+
+        if (!await db.Interventions.AnyAsync(i => i.ExploitationId == exploitation.Id))
+        {
+            var actifs = await db.ActifsAgricoles
+                .Where(a => a.ExploitationId == exploitation.Id)
+                .OrderBy(a => a.InternalCode)
+                .ToListAsync();
+            if (actifs.Count >= 3)
+            {
+                db.Interventions.AddRange(
+                    new InterventionMaintenance
+                    {
+                        ExploitationId = exploitation.Id,
+                        ActifAgricoleId = actifs[0].Id,
+                        Title = "Entretien 500h",
+                        Type = InterventionType.Preventif,
+                        Statut = InterventionStatut.Ouverte,
+                        PlannedDate = DateTime.UtcNow.Date.AddDays(3),
+                        LaborCost = 350,
+                        Description = "Vidange et filtres"
+                    },
+                    new InterventionMaintenance
+                    {
+                        ExploitationId = exploitation.Id,
+                        ActifAgricoleId = actifs[Math.Min(2, actifs.Count - 1)].Id,
+                        Title = "Réparation convoyeur",
+                        Type = InterventionType.Correctif,
+                        Statut = InterventionStatut.EnCours,
+                        PlannedDate = DateTime.UtcNow.Date.AddDays(-1),
+                        LaborCost = 800,
+                        PartsCost = 450
+                    });
+                actifs[Math.Min(2, actifs.Count - 1)].Statut = ActifStatut.EnMaintenance;
+            }
+        }
+
+        await db.SaveChangesAsync();
+    }
+
+    private static async Task SeedActifsForExploitationAsync(
+        ApplicationDbContext db,
+        int exploitationId,
+        Parcelle[] parcelles)
+    {
+        var p0 = parcelles.ElementAtOrDefault(0)?.Id;
+        var actifs = new[]
+        {
+            new ActifAgricole
+            {
+                ExploitationId = exploitationId, InternalCode = "TR-01", Name = "Tracteur John Deere 6155M",
+                Categorie = ActifCategorie.Machinerie, SubCategory = "Tracteur", Brand = "John Deere", Model = "6155M",
+                Year = 2019, AcquisitionValue = 185000, AcquisitionDate = new DateTime(2019, 4, 12),
+                ParcelleId = p0, Building = "Hangar A", EngineHours = 4820, NextServiceHours = 5000,
+                NextServiceDate = DateTime.UtcNow.Date.AddDays(14), WarrantyEndDate = DateTime.UtcNow.Date.AddDays(20),
+                QrPayload = "TR-01", GpsLat = 45.6308, GpsLng = -72.9569, LocationNote = "Hangar A"
+            },
+            new ActifAgricole
+            {
+                ExploitationId = exploitationId, InternalCode = "TR-02", Name = "Tracteur New Holland T6",
+                Categorie = ActifCategorie.Machinerie, Brand = "New Holland", Model = "T6.180", Year = 2016,
+                AcquisitionValue = 95000, AcquisitionDate = new DateTime(2016, 6, 1),
+                EngineHours = 7100, NextServiceHours = 7000, NextServiceDate = DateTime.UtcNow.Date.AddDays(-5),
+                Building = "Hangar A", QrPayload = "TR-02", Statut = ActifStatut.EnService
+            },
+            new ActifAgricole
+            {
+                ExploitationId = exploitationId, InternalCode = "MO-01", Name = "Moissonneuse Case IH",
+                Categorie = ActifCategorie.Machinerie, Brand = "Case IH", Model = "6140", Year = 2018,
+                AcquisitionValue = 320000, AcquisitionDate = new DateTime(2018, 8, 20),
+                EngineHours = 2100, NextServiceHours = 2500, Building = "Hangar B", QrPayload = "MO-01"
+            },
+            new ActifAgricole
+            {
+                ExploitationId = exploitationId, InternalCode = "VH-01", Name = "Camion grain 10 roues",
+                Categorie = ActifCategorie.Vehicules, Brand = "Freightliner", Year = 2015,
+                AcquisitionValue = 78000, OdometerKm = 245000, NextServiceDate = DateTime.UtcNow.Date.AddDays(40),
+                Building = "Garage", QrPayload = "VH-01"
+            },
+            new ActifAgricole
+            {
+                ExploitationId = exploitationId, InternalCode = "OU-01", Name = "Semoir de précision",
+                Categorie = ActifCategorie.Outillage, Brand = "Kinze", Model = "3600", Year = 2020,
+                AcquisitionValue = 78000, Building = "Hangar A", QrPayload = "OU-01"
+            },
+            new ActifAgricole
+            {
+                ExploitationId = exploitationId, InternalCode = "IR-01", Name = "Pompe irrigation principale",
+                Categorie = ActifCategorie.Irrigation, Brand = "Valley", Year = 2015, AcquisitionValue = 110000,
+                ParcelleId = p0, EngineHours = 3200, NextServiceHours = 3500, QrPayload = "IR-01",
+                LocationNote = "Réservoir principal"
+            },
+            new ActifAgricole
+            {
+                ExploitationId = exploitationId, InternalCode = "EN-01", Name = "Génératrice diesel 50 kW",
+                Categorie = ActifCategorie.Energie, Brand = "Generac", Year = 2021, AcquisitionValue = 18500,
+                Building = "Atelier", EngineHours = 410, NextServiceHours = 500, QrPayload = "EN-01"
+            },
+            new ActifAgricole
+            {
+                ExploitationId = exploitationId, InternalCode = "BA-01", Name = "Hangar matériel",
+                Categorie = ActifCategorie.Installations, AcquisitionValue = 250000,
+                AcquisitionDate = new DateTime(2012, 1, 1), Building = "Hangar A", LocationNote = "Siège",
+                QrPayload = "BA-01"
+            }
+        };
+        db.ActifsAgricoles.AddRange(actifs);
         await db.SaveChangesAsync();
     }
 

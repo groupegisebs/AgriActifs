@@ -9,7 +9,7 @@ set -euo pipefail
 : "${APP_ROOT:?APP_ROOT requis}"
 : "${SERVICE_NAME:?SERVICE_NAME requis}"
 : "${DLL_NAME:=AgriActifs.Web.dll}"
-: "${LISTEN_PORT:=5051}"
+: "${LISTEN_PORT:=5071}"
 : "${CONNECTION_STRING:?CONNECTION_STRING requis}"
 : "${DATABASE_PROVIDER:=PostgreSQL}"
 : "${DATABASE_SCHEMA:=agriactifs}"

@@ -5,7 +5,7 @@
   "appRoot": "/opt/apps/agriactifs",
   "dllName": "AgriActifs.Web.dll",
   "projectPath": "src/AgriActifs.Web/AgriActifs.Web.csproj",
-  "healthCheckUrl": "http://localhost:5051",
-  "listenPort": 5051,
+  "healthCheckUrl": "http://localhost:5071",
+  "listenPort": 5071,
   "sshIdentityKey": "cognidoc_deploy"
 }

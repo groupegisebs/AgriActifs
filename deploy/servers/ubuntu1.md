@@ -30,7 +30,7 @@ Convention : **`SSH_*_UBUNTU1`** à l’organisation, **`UBUNTU1_*`** au dépôt
 | `UBUNTU1_CONNECTION_STRING` | Chaîne PostgreSQL (même host BD, schéma `agriactifs`) |
 | `UBUNTU1_APP_ROOT` | `/opt/apps/agriactifs` |
 | `UBUNTU1_SERVICE_NAME` | `agriactifs` |
-| `UBUNTU1_LISTEN_PORT` | `5051` |
+| `UBUNTU1_LISTEN_PORT` | `5071` |
 | `UBUNTU1_APP_NAME` | `AgriActifs` *(optionnel)* |
 
 ---
@@ -41,7 +41,7 @@ Convention : **`SSH_*_UBUNTU1`** à l’organisation, **`UBUNTU1_*`** au dépôt
 |-------|--------|
 | Scheme | **`http`** |
 | Forward Host | `172.17.0.1` |
-| Forward Port | `5051` |
+| Forward Port | `5071` |
 
 ---
 

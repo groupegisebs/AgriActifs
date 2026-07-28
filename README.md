@@ -14,7 +14,7 @@ dotnet ef database update --project src/AgriActifs.Web
 dotnet run --project src/AgriActifs.Web --launch-profile https
 ```
 
-URL : https://localhost:7121 (http://localhost:5051)
+URL : https://localhost:7121 (http://localhost:5071)
 
 ## Comptes démo
 
@@ -60,7 +60,7 @@ Sur le serveur une fois :
 sudo mkdir -p /opt/apps/agriactifs && sudo chown ubuntu:ubuntu /opt/apps/agriactifs
 ```
 
-Secrets dépôt : `UBUNTU1_APP_ROOT=/opt/apps/agriactifs`, `UBUNTU1_SERVICE_NAME=agriactifs`, `UBUNTU1_LISTEN_PORT=5051`, `UBUNTU1_CONNECTION_STRING=...`
+Secrets dépôt : `UBUNTU1_APP_ROOT=/opt/apps/agriactifs`, `UBUNTU1_SERVICE_NAME=agriactifs`, `UBUNTU1_LISTEN_PORT=5071`, `UBUNTU1_CONNECTION_STRING=...`
 
 ## Modules
 

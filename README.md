@@ -43,13 +43,24 @@ Puis renseigner la chaîne PostgreSQL. Le fichier `*.local.json` est ignoré par
 
 ```powershell
 cd AgriActifs
-git init -b main   # déjà fait si vous avez suivi la prep
 git add -A
 git commit -m "Initial commit: AgriActifs MVP (ferme agricole)"
 # Créer le repo vide sur github.com puis :
 git remote add origin https://github.com/VOTRE_ORG/AgriActifs.git
 git push -u origin main
 ```
+
+## Déploiement serveur (GitHub Actions)
+
+Même pipeline que ComptaDoc. Voir [`deploy/servers/ubuntu1.md`](deploy/servers/ubuntu1.md).
+
+Sur le serveur une fois :
+
+```bash
+sudo mkdir -p /opt/apps/agriactifs && sudo chown ubuntu:ubuntu /opt/apps/agriactifs
+```
+
+Secrets dépôt : `UBUNTU1_APP_ROOT=/opt/apps/agriactifs`, `UBUNTU1_SERVICE_NAME=agriactifs`, `UBUNTU1_LISTEN_PORT=5051`, `UBUNTU1_CONNECTION_STRING=...`
 
 ## Modules
 

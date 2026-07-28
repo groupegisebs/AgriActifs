@@ -16,6 +16,10 @@ set -euo pipefail
 : "${PUBLISH_DIR:=publish}"
 : "${SSH_PORT:=22}"
 : "${APP_NAME:=AgriActifs}"
+: "${MAILGATEWAY_BASE_URL:=https://gisemailsender.gisebs.com}"
+: "${MAILGATEWAY_CLIENT_CODE:=AGRIACTIFS}"
+: "${MAILGATEWAY_API_KEY:=}"
+: "${MAILGATEWAY_TEMPLATE_CODE:=REQUEST}"
 
 sanitize() {
   printf '%s' "$1" | tr -d '\r\n\t' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' -e 's/^"//' -e 's/"$//' -e "s/^'//" -e "s/'$//"
@@ -35,6 +39,10 @@ APP_NAME=$(sanitize "${APP_NAME}")
 DLL_NAME=$(sanitize "${DLL_NAME}")
 DATABASE_SCHEMA=$(sanitize "${DATABASE_SCHEMA}")
 DATABASE_PROVIDER=$(sanitize "${DATABASE_PROVIDER}")
+MAILGATEWAY_BASE_URL=$(sanitize "${MAILGATEWAY_BASE_URL}")
+MAILGATEWAY_CLIENT_CODE=$(sanitize "${MAILGATEWAY_CLIENT_CODE}")
+MAILGATEWAY_API_KEY=$(sanitize "${MAILGATEWAY_API_KEY}")
+MAILGATEWAY_TEMPLATE_CODE=$(sanitize "${MAILGATEWAY_TEMPLATE_CODE}")
 
 if [[ ! "$SSH_HOST" =~ ^[0-9a-zA-Z.-]+$ ]]; then
   echo "SSH_HOST invalide — IP ou hostname seul (ex. 51.79.53.197)" >&2
@@ -84,6 +92,14 @@ ENV_FILE="$(mktemp)"
   printf 'ConnectionStrings__DefaultConnection=%s\n' "${CONNECTION_STRING}"
   printf 'Database__Provider=%s\n' "${DATABASE_PROVIDER}"
   printf 'Database__Schema=%s\n' "${DATABASE_SCHEMA}"
+  if [[ -n "${MAILGATEWAY_API_KEY}" ]]; then
+    printf 'Email__MailGateway__BaseUrl=%s\n' "${MAILGATEWAY_BASE_URL}"
+    printf 'Email__MailGateway__ApiKey=%s\n' "${MAILGATEWAY_API_KEY}"
+    printf 'Email__MailGateway__ClientCode=%s\n' "${MAILGATEWAY_CLIENT_CODE}"
+    printf 'Email__MailGateway__TransactionalTemplateCode=%s\n' "${MAILGATEWAY_TEMPLATE_CODE}"
+  else
+    echo "WARN: MAILGATEWAY_API_KEY vide — e-mails SecureMail désactivés (secret AGRIACTIFS_MAILGATEWAY_API_KEY)." >&2
+  fi
 } > "${ENV_FILE}"
 scp "${SCP_OPTS[@]}" "${ENV_FILE}" "${SSH_TARGET}:/tmp/${SERVICE_NAME}.app.env"
 rm -f "${ENV_FILE}"

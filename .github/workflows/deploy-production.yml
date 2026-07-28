@@ -70,8 +70,21 @@ jobs:
           APP_NAME_RAW: ${{ secrets.UBUNTU1_APP_NAME || 'AgriActifs' }}
           LISTEN_PORT_RAW: ${{ secrets.UBUNTU1_LISTEN_PORT || '5071' }}
           CONNECTION_STRING_RAW: ${{ secrets.UBUNTU1_CONNECTION_STRING }}
+          MG_API_KEY: ${{ secrets.AGRIACTIFS_MAILGATEWAY_API_KEY }}
+          MG_BASE_URL: ${{ vars.AGRIACTIFS_MAILGATEWAY_BASE_URL }}
+          MG_CLIENT_CODE: ${{ vars.AGRIACTIFS_MAILGATEWAY_CLIENT_CODE }}
+          MG_TEMPLATE: ${{ vars.AGRIACTIFS_MAILGATEWAY_TEMPLATE_CODE }}
         run: |
           source deploy/gha-env.sh
+          pick_first() {
+            for v in "$@"; do
+              if [ -n "$v" ]; then
+                printf '%s' "$v"
+                return 0
+              fi
+            done
+            return 1
+          }
           missing=0
           if [ -z "$SSH_PRIVATE_KEY" ]; then
             echo "::error::SSH_PRIVATE_KEY_UBUNTU1 manquant."
@@ -102,6 +115,9 @@ jobs:
             echo "::error::UBUNTU1_CONNECTION_STRING manquant (secret repo)"
             missing=1
           fi
+          if [ -z "$MG_API_KEY" ]; then
+            echo "::warning::AGRIACTIFS_MAILGATEWAY_API_KEY manquant — e-mails SecureMail désactivés jusqu'à configuration."
+          fi
           if [ "$missing" -eq 1 ]; then exit 1; fi
 
           SSH_HOST=$(gha_sanitize_host "$SSH_HOST_RAW")
@@ -112,6 +128,10 @@ jobs:
           APP_NAME=$(gha_sanitize "$APP_NAME_RAW")
           LISTEN_PORT=$(gha_sanitize "$LISTEN_PORT_RAW")
           CONNECTION_STRING=$(gha_sanitize "$CONNECTION_STRING_RAW")
+          MAILGATEWAY_BASE_URL=$(pick_first "$MG_BASE_URL" "https://gisemailsender.gisebs.com") || true
+          MAILGATEWAY_API_KEY=$(pick_first "$MG_API_KEY") || true
+          MAILGATEWAY_CLIENT_CODE=$(pick_first "$MG_CLIENT_CODE" "AGRIACTIFS") || true
+          MAILGATEWAY_TEMPLATE_CODE=$(pick_first "$MG_TEMPLATE" "TRANSACTIONAL") || true
 
           if [[ ! "$SSH_HOST" =~ ^[0-9a-zA-Z.-]+$ ]]; then
             echo "::error::SSH_HOST_UBUNTU1 format invalide — IP seule (ex. 51.79.53.197)"
@@ -134,7 +154,11 @@ jobs:
           gha_write_env APP_NAME "$APP_NAME"
           gha_write_env LISTEN_PORT "$LISTEN_PORT"
           gha_write_env CONNECTION_STRING "$CONNECTION_STRING"
-          echo "Configuration OK (host=${SSH_HOST}, user=${SSH_USER}, port=${SSH_PORT}, app=${APP_ROOT})"
+          gha_write_env MAILGATEWAY_BASE_URL "$(gha_sanitize "$MAILGATEWAY_BASE_URL")"
+          gha_write_env MAILGATEWAY_API_KEY "$(gha_sanitize "$MAILGATEWAY_API_KEY")"
+          gha_write_env MAILGATEWAY_CLIENT_CODE "$(gha_sanitize "$MAILGATEWAY_CLIENT_CODE")"
+          gha_write_env MAILGATEWAY_TEMPLATE_CODE "$(gha_sanitize "$MAILGATEWAY_TEMPLATE_CODE")"
+          echo "Configuration OK (host=${SSH_HOST}, user=${SSH_USER}, port=${SSH_PORT}, mailgateway=$([ -n "$MAILGATEWAY_API_KEY" ] && echo OK || echo OFF))"
 
       - name: Setup SSH key
         id: ssh
@@ -161,6 +185,10 @@ jobs:
           DATABASE_SCHEMA: agriactifs
           DLL_NAME: ${{ env.DLL_NAME }}
           PUBLISH_DIR: publish
+          MAILGATEWAY_BASE_URL: ${{ env.MAILGATEWAY_BASE_URL }}
+          MAILGATEWAY_API_KEY: ${{ env.MAILGATEWAY_API_KEY }}
+          MAILGATEWAY_CLIENT_CODE: ${{ env.MAILGATEWAY_CLIENT_CODE }}
+          MAILGATEWAY_TEMPLATE_CODE: ${{ env.MAILGATEWAY_TEMPLATE_CODE }}
         run: bash deploy/deploy-gha.sh
 
       - name: Service status

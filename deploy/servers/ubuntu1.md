@@ -44,6 +44,23 @@ Créer les mêmes noms (`SSH_PRIVATE_KEY_UBUNTU1`, `SSH_HOST_UBUNTU1`, `SSH_USER
 | `UBUNTU1_SERVICE_NAME` | `agriactifs` |
 | `UBUNTU1_LISTEN_PORT` | `5071` |
 | `UBUNTU1_APP_NAME` | `AgriActifs` *(optionnel)* |
+| **`AGRIACTIFS_MAILGATEWAY_API_KEY`** | Token API SecureMail (client `AGRIACTIFS`) — **secret uniquement, jamais dans appsettings** |
+
+### Variables (optionnel)
+
+| Variable | Valeur |
+|----------|--------|
+| `AGRIACTIFS_MAILGATEWAY_BASE_URL` | `https://gisemailsender.gisebs.com` |
+| `AGRIACTIFS_MAILGATEWAY_CLIENT_CODE` | `AGRIACTIFS` |
+| `AGRIACTIFS_MAILGATEWAY_TEMPLATE_CODE` | `TRANSACTIONAL` |
+
+> Le workflow écrit `Email__MailGateway__ApiKey` dans `/opt/apps/agriactifs/app/app.env` au déploiement.
+
+### Local (dev)
+
+```powershell
+dotnet user-secrets set "Email:MailGateway:ApiKey" "<token>" --project src/AgriActifs.Web
+```
 
 ---
 

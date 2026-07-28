@@ -47,6 +47,8 @@ public static class SeedData
         await SeedSuperAdminAsync(userManager);
         await EnsureUserAsync(userManager, AdminEmail, AdminPassword, "Admin", "Agri", AppRoles.Admin);
         await permissionAdmin.EnsureSuperAdminGrantsAsync();
+        await permissionAdmin.EnsureRoleCategoryGrantsAsync(AppRoles.Admin, "Ferme");
+        await EnsureDemoFermeRoleGrantsAsync(permissionAdmin);
 
         if (configuration.GetValue("Seed:IncludeDemoData", true))
         {
@@ -55,6 +57,36 @@ public static class SeedData
             await EnsureDemoPhase2Async(context);
             await EnsureDemoPhase34Async(context);
         }
+    }
+
+    /// <summary>Permissions différenciées par rôle métier ferme.</summary>
+    private static async Task EnsureDemoFermeRoleGrantsAsync(IPermissionAdminService permissionAdmin)
+    {
+        var viewOnly = new[]
+        {
+            "FermeDashboard.View", "Exploitations.View", "Parcelles.View", "Actifs.View", "Actifs.Export",
+            "Stocks.View", "Maintenance.View", "Fournisseurs.View", "Activites.View", "Documents.View",
+            "Notifications.View", "Irrigation.View", "Energie.View", "RapportsFerme.View", "Carte.View",
+            "Capteurs.View", "Readiness.View", "Terrain.View"
+        };
+
+        var ouvrier = viewOnly.Concat(
+        [
+            "Activites.Manage", "Maintenance.Manage", "Stocks.Adjust", "Terrain.Manage", "Notifications.View"
+        ]).Distinct().ToArray();
+
+        var technicien = ouvrier.Concat(
+        [
+            "Actifs.Create", "Actifs.Edit", "Stocks.Manage", "Maintenance.Close",
+            "Capteurs.Manage", "Irrigation.Manage", "Energie.Manage",
+            "Documents.Manage", "Fournisseurs.View", "Parcelles.Manage"
+        ]).Distinct().ToArray();
+
+        // Gérant : toute la catégorie Ferme
+        await permissionAdmin.EnsureRoleCategoryGrantsAsync(AppRoles.Gerant, "Ferme");
+        await permissionAdmin.EnsureRolePermissionCodesAsync(AppRoles.Technicien, technicien);
+        await permissionAdmin.EnsureRolePermissionCodesAsync(AppRoles.Ouvrier, ouvrier);
+        await permissionAdmin.EnsureRolePermissionCodesAsync(AppRoles.Observateur, viewOnly);
     }
 
     private static async Task SeedRolesAsync(RoleManager<ApplicationRole> roleManager)
@@ -67,11 +99,22 @@ public static class SeedData
             await roleManager.CreateAsync(new ApplicationRole
             {
                 Name = roleName,
-                Description = "Rôle fondateur — seul rôle créé automatiquement. Les autres rôles se créent via Admin > Rôles.",
+                Description = RoleDescription(roleName),
                 IsSystemRole = true
             });
         }
     }
+
+    private static string RoleDescription(string roleName) => roleName switch
+    {
+        AppRoles.Gerant => "Gérant d'exploitation — accès complet au module Ferme.",
+        AppRoles.Technicien => "Technicien — actifs, stocks, capteurs, irrigation (sans supprimer ni gérer l'exploitation).",
+        AppRoles.Ouvrier => "Ouvrier — terrain, activités, maintenance et ajustements de stock.",
+        AppRoles.Observateur => "Lecture seule — consultation et export, sans modification.",
+        AppRoles.SuperAdmin => "Super administrateur plateforme.",
+        AppRoles.Admin => "Administrateur application.",
+        _ => "Rôle système AgriActifs."
+    };
 
     private static async Task SeedSuperAdminAsync(UserManager<ApplicationUser> userManager) =>
         await EnsureUserAsync(userManager, SuperAdminEmail, SuperAdminPassword, "Super", "Admin", AppRoles.SuperAdmin);
@@ -84,8 +127,12 @@ public static class SeedData
         string lastName,
         string role)
     {
-        if (await userManager.FindByEmailAsync(email) is not null)
+        var existing = await userManager.FindByEmailAsync(email);
+        if (existing is not null)
+        {
+            await EnsureSingleAppRoleAsync(userManager, existing, role);
             return;
+        }
 
         var user = new ApplicationUser
         {
@@ -102,6 +149,29 @@ public static class SeedData
             throw new InvalidOperationException(string.Join("; ", result.Errors.Select(e => e.Description)));
 
         await userManager.AddToRoleAsync(user, role);
+    }
+
+    /// <summary>Aligne le compte sur un seul rôle métier (retire User / autres rôles ferme).</summary>
+    private static async Task EnsureSingleAppRoleAsync(
+        UserManager<ApplicationUser> userManager,
+        ApplicationUser user,
+        string role)
+    {
+        var current = await userManager.GetRolesAsync(user);
+        if (!current.Contains(role))
+            await userManager.AddToRoleAsync(user, role);
+
+        var replaceable = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            AppRoles.User,
+            AppRoles.Gerant,
+            AppRoles.Technicien,
+            AppRoles.Ouvrier,
+            AppRoles.Observateur
+        };
+
+        foreach (var extra in current.Where(r => r != role && replaceable.Contains(r)))
+            await userManager.RemoveFromRoleAsync(user, extra);
     }
 
     public static async Task EnsureCatalogAsync(ApplicationDbContext context)
@@ -176,46 +246,33 @@ public static class SeedData
 
     private static async Task SeedDemoAsync(ApplicationDbContext db, UserManager<ApplicationUser> userManager)
     {
-        if (await db.Exploitations.AnyAsync(e => e.Name == "Ferme des Érables"))
-            return;
-
-        var exploitation = new Exploitation
+        var exploitation = await db.Exploitations.FirstOrDefaultAsync(e => e.Name == "Ferme des Érables");
+        if (exploitation is null)
         {
-            Name = "Ferme des Érables",
-            Address = "120 Rang des Érables",
-            City = "Saint-Hyacinthe",
-            Province = "QC",
-            PostalCode = "J2S 0A1",
-            TotalAreaHa = 80,
-            ProductionType = "Grandes cultures",
-            Email = "info@fermedeserables.demo"
-        };
-        db.Exploitations.Add(exploitation);
-        await db.SaveChangesAsync();
-
-        var demoUsers = new (string Email, string First, string Last, ExploitationUserRole Role)[]
-        {
-            ("gerant@fermedeserables.demo", "Marie", "Gérant", ExploitationUserRole.Gerant),
-            ("tech@fermedeserables.demo", "Luc", "Technicien", ExploitationUserRole.Technicien),
-            ("ouvrier@fermedeserables.demo", "Jean", "Ouvrier", ExploitationUserRole.Ouvrier),
-            ("lecture@fermedeserables.demo", "Claire", "Lecture", ExploitationUserRole.Observateur)
-        };
-
-        foreach (var (email, first, last, role) in demoUsers)
-        {
-            await EnsureUserAsync(userManager, email, DemoPassword, first, last, AppRoles.User);
-            var user = await userManager.FindByEmailAsync(email);
-            if (user is null) continue;
-            db.ExploitationUsers.Add(new ExploitationUser
+            exploitation = new Exploitation
             {
-                ExploitationId = exploitation.Id,
-                UserId = user.Id,
-                Role = role
-            });
+                Name = "Ferme des Érables",
+                Address = "120 Rang des Érables",
+                City = "Saint-Hyacinthe",
+                Province = "QC",
+                PostalCode = "J2S 0A1",
+                TotalAreaHa = 80,
+                ProductionType = "Grandes cultures",
+                Email = "info@fermedeserables.demo"
+            };
+            db.Exploitations.Add(exploitation);
+            await db.SaveChangesAsync();
         }
 
+        await EnsureDemoFermeUsersAsync(db, userManager, exploitation.Id);
+
+        if (await db.Parcelles.AnyAsync(p => p.ExploitationId == exploitation.Id))
+            return;
+
         var super = await userManager.FindByEmailAsync(SuperAdminEmail);
-        if (super is not null)
+        if (super is not null
+            && !await db.ExploitationUsers.AnyAsync(eu =>
+                eu.ExploitationId == exploitation.Id && eu.UserId == super.Id))
         {
             db.ExploitationUsers.Add(new ExploitationUser
             {
@@ -223,8 +280,55 @@ public static class SeedData
                 UserId = super.Id,
                 Role = ExploitationUserRole.Proprietaire
             });
+            await db.SaveChangesAsync();
         }
 
+        await SeedDemoParcellesAndLinksAsync(db, exploitation);
+    }
+
+    private static async Task EnsureDemoFermeUsersAsync(
+        ApplicationDbContext db,
+        UserManager<ApplicationUser> userManager,
+        int exploitationId)
+    {
+        var demoUsers = new (string Email, string First, string Last, ExploitationUserRole FarmRole, string AppRole)[]
+        {
+            ("gerant@fermedeserables.demo", "Marie", "Gérant", ExploitationUserRole.Gerant, AppRoles.Gerant),
+            ("tech@fermedeserables.demo", "Luc", "Technicien", ExploitationUserRole.Technicien, AppRoles.Technicien),
+            ("ouvrier@fermedeserables.demo", "Jean", "Ouvrier", ExploitationUserRole.Ouvrier, AppRoles.Ouvrier),
+            ("lecture@fermedeserables.demo", "Claire", "Lecture", ExploitationUserRole.Observateur, AppRoles.Observateur)
+        };
+
+        foreach (var (email, first, last, farmRole, appRole) in demoUsers)
+        {
+            await EnsureUserAsync(userManager, email, DemoPassword, first, last, appRole);
+            var user = await userManager.FindByEmailAsync(email);
+            if (user is null) continue;
+
+            var link = await db.ExploitationUsers.FirstOrDefaultAsync(eu =>
+                eu.ExploitationId == exploitationId && eu.UserId == user.Id);
+            if (link is null)
+            {
+                db.ExploitationUsers.Add(new ExploitationUser
+                {
+                    ExploitationId = exploitationId,
+                    UserId = user.Id,
+                    Role = farmRole
+                });
+            }
+            else if (link.Role != farmRole)
+            {
+                link.Role = farmRole;
+            }
+        }
+
+        await db.SaveChangesAsync();
+    }
+
+    private static async Task SeedDemoParcellesAndLinksAsync(
+        ApplicationDbContext db,
+        Exploitation exploitation)
+    {
         var parcelles = new[]
         {
             new Parcelle

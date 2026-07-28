@@ -1783,6 +1783,13 @@ body {
   color: var(--gise-text, #0f172a);
 }
 
+.demo-account-hint {
+  grid-column: 1;
+  font-size: 0.7rem;
+  color: var(--gise-text-muted, #64748b);
+  font-weight: 500;
+}
+
 .demo-account-email {
   grid-column: 1;
   font-size: 0.78rem;
@@ -1792,7 +1799,7 @@ body {
 
 .demo-account-pass {
   grid-column: 2;
-  grid-row: 1 / span 2;
+  grid-row: 1 / span 3;
   align-self: center;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 0.72rem;

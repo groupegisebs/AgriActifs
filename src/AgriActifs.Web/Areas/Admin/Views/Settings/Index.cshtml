@@ -1,0 +1,115 @@
+@using AgriActifs.Web.Models.ViewModels
+@model SystemSettingsViewModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@{
+    ViewData["Title"] = "Paramètres système";
+}
+
+<h1>Paramètres système</h1>
+
+@if (TempData["Success"] is string message)
+{
+    <div class="alert alert-success">@message</div>
+}
+
+<form asp-action="Index" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <ul class="nav nav-tabs mb-4" role="tablist">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-identity" type="button">Identité</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-appearance" type="button">Apparence</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-languages" type="button">Langues</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-database" type="button">Base de données</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-smtp" type="button">SMTP / Sécurité</button></li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="tab-identity">
+            <div class="mb-3">
+                <label asp-for="AppName" class="form-label">Nom de l'application</label>
+                <input asp-for="AppName" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label asp-for="Tagline" class="form-label">Sous-titre</label>
+                <input asp-for="Tagline" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label asp-for="LogoUrl" class="form-label">URL du logo</label>
+                <input asp-for="LogoUrl" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label asp-for="LogoFile" class="form-label">Uploader un logo</label>
+                <input asp-for="LogoFile" type="file" class="form-control" accept=".png,.jpg,.jpeg,.svg,.webp" />
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="tab-appearance">
+            <div class="mb-3">
+                <label asp-for="ActiveThemeId" class="form-label">Thème actif</label>
+                <select asp-for="ActiveThemeId" class="form-select"
+                        asp-items="@(new SelectList(Model.AvailableThemes, "Id", "Name"))"></select>
+            </div>
+            <a asp-controller="Themes" asp-action="Index" class="btn btn-outline-secondary btn-sm">Gérer les thèmes</a>
+        </div>
+
+        <div class="tab-pane fade" id="tab-languages">
+            <div class="mb-3">
+                <label asp-for="DefaultCulture" class="form-label">Culture par défaut</label>
+                <select asp-for="DefaultCulture" class="form-select"
+                        asp-items="@(new SelectList(Model.AvailableCultures))"></select>
+            </div>
+            <a asp-controller="Localization" asp-action="Index" class="btn btn-outline-secondary btn-sm">Gérer les traductions YAML</a>
+        </div>
+
+        <div class="tab-pane fade" id="tab-database">
+            <dl class="row">
+                <dt class="col-sm-3">Provider</dt><dd class="col-sm-9">@Model.DatabaseProvider</dd>
+                <dt class="col-sm-3">Schéma</dt><dd class="col-sm-9">@Model.DatabaseSchema</dd>
+                <dt class="col-sm-3">Hôte</dt><dd class="col-sm-9">@Model.DatabaseHost</dd>
+            </dl>
+            <p class="text-muted small">La connexion BD se configure au déploiement via <code>appsettings.json</code> ou user-secrets.</p>
+        </div>
+
+        <div class="tab-pane fade" id="tab-smtp">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="SmtpHost" class="form-label"></label>
+                    <input asp-for="SmtpHost" class="form-control" />
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="SmtpPort" class="form-label"></label>
+                    <input asp-for="SmtpPort" class="form-control" />
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="SmtpUser" class="form-label"></label>
+                    <input asp-for="SmtpUser" class="form-control" />
+                </div>
+            </div>
+            <div class="form-check mb-2">
+                <input asp-for="RequireConfirmedEmail" class="form-check-input" />
+                <label asp-for="RequireConfirmedEmail" class="form-check-label"></label>
+            </div>
+            <div class="form-check mb-2">
+                <input asp-for="RequireTwoFactor" class="form-check-input" />
+                <label asp-for="RequireTwoFactor" class="form-check-label"></label>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label asp-for="SessionTimeoutMinutes" class="form-label"></label>
+                    <input asp-for="SessionTimeoutMinutes" class="form-control" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="MaxFailedAccessAttempts" class="form-label"></label>
+                    <input asp-for="MaxFailedAccessAttempts" class="form-control" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="LockoutMinutes" class="form-label"></label>
+                    <input asp-for="LockoutMinutes" class="form-control" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Enregistrer</button>
+</form>

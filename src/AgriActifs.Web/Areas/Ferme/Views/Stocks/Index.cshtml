@@ -1,0 +1,25 @@
+@model IEnumerable<StockArticle>
+@{ ViewData["Title"] = "Stocks"; }
+<div class="container py-4">
+    <div class="d-flex justify-content-between mb-3">
+        <h1 class="h3">Stocks</h1>
+        <a class="btn btn-primary" asp-action="Create">Nouvel article</a>
+    </div>
+    <table class="table table-striped">
+        <thead><tr><th>SKU</th><th>Nom</th><th>Catégorie</th><th>Qté</th><th>Seuil</th><th>Coût</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var s in Model)
+        {
+            var low = s.QuantityOnHand <= s.ReorderLevel;
+            <tr class="@(low ? "table-warning" : "")">
+                <td>@s.Sku</td><td>@s.Name</td><td>@s.Categorie</td>
+                <td>@s.QuantityOnHand @s.Unit</td><td>@s.ReorderLevel</td><td>@s.UnitCost.ToString("C")</td>
+                <td>
+                    <a asp-action="Adjust" asp-route-id="@s.Id">Ajuster</a> |
+                    <a asp-action="Edit" asp-route-id="@s.Id">Modifier</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

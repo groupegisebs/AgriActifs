@@ -1,0 +1,43 @@
+@using AgriActifs.Web.Models.ViewModels
+@model LocalizationEditViewModel
+@{
+    ViewData["Title"] = $"Traductions — {Model.Culture}";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+@if (TempData["Success"] is string ok) { <div class="alert alert-success">@ok</div> }
+@if (TempData["Error"] is string err) { <div class="alert alert-danger">@err</div> }
+
+@if (Model.MissingKeys.Count > 0)
+{
+    <div class="alert alert-warning">
+        <strong>Clés manquantes vs fr-FR :</strong> @string.Join(", ", Model.MissingKeys.Take(20))@(Model.MissingKeys.Count > 20 ? "…" : "")
+    </div>
+}
+
+<form asp-action="Edit" method="post" class="mb-3">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Culture" />
+    <textarea asp-for="YamlContent" class="form-control font-monospace" rows="24"></textarea>
+    <div asp-validation-summary="ModelOnly" class="text-danger mt-2"></div>
+    <button type="submit" class="btn btn-primary mt-3">Enregistrer</button>
+</form>
+
+<form asp-action="Upload" method="post" enctype="multipart/form-data" class="d-flex gap-2 align-items-end mb-3">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="culture" value="@Model.Culture" />
+    <div>
+        <label class="form-label">Importer YAML</label>
+        <input type="file" name="file" accept=".yaml,.yml" class="form-control" required />
+    </div>
+    <button type="submit" class="btn btn-outline-secondary">Uploader</button>
+</form>
+
+<form asp-action="Reset" method="post" onsubmit="return confirm('Réinitialiser aux valeurs par défaut ?');">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="culture" value="@Model.Culture" />
+    <button type="submit" class="btn btn-outline-danger">Réinitialiser aux défauts</button>
+</form>
+
+<a asp-action="Index" class="btn btn-link">Retour</a>

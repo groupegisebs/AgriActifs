@@ -1,0 +1,27 @@
+@model AgriActifs.Web.Models.ViewModels.ThemeEditViewModel
+<div class="row g-3">
+    <div class="col-md-6">
+        <label asp-for="Code" class="form-label"></label>
+        <input asp-for="Code" class="form-control" readonly="@Model.IsSystem" />
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" />
+    </div>
+    <div class="col-12">
+        <label asp-for="Description" class="form-label"></label>
+        <input asp-for="Description" class="form-control" />
+    </div>
+    <div class="col-md-4"><label asp-for="Primary" class="form-label"></label><input asp-for="Primary" type="color" class="form-control form-control-color w-100" /></div>
+    <div class="col-md-4"><label asp-for="PrimaryDark" class="form-label"></label><input asp-for="PrimaryDark" type="color" class="form-control form-control-color w-100" /></div>
+    <div class="col-md-4"><label asp-for="Accent" class="form-label"></label><input asp-for="Accent" type="color" class="form-control form-control-color w-100" /></div>
+    <div class="col-md-4"><label asp-for="AccentSoft" class="form-label"></label><input asp-for="AccentSoft" type="color" class="form-control form-control-color w-100" /></div>
+    <div class="col-md-4"><label asp-for="Sidebar" class="form-label"></label><input asp-for="Sidebar" type="color" class="form-control form-control-color w-100" /></div>
+    <div class="col-md-4"><label asp-for="SidebarHover" class="form-label"></label><input asp-for="SidebarHover" type="color" class="form-control form-control-color w-100" /></div>
+    <div class="col-md-4"><label asp-for="SidebarActive" class="form-label"></label><input asp-for="SidebarActive" type="color" class="form-control form-control-color w-100" /></div>
+    <div class="col-md-4"><label asp-for="Surface" class="form-label"></label><input asp-for="Surface" type="color" class="form-control form-control-color w-100" /></div>
+    <div class="col-md-4"><label asp-for="Background" class="form-label"></label><input asp-for="Background" type="color" class="form-control form-control-color w-100" /></div>
+    <div class="col-md-4"><label asp-for="Border" class="form-label"></label><input asp-for="Border" type="color" class="form-control form-control-color w-100" /></div>
+    <div class="col-md-4"><label asp-for="Text" class="form-label"></label><input asp-for="Text" type="color" class="form-control form-control-color w-100" /></div>
+    <div class="col-md-4"><label asp-for="TextMuted" class="form-label"></label><input asp-for="TextMuted" type="color" class="form-control form-control-color w-100" /></div>
+</div>

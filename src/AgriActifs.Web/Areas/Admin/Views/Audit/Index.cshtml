@@ -1,0 +1,32 @@
+@model IReadOnlyList<AuditLog>
+@{
+    ViewData["Title"] = "Journal d'audit";
+}
+
+<h1>Journal d'audit</h1>
+
+<table class="table table-sm table-striped">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Action</th>
+            <th>Entité</th>
+            <th>Utilisateur</th>
+            <th>IP</th>
+            <th>Détails</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var log in Model)
+    {
+        <tr>
+            <td>@log.CreatedAt.ToLocalTime()</td>
+            <td>@log.Action</td>
+            <td>@log.EntityName</td>
+            <td>@log.UserName</td>
+            <td>@log.IpAddress</td>
+            <td>@log.Details</td>
+        </tr>
+    }
+    </tbody>
+</table>

@@ -1,0 +1,53 @@
+@page
+@model AgriActifs.Web.Areas.Identity.Pages.Account.LoginModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["Auth.Login.Title"];
+}
+
+<div class="row justify-content-center py-4">
+    <div class="col-md-5 col-lg-4">
+        <div class="card auth-card border-0 shadow-sm">
+            <div class="card-body p-4 p-md-5">
+                <h1 class="h4 mb-1">@Localizer["Auth.Login.Title"]</h1>
+                <p class="text-muted small mb-4">@Localizer["Auth.Login.Subtitle"]</p>
+
+                <form id="account" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.Email" class="form-label">@Localizer["Auth.Login.Email"]</label>
+                        <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" />
+                        <span asp-validation-for="Input.Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.Password" class="form-label">@Localizer["Auth.Login.Password"]</label>
+                        <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" />
+                        <span asp-validation-for="Input.Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input asp-for="Input.RememberMe" class="form-check-input" />
+                        <label asp-for="Input.RememberMe" class="form-check-label">@Localizer["Auth.Login.RememberMe"]</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">@Localizer["Auth.Login.Submit"]</button>
+                </form>
+
+                <div class="mt-4 text-center small">
+                    <a asp-page="./ForgotPassword" class="text-decoration-none">@Localizer["Auth.Login.ForgotPassword"]</a>
+                    @if (Model.AllowPublicRegistration)
+                    {
+                        <span class="text-muted mx-1">·</span>
+                        <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" class="text-decoration-none">@Localizer["Auth.Login.CreateAccount"]</a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

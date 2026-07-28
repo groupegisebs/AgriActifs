@@ -1,0 +1,24 @@
+{
+  "_comment": "Copiez vers /opt/apps/<votre-app>/app/appsettings.Production.json au premier déploiement. deploy.sh préserve ce fichier ensuite.",
+  "_comment_urls": "URL d'écoute : ASPNETCORE_URLS dans deploy/systemd.service.template (listenPort dans project.config.json).",
+  "ConnectionStrings": {
+    "_comment": "Mot de passe BD : injecté via systemd depuis appsettings.json (deploy-all.ps1 / deploy.sh).",
+    "DefaultConnection": "Host=YOUR_DB_HOST;Port=5432;Database=YOUR_DATABASE;Username=YOUR_USERNAME;"
+  },
+  "Database": {
+    "Provider": "PostgreSQL",
+    "Schema": "agriactifs"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "FileStorage": {
+    "_comment": "Chemin relatif à la racine de l'app (WorkingDirectory dans systemd). L'utilisateur du service doit pouvoir écrire ici.",
+    "UploadBasePath": "wwwroot/uploads",
+    "MaxLogoSizeBytes": 2097152
+  }
+}

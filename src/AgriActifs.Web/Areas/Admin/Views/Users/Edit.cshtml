@@ -1,0 +1,51 @@
+@model UserEditViewModel
+@{
+    ViewData["Title"] = "Modifier l'utilisateur";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <gise-permission resource="User" action="Edit" property="Email">
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label"></label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+    </gise-permission>
+
+    <gise-permission resource="User" action="Edit" property="FirstName">
+        <div class="mb-3">
+            <label asp-for="FirstName" class="form-label"></label>
+            <input asp-for="FirstName" class="form-control" />
+        </div>
+    </gise-permission>
+
+    <gise-permission resource="User" action="Edit" property="LastName">
+        <div class="mb-3">
+            <label asp-for="LastName" class="form-label"></label>
+            <input asp-for="LastName" class="form-control" />
+        </div>
+    </gise-permission>
+
+    <gise-permission resource="User" action="Edit" property="PhoneNumber">
+        <div class="mb-3">
+            <label asp-for="PhoneNumber" class="form-label"></label>
+            <input asp-for="PhoneNumber" class="form-control" />
+        </div>
+    </gise-permission>
+
+    <gise-permission resource="User" action="Edit" property="IsActive">
+        <div class="form-check mb-3">
+            <input asp-for="IsActive" class="form-check-input" />
+            <label asp-for="IsActive" class="form-check-label">Actif</label>
+        </div>
+    </gise-permission>
+
+    <button type="submit" class="btn btn-primary">Enregistrer</button>
+    <a asp-action="Index" class="btn btn-secondary">Annuler</a>
+</form>

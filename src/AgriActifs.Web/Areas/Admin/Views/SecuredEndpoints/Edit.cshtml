@@ -1,0 +1,39 @@
+@model AgriActifs.Web.Services.Interfaces.SecuredEndpointEditModel
+@{
+    ViewData["Title"] = "Modifier endpoint";
+}
+
+<h1>Modifier endpoint sécurisé</h1>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="Area" class="form-label">Area</label>
+        <input asp-for="Area" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Controller" class="form-label">Controller</label>
+        <input asp-for="Controller" class="form-control" required />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Action" class="form-label">Action</label>
+        <input asp-for="Action" class="form-control" required />
+    </div>
+    <div class="mb-3">
+        <label asp-for="HttpMethod" class="form-label">Méthode HTTP (vide = toutes)</label>
+        <input asp-for="HttpMethod" class="form-control" placeholder="GET, POST..." />
+    </div>
+    <div class="mb-3">
+        <label asp-for="PermissionDefinitionId" class="form-label">Permission requise</label>
+        <select asp-for="PermissionDefinitionId" asp-items="ViewBag.Permissions" class="form-select" required></select>
+    </div>
+    <div class="form-check mb-3">
+        <input asp-for="IsActive" class="form-check-input" />
+        <label asp-for="IsActive" class="form-check-label">Actif</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Enregistrer</button>
+    <a asp-action="Index" class="btn btn-secondary">Annuler</a>
+</form>

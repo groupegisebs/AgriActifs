@@ -1,0 +1,5 @@
+@model (string Css, string BootstrapMode)
+@if (!string.IsNullOrWhiteSpace(Model.Css))
+{
+    <style id="gise-theme">@Html.Raw(Model.Css)</style>
+}

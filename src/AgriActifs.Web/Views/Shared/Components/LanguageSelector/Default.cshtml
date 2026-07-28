@@ -1,0 +1,15 @@
+@model (System.Collections.Generic.IReadOnlyList<string> Cultures, string Current)
+<div class="dropdown">
+    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-translate"></i> @Model.Current
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+        @foreach (var culture in Model.Cultures)
+        {
+            <li>
+                <a class="dropdown-item @(culture == Model.Current ? "active" : "")"
+                   href="?culture=@culture">@culture</a>
+            </li>
+        }
+    </ul>
+</div>

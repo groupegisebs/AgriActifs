@@ -1,0 +1,14 @@
+@if (TempData["Success"] is string success)
+{
+    <div class="gise-alert gise-alert-success" role="alert">
+        <i class="bi bi-check-circle-fill"></i>
+        <span>@success</span>
+    </div>
+}
+@if (TempData["Error"] is string error)
+{
+    <div class="gise-alert gise-alert-danger" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span>@error</span>
+    </div>
+}

@@ -1,0 +1,11 @@
+{
+  "_comment": "Copiez ce fichier vers deploy/project.config.json et adaptez-le à VOTRE projet (ne pas committer project.config.json).",
+  "appName": "GISEBS Secure MVC Starter",
+  "serviceName": "gisebs-securemvc",
+  "appRoot": "/opt/apps/gisebs-securemvc",
+  "dllName": "AgriActifs.Web.dll",
+  "projectPath": "src/AgriActifs.Web/AgriActifs.Web.csproj",
+  "healthCheckUrl": "http://localhost:5050",
+  "listenPort": 5050,
+  "sshIdentityKey": "cognidoc_deploy"
+}

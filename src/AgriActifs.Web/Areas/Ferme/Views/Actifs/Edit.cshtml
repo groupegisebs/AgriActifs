@@ -1,0 +1,38 @@
+@model ActifAgricole
+@{ ViewData["Title"] = Model.Id == 0 ? "Nouvel actif" : "Modifier actif"; }
+<div class="container py-4" style="max-width:800px">
+    <h1 class="h3 mb-3">@ViewData["Title"]</h1>
+    <form method="post">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="ExploitationId" />
+        <input type="hidden" asp-for="CreatedAt" />
+        <div class="row">
+            <div class="col-md-4 mb-3"><label asp-for="InternalCode" class="form-label">Code</label><input asp-for="InternalCode" class="form-control" /></div>
+            <div class="col-md-8 mb-3"><label asp-for="Name" class="form-label">Nom</label><input asp-for="Name" class="form-control" /></div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3"><label asp-for="Categorie" class="form-label"></label><select asp-for="Categorie" class="form-select" asp-items="Html.GetEnumSelectList<ActifCategorie>()"></select></div>
+            <div class="col-md-6 mb-3"><label asp-for="Statut" class="form-label"></label><select asp-for="Statut" class="form-select" asp-items="Html.GetEnumSelectList<ActifStatut>()"></select></div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-3"><label asp-for="Brand" class="form-label">Marque</label><input asp-for="Brand" class="form-control" /></div>
+            <div class="col-md-4 mb-3"><label asp-for="Model" class="form-label">Modèle</label><input asp-for="Model" class="form-control" /></div>
+            <div class="col-md-4 mb-3"><label asp-for="Year" class="form-label">Année</label><input asp-for="Year" class="form-control" /></div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3"><label asp-for="SerialNumber" class="form-label">N° série</label><input asp-for="SerialNumber" class="form-control" /></div>
+            <div class="col-md-6 mb-3"><label asp-for="AcquisitionDate" class="form-label">Date acquisition</label><input asp-for="AcquisitionDate" class="form-control" type="date" /></div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-3"><label asp-for="AcquisitionValue" class="form-label">Valeur</label><input asp-for="AcquisitionValue" class="form-control" /></div>
+            <div class="col-md-4 mb-3"><label asp-for="UsefulLifeYears" class="form-label">Durée (ans)</label><input asp-for="UsefulLifeYears" class="form-control" /></div>
+            <div class="col-md-4 mb-3"><label asp-for="ResidualValue" class="form-label">Valeur résiduelle</label><input asp-for="ResidualValue" class="form-control" /></div>
+        </div>
+        <div class="mb-3"><label asp-for="ParcelleId" class="form-label">Parcelle</label><select asp-for="ParcelleId" class="form-select" asp-items="ViewBag.Parcelles"><option value="">—</option></select></div>
+        <div class="mb-3"><label asp-for="LocationNote" class="form-label">Localisation</label><input asp-for="LocationNote" class="form-control" /></div>
+        <div class="mb-3"><label asp-for="Notes" class="form-label"></label><textarea asp-for="Notes" class="form-control"></textarea></div>
+        <div class="form-check mb-3"><input asp-for="IsActive" class="form-check-input" /><label asp-for="IsActive" class="form-check-label">Actif</label></div>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+        <a asp-action="Index" class="btn btn-link">Annuler</a>
+    </form>
+</div>

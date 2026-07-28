@@ -1,0 +1,27 @@
+@model StockArticle
+@{ ViewData["Title"] = Model.Id == 0 ? "Nouvel article" : "Modifier article"; }
+<div class="container py-4" style="max-width:720px">
+    <h1 class="h3 mb-3">@ViewData["Title"]</h1>
+    <form method="post">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="ExploitationId" />
+        <div class="row">
+            <div class="col-md-4 mb-3"><label asp-for="Sku" class="form-label"></label><input asp-for="Sku" class="form-control" /></div>
+            <div class="col-md-8 mb-3"><label asp-for="Name" class="form-label"></label><input asp-for="Name" class="form-control" /></div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-3"><label asp-for="Categorie" class="form-label"></label><select asp-for="Categorie" class="form-select" asp-items="Html.GetEnumSelectList<StockCategorie>()"></select></div>
+            <div class="col-md-4 mb-3"><label asp-for="Unit" class="form-label">Unité</label><input asp-for="Unit" class="form-control" /></div>
+            <div class="col-md-4 mb-3"><label asp-for="UnitCost" class="form-label">Coût unitaire</label><input asp-for="UnitCost" class="form-control" /></div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-3"><label asp-for="QuantityOnHand" class="form-label">Quantité</label><input asp-for="QuantityOnHand" class="form-control" /></div>
+            <div class="col-md-4 mb-3"><label asp-for="ReorderLevel" class="form-label">Seuil</label><input asp-for="ReorderLevel" class="form-control" /></div>
+            <div class="col-md-4 mb-3"><label asp-for="LotNumber" class="form-label">Lot</label><input asp-for="LotNumber" class="form-control" /></div>
+        </div>
+        <div class="mb-3"><label asp-for="ExpirationDate" class="form-label">Expiration</label><input asp-for="ExpirationDate" type="date" class="form-control" /></div>
+        <div class="form-check mb-3"><input asp-for="IsActive" class="form-check-input" /><label asp-for="IsActive" class="form-check-label">Actif</label></div>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+        <a asp-action="Index" class="btn btn-link">Annuler</a>
+    </form>
+</div>

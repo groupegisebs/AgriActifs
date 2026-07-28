@@ -1,0 +1,150 @@
+@model ProfileViewModel
+@{
+    ViewData["Title"] = "Mon profil";
+    var initials = $"{Model.FirstName?.FirstOrDefault()}{Model.LastName?.FirstOrDefault()}".ToUpper();
+    if (string.IsNullOrWhiteSpace(initials)) initials = Model.Email.FirstOrDefault().ToString().ToUpper();
+    var fullName = $"{Model.FirstName} {Model.LastName}".Trim();
+    if (string.IsNullOrWhiteSpace(fullName)) fullName = Model.Email;
+}
+
+<partial name="_AlertMessages" />
+
+<div class="profile-hero">
+    <div class="profile-hero-inner">
+        <div class="profile-avatar">
+            @if (!string.IsNullOrWhiteSpace(Model.PhotoUrl))
+            {
+                <img src="@Model.PhotoUrl" alt="Photo de profil" />
+            }
+            else
+            {
+                @initials
+            }
+        </div>
+        <div>
+            <h1 class="profile-hero-name">@fullName</h1>
+            <p class="profile-hero-email"><i class="bi bi-envelope me-1"></i> @Model.Email</p>
+            @if (!string.IsNullOrWhiteSpace(Model.JobTitle) || !string.IsNullOrWhiteSpace(Model.Company))
+            {
+                <span class="profile-hero-badge">
+                    <i class="bi bi-briefcase"></i>
+                    @(string.Join(" · ", new[] { Model.JobTitle, Model.Company }.Where(s => !string.IsNullOrWhiteSpace(s))))
+                </span>
+            }
+        </div>
+    </div>
+</div>
+
+<form asp-action="Index" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="UserId" />
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="gise-card mb-4">
+                <div class="gise-card-header">
+                    <h2><i class="bi bi-person-vcard me-2 text-primary"></i> Identité</h2>
+                </div>
+                <div class="gise-card-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label asp-for="Email" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                <input asp-for="Email" class="form-control" readonly />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="FirstName" class="form-label"></label>
+                            <input asp-for="FirstName" class="form-control" placeholder="Prénom" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="LastName" class="form-label"></label>
+                            <input asp-for="LastName" class="form-control" placeholder="Nom" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="PhoneNumber" class="form-label">Téléphone</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                                <input asp-for="PhoneNumber" class="form-control" placeholder="+33 6 00 00 00 00" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="PhotoUrl" class="form-label">URL photo</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-image"></i></span>
+                                <input asp-for="PhotoUrl" class="form-control" placeholder="https://..." />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="gise-card">
+                <div class="gise-card-header">
+                    <h2><i class="bi bi-building me-2 text-primary"></i> Professionnel</h2>
+                </div>
+                <div class="gise-card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="Company" class="form-label">Entreprise</label>
+                            <input asp-for="Company" class="form-control" placeholder="Nom de l'entreprise" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="JobTitle" class="form-label">Poste</label>
+                            <input asp-for="JobTitle" class="form-control" placeholder="Intitulé du poste" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="gise-card mb-4">
+                <div class="gise-card-header">
+                    <h2><i class="bi bi-sliders me-2 text-primary"></i> Préférences</h2>
+                </div>
+                <div class="gise-card-body">
+                    <div class="mb-3">
+                        <label asp-for="PreferredLanguage" class="form-label">Langue</label>
+                        <select asp-for="PreferredLanguage" class="form-select">
+                            <option value="fr-FR">Français</option>
+                            <option value="en-US">English</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Theme" class="form-label">Thème</label>
+                        <select asp-for="Theme" class="form-select">
+                            <option value="light">Clair</option>
+                            <option value="dark">Sombre</option>
+                        </select>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input asp-for="EmailNotifications" class="form-check-input" role="switch" />
+                        <label asp-for="EmailNotifications" class="form-check-label">Notifications par email</label>
+                    </div>
+                </div>
+                <div class="gise-card-footer d-grid gap-2">
+                    <button type="submit" class="btn btn-glow">
+                        <i class="bi bi-check-lg me-1"></i> Enregistrer
+                    </button>
+                </div>
+            </div>
+
+            <div class="gise-card">
+                <div class="gise-card-body">
+                    <h3 class="h6 fw-bold mb-2"><i class="bi bi-shield-lock me-2"></i> Sécurité du compte</h3>
+                    <p class="text-muted small mb-3">Gérez votre mot de passe, l'authentification à deux facteurs et les sessions actives.</p>
+                    <a asp-area="Identity" asp-page="/Account/Manage/Index" class="btn btn-outline-primary w-100">
+                        <i class="bi bi-key me-1"></i> Mot de passe & 2FA
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

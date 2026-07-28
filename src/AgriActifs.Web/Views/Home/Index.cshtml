@@ -1,0 +1,54 @@
+﻿@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["Home.Badge"];
+    var isAuthenticated = User.Identity?.IsAuthenticated == true;
+}
+
+<div class="landing-hero">
+    <div class="mb-3">
+        <span class="badge text-bg-primary px-3 py-2 rounded-pill">
+            <i class="bi bi-shield-lock me-1"></i> @Localizer["Home.Badge"]
+        </span>
+    </div>
+    <h1>@Html.Raw(Localizer["Home.Title"].Value.Replace("\\n", "<br />"))</h1>
+    <p>@Localizer["Home.Description"]</p>
+    @if (isAuthenticated)
+    {
+        <div class="d-flex flex-wrap gap-2 justify-content-center">
+            <gise-permission resource="Dashboard" action="View">
+                <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="btn btn-glow btn-lg">
+                    <i class="bi bi-grid me-2"></i> @Localizer["Home.AdminButton"]
+                </a>
+            </gise-permission>
+            <a asp-controller="Profile" asp-action="Index" class="btn btn-outline-primary btn-lg">
+                <i class="bi bi-person me-2"></i> @Localizer["Home.ProfileButton"]
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="d-flex flex-wrap gap-2 justify-content-center">
+            <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-glow btn-lg">
+                <i class="bi bi-box-arrow-in-right me-2"></i> @Localizer["Home.LoginButton"]
+            </a>
+        </div>
+    }
+</div>
+
+<div class="landing-features">
+    <div class="feature-card">
+        <i class="bi bi-people-fill"></i>
+        <h3>Identity + RBAC</h3>
+        <p>Utilisateurs, rôles et habilitations configurables en base.</p>
+    </div>
+    <div class="feature-card">
+        <i class="bi bi-translate"></i>
+        <h3>Multilingue YAML</h3>
+        <p>Traductions externalisées, téléchargeables et surchargeables.</p>
+    </div>
+    <div class="feature-card">
+        <i class="bi bi-palette"></i>
+        <h3>Thèmes dynamiques</h3>
+        <p>Chartes graphiques sélectionnables ou créables par projet.</p>
+    </div>
+</div>

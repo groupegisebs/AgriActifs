@@ -1,0 +1,45 @@
+@{
+    ViewData["Title"] = "Tableau de bord ferme";
+    var accessible = (IReadOnlyList<AgriActifs.Web.Services.Interfaces.ExploitationOption>)ViewBag.Accessible;
+}
+<div class="container py-4">
+    @if (TempData["Success"] is string ok) { <div class="alert alert-success">@ok</div> }
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h1 class="h3 mb-1">@ViewBag.ExploitationName</h1>
+            <p class="text-muted mb-0">Pilotage des actifs agricoles</p>
+        </div>
+        @if (accessible.Count > 1)
+        {
+            <form asp-area="Ferme" asp-controller="Context" asp-action="SetExploitation" method="post" class="d-flex gap-2">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="returnUrl" value="@Url.Action("Index")" />
+                <select name="exploitationId" class="form-select" onchange="this.form.submit()">
+                    @foreach (var e in accessible)
+                    {
+                        <option value="@e.Id" selected="@(e.Id == (int)ViewBag.CurrentId)">@e.Name</option>
+                    }
+                </select>
+            </form>
+        }
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4 col-lg-2"><div class="card h-100"><div class="card-body"><div class="text-muted small">Parcelles</div><div class="fs-3 fw-bold">@ViewBag.Parcelles</div></div></div></div>
+        <div class="col-md-4 col-lg-2"><div class="card h-100"><div class="card-body"><div class="text-muted small">Actifs</div><div class="fs-3 fw-bold">@ViewBag.ActifsTotal</div></div></div></div>
+        <div class="col-md-4 col-lg-2"><div class="card h-100"><div class="card-body"><div class="text-muted small">En maintenance</div><div class="fs-3 fw-bold text-warning">@ViewBag.ActifsMaintenance</div></div></div></div>
+        <div class="col-md-4 col-lg-2"><div class="card h-100"><div class="card-body"><div class="text-muted small">Valeur parc</div><div class="fs-4 fw-bold">@(((decimal)ViewBag.ValeurParc).ToString("C"))</div></div></div></div>
+        <div class="col-md-4 col-lg-2"><div class="card h-100"><div class="card-body"><div class="text-muted small">Stocks bas</div><div class="fs-3 fw-bold text-danger">@ViewBag.StocksBas</div></div></div></div>
+        <div class="col-md-4 col-lg-2"><div class="card h-100"><div class="card-body"><div class="text-muted small">Interventions</div><div class="fs-3 fw-bold">@ViewBag.InterventionsOuvertes</div></div></div></div>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-primary" asp-action="Index" asp-controller="Actifs">Actifs</a>
+        <a class="btn btn-outline-primary" asp-action="Index" asp-controller="Parcelles">Parcelles</a>
+        <a class="btn btn-outline-primary" asp-action="Index" asp-controller="Stocks">Stocks</a>
+        <a class="btn btn-outline-primary" asp-action="Index" asp-controller="Maintenance">Maintenance</a>
+        <a class="btn btn-outline-primary" asp-action="Index" asp-controller="Fournisseurs">Fournisseurs</a>
+        <a class="btn btn-outline-secondary" asp-action="Index" asp-controller="Exploitations">Exploitations</a>
+    </div>
+</div>

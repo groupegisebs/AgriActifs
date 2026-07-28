@@ -1,0 +1,23 @@
+[Unit]
+Description=${APP_NAME}
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=${APP_PATH}
+ExecStart=/usr/bin/dotnet ${APP_PATH}/${DLL_NAME}
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=ASPNETCORE_URLS=http://localhost:${LISTEN_PORT}
+# Mot de passe BD : préférer ConnectionStrings__DefaultConnection (double underscore)
+# Environment=ConnectionStrings__DefaultConnection=Host=YOUR_DB_HOST;Port=5432;Database=YOUR_DATABASE;Username=YOUR_USERNAME;Password=YOUR_PASSWORD
+Restart=always
+RestartSec=5
+KillSignal=SIGINT
+SyslogIdentifier=${SERVICE_NAME}
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

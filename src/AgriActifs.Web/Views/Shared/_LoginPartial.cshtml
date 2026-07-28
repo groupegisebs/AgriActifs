@@ -1,0 +1,66 @@
+@using Microsoft.AspNetCore.Identity
+@using AgriActifs.Web.Models.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@inject IConfiguration Configuration
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+
+@{
+    var identityPage = ViewContext.RouteData.Values["page"]?.ToString();
+    var isLoginPage = identityPage == "/Account/Login";
+    var isRegisterPage = identityPage == "/Account/Register";
+    var allowPublicRegistration = Configuration.GetValue("Security:AllowPublicRegistration", false);
+    var showLoginButton = !isLoginPage;
+    var showRegisterButton = allowPublicRegistration && !isRegisterPage;
+}
+
+@if (SignInManager.IsSignedIn(User))
+{
+    var user = await UserManager.GetUserAsync(User);
+    var initials = $"{user?.FirstName?.FirstOrDefault()}{user?.LastName?.FirstOrDefault()}".ToUpper();
+    if (string.IsNullOrWhiteSpace(initials)) initials = (User.Identity?.Name?[0].ToString() ?? "U").ToUpper();
+    var displayName = !string.IsNullOrWhiteSpace(user?.FirstName)
+        ? $"{user.FirstName} {user.LastName}".Trim()
+        : User.Identity?.Name ?? "Utilisateur";
+
+    <div class="dropdown">
+        <button class="user-menu-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <span class="user-menu-avatar">@initials</span>
+            <span class="user-menu-name d-none d-md-inline">@displayName</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+                <a class="dropdown-item" asp-controller="Profile" asp-action="Index">
+                    <i class="bi bi-person me-2"></i> @Localizer["Nav.MyProfile"]
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index">
+                    <i class="bi bi-shield-lock me-2"></i> @Localizer["Nav.Security2Fa"]
+                </a>
+            </li>
+            <li><hr class="dropdown-divider" /></li>
+            <li>
+                <form asp-area="Identity" asp-page="/Account/Logout"
+                      asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                    <button type="submit" class="dropdown-item text-danger">
+                        <i class="bi bi-box-arrow-right me-2"></i> @Localizer["Nav.Logout"]
+                    </button>
+                </form>
+            </li>
+        </ul>
+    </div>
+}
+else if (showLoginButton || showRegisterButton)
+{
+    <div class="d-flex gap-2">
+        @if (showLoginButton)
+        {
+            <a class="btn btn-outline-primary btn-sm" asp-area="Identity" asp-page="/Account/Login">@Localizer["Nav.Login"]</a>
+        }
+        @if (showRegisterButton)
+        {
+            <a class="btn btn-primary btn-sm" asp-area="Identity" asp-page="/Account/Register">@Localizer["Nav.Register"]</a>
+        }
+    </div>
+}

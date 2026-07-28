@@ -1,0 +1,22 @@
+@model Parcelle
+@{ ViewData["Title"] = Model.Id == 0 ? "Nouvelle parcelle" : "Modifier parcelle"; }
+<div class="container py-4" style="max-width:720px">
+    <h1 class="h3 mb-3">@ViewData["Title"]</h1>
+    <form method="post">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="ExploitationId" />
+        <div class="row">
+            <div class="col-md-4 mb-3"><label asp-for="Code" class="form-label"></label><input asp-for="Code" class="form-control" /></div>
+            <div class="col-md-8 mb-3"><label asp-for="Name" class="form-label"></label><input asp-for="Name" class="form-control" /></div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-3"><label asp-for="AreaHa" class="form-label">Superficie (ha)</label><input asp-for="AreaHa" class="form-control" /></div>
+            <div class="col-md-4 mb-3"><label asp-for="SoilType" class="form-label">Type de sol</label><input asp-for="SoilType" class="form-control" /></div>
+            <div class="col-md-4 mb-3 form-check mt-4"><input asp-for="HasIrrigation" class="form-check-input" /><label asp-for="HasIrrigation" class="form-check-label">Irrigation</label></div>
+        </div>
+        <div class="mb-3"><label asp-for="Notes" class="form-label"></label><textarea asp-for="Notes" class="form-control"></textarea></div>
+        <div class="form-check mb-3"><input asp-for="IsActive" class="form-check-input" /><label asp-for="IsActive" class="form-check-label">Active</label></div>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+        <a asp-action="Index" class="btn btn-link">Annuler</a>
+    </form>
+</div>

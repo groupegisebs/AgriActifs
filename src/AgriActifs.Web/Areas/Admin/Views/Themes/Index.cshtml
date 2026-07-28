@@ -1,0 +1,49 @@
+@model IReadOnlyList<AgriActifs.Web.Models.ThemeDefinition>
+@{
+    ViewData["Title"] = "Thèmes";
+    var activeId = (int)(ViewBag.ActiveThemeId ?? 1);
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">Thèmes & chartes graphiques</h1>
+    <a asp-action="Create" class="btn btn-primary">Créer un thème</a>
+</div>
+
+@if (TempData["Success"] is string ok) { <div class="alert alert-success">@ok</div> }
+@if (TempData["Error"] is string err) { <div class="alert alert-danger">@err</div> }
+
+<div class="row g-3">
+@foreach (var theme in Model)
+{
+    <div class="col-md-4">
+        <div class="card h-100 @(theme.Id == activeId ? "border-primary" : "")">
+            <div class="card-body">
+                <h5 class="card-title">@theme.Name @if(theme.Id == activeId){<span class="badge text-bg-primary">Actif</span>}</h5>
+                <p class="text-muted small">@theme.Code — @(theme.IsSystem ? "Système" : "Personnalisé")</p>
+                <p class="small">@theme.Description</p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a asp-action="Edit" asp-route-id="@theme.Id" class="btn btn-sm btn-outline-primary">Modifier</a>
+                    <a asp-action="Duplicate" asp-route-id="@theme.Id" class="btn btn-sm btn-outline-secondary">Dupliquer</a>
+                    <a asp-action="DownloadYaml" asp-route-id="@theme.Id" class="btn btn-sm btn-outline-secondary">Export</a>
+                    @if (theme.Id != activeId)
+                    {
+                        <form asp-action="Activate" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@theme.Id" />
+                            <button type="submit" class="btn btn-sm btn-success">Activer</button>
+                        </form>
+                    }
+                    @if (!theme.IsSystem)
+                    {
+                        <form asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Supprimer ce thème ?');">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@theme.Id" />
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Supprimer</button>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+</div>

@@ -1,0 +1,19 @@
+@model IReadOnlyList<string>
+@{
+    ViewData["Title"] = "Permissions par modèle";
+}
+
+<h1>Modèles configurables</h1>
+<p class="text-muted">Sélectionnez un modèle pour voir les permissions entité et propriétés.</p>
+
+<ul class="list-group">
+@foreach (var resource in Model)
+{
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+        <span>@resource</span>
+        <a asp-action="Model" asp-route-resource="@resource" class="btn btn-sm btn-outline-primary">Configurer</a>
+    </li>
+}
+</ul>
+
+<a asp-action="Index" class="btn btn-secondary mt-3">Retour à la matrice</a>

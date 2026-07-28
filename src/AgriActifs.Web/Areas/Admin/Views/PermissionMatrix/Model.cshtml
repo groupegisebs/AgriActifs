@@ -1,0 +1,59 @@
+@model ModelPermissionViewModel
+@{
+    ViewData["Title"] = $"Modèle {Model.Resource}";
+}
+
+<h1>Modèle : @Model.Resource</h1>
+<p class="text-muted">Catégorie : @Model.Category — permissions au niveau entité et propriétés (lecture seule, édition via rôle).</p>
+
+<h3>Actions entité</h3>
+<table class="table table-sm table-striped">
+    <thead>
+        <tr>
+            <th>Action</th>
+            @foreach (var role in Model.Roles.Where(r => r.RoleName != "SuperAdmin"))
+            {
+                <th class="text-center">@role.RoleName</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var row in Model.EntityActions)
+    {
+        <tr>
+            <td>@row.Label</td>
+            @foreach (var role in Model.Roles.Where(r => r.RoleName != "SuperAdmin"))
+            {
+                <td class="text-center">@(row.GrantsByRoleId.GetValueOrDefault(role.RoleId) ? "✓" : "—")</td>
+            }
+        </tr>
+    }
+    </tbody>
+</table>
+
+<h3>Propriétés</h3>
+<table class="table table-sm table-striped">
+    <thead>
+        <tr>
+            <th>Propriété</th>
+            @foreach (var role in Model.Roles.Where(r => r.RoleName != "SuperAdmin"))
+            {
+                <th class="text-center">@role.RoleName</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var row in Model.Properties)
+    {
+        <tr>
+            <td>@row.Label</td>
+            @foreach (var role in Model.Roles.Where(r => r.RoleName != "SuperAdmin"))
+            {
+                <td class="text-center">@(row.GrantsByRoleId.GetValueOrDefault(role.RoleId) ? "✓" : "—")</td>
+            }
+        </tr>
+    }
+    </tbody>
+</table>
+
+<p>Pour modifier : <a asp-action="Index">Matrice des permissions</a> → choisir un rôle.</p>

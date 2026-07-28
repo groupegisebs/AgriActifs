@@ -1,0 +1,51 @@
+@model IReadOnlyList<AgriActifs.Web.Services.Interfaces.SecuredEndpointListItem>
+@{
+    ViewData["Title"] = "Endpoints sécurisés";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Endpoints sécurisés (BD)</h1>
+    <div>
+        <a asp-action="Discover" class="btn btn-outline-secondary">Découvrir non mappés</a>
+        <a asp-action="Create" class="btn btn-primary">Nouveau mapping</a>
+    </div>
+</div>
+
+@if (TempData["Success"] is string success)
+{
+    <div class="alert alert-success">@success</div>
+}
+
+<p class="text-muted">
+    Chaque action MVC Admin est liée à une permission en base de données. Aucune constante de permission dans le code.
+</p>
+
+<table class="table table-striped table-sm">
+    <thead>
+        <tr>
+            <th>Area</th>
+            <th>Controller</th>
+            <th>Action</th>
+            <th>HTTP</th>
+            <th>Permission</th>
+            <th>Actif</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@(item.Area ?? "—")</td>
+                <td>@item.Controller</td>
+                <td>@item.Action</td>
+                <td>@(item.HttpMethod ?? "*")</td>
+                <td><code>@item.PermissionCode</code></td>
+                <td>@(item.IsActive ? "Oui" : "Non")</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Modifier</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

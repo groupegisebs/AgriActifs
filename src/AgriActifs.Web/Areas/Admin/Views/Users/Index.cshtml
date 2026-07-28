@@ -1,0 +1,89 @@
+@model IReadOnlyList<UserListItemViewModel>
+@{
+    ViewData["Title"] = "Utilisateurs";
+}
+
+<partial name="_AlertMessages" />
+
+<div class="page-header d-flex flex-wrap justify-content-between align-items-start gap-3">
+    <div>
+        <h1 class="page-header-title">Utilisateurs</h1>
+        <p class="page-header-subtitle">@Model.Count utilisateur(s) enregistré(s)</p>
+    </div>
+    <div class="page-header-actions">
+        <a asp-action="Create" class="btn btn-glow btn-sm">
+            <i class="bi bi-person-plus me-1"></i> Nouveau
+        </a>
+    </div>
+</div>
+
+<div class="gise-card">
+    <div class="gise-card-body p-0">
+        <div class="gise-table-wrap">
+            <table class="gise-table">
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Nom</th>
+                        <th>Rôles</th>
+                        <th>Statut</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="user-menu-avatar" style="width:28px;height:28px;font-size:0.65rem;">
+                                    @(user.FullName?.FirstOrDefault() ?? user.Email.FirstOrDefault())
+                                </span>
+                                @user.Email
+                            </div>
+                        </td>
+                        <td>@user.FullName</td>
+                        <td>
+                            @foreach (var role in user.Roles)
+                            {
+                                <span class="badge text-bg-light text-dark me-1">@role</span>
+                            }
+                        </td>
+                        <td>
+                            @if (!user.IsActive)
+                            {
+                                <span class="badge text-bg-secondary">Inactif</span>
+                            }
+                            else if (user.IsLockedOut)
+                            {
+                                <span class="badge text-bg-danger">Verrouillé</span>
+                            }
+                            else
+                            {
+                                <span class="badge text-bg-success">Actif</span>
+                            }
+                        </td>
+                        <td class="text-end">
+                            <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a asp-area="Admin" asp-controller="UserRoles" asp-action="Edit" asp-route-userId="@user.Id" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-person-badge"></i>
+                            </a>
+                            @if (user.IsLockedOut)
+                            {
+                                <form asp-action="Unlock" asp-route-id="@user.Id" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-warning" title="Déverrouiller">
+                                        <i class="bi bi-unlock"></i>
+                                    </button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/AgriActifs.Web/AgriActifs.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/AgriActifs.Tests/AgriActifs.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,23 @@
+@model InterventionMaintenance
+@{ ViewData["Title"] = Model.Id == 0 ? "Nouvelle intervention" : "Modifier intervention"; }
+<div class="container py-4" style="max-width:720px">
+    <h1 class="h3 mb-3">@ViewData["Title"]</h1>
+    <form method="post">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="ExploitationId" />
+        <div class="mb-3"><label asp-for="Title" class="form-label"></label><input asp-for="Title" class="form-control" /></div>
+        <div class="row">
+            <div class="col-md-6 mb-3"><label asp-for="Type" class="form-label"></label><select asp-for="Type" class="form-select" asp-items="Html.GetEnumSelectList<InterventionType>()"></select></div>
+            <div class="col-md-6 mb-3"><label asp-for="Statut" class="form-label"></label><select asp-for="Statut" class="form-select" asp-items="Html.GetEnumSelectList<InterventionStatut>()"></select></div>
+        </div>
+        <div class="mb-3"><label asp-for="ActifAgricoleId" class="form-label">Actif</label><select asp-for="ActifAgricoleId" class="form-select" asp-items="ViewBag.Actifs"><option value="">—</option></select></div>
+        <div class="mb-3"><label asp-for="PlannedDate" class="form-label">Date prévue</label><input asp-for="PlannedDate" type="date" class="form-control" /></div>
+        <div class="row">
+            <div class="col-md-6 mb-3"><label asp-for="LaborCost" class="form-label">Main-d'œuvre</label><input asp-for="LaborCost" class="form-control" /></div>
+            <div class="col-md-6 mb-3"><label asp-for="PartsCost" class="form-label">Pièces</label><input asp-for="PartsCost" class="form-control" /></div>
+        </div>
+        <div class="mb-3"><label asp-for="Description" class="form-label"></label><textarea asp-for="Description" class="form-control"></textarea></div>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+        <a asp-action="Index" class="btn btn-link">Annuler</a>
+    </form>
+</div>

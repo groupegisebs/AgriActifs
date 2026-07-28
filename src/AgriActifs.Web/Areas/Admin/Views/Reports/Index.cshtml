@@ -1,0 +1,30 @@
+@model IReadOnlyList<ReportDefinition>
+@{
+    ViewData["Title"] = "Rapports";
+}
+
+<h1>Rapports disponibles</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Code</th>
+            <th>Nom</th>
+            <th>Catégorie</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var report in Model)
+    {
+        <tr>
+            <td>@report.Code</td>
+            <td>@report.Name</td>
+            <td>@report.Category</td>
+            <td>@report.Description</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<p class="text-muted">Export PDF / Excel à implémenter selon le besoin métier.</p>

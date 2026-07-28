@@ -1,0 +1,51 @@
+Nav:
+  Home: Home
+  Profile: Profile
+  Admin: Administration
+  Login: Sign in
+  Register: Register
+  Logout: Sign out
+  MyProfile: My profile
+  Security2Fa: Security & 2FA
+Brand:
+  Subtitle: Secure MVC Template
+Footer:
+  Copyright: "© {0} {1}"
+Auth:
+  Login:
+    Title: Sign in
+    Subtitle: Use your account to access the application.
+    Email: Email
+    Password: Password
+    RememberMe: Remember me
+    Submit: Sign in
+    ForgotPassword: Forgot password?
+    CreateAccount: Create an account
+    InvalidCredentials: Invalid email or password.
+    AccountNotActivated: Account not activated. Confirm your email or contact an administrator.
+Home:
+  Badge: GISEBS RBAC MVC Template
+  Title: "Security & roles,\n100% configurable in DB"
+  Description: ASP.NET Core MVC starter with Identity, dynamic permissions, secured endpoints and full administration — ready for MetaDoc, WarrantySafe and your business apps.
+  LoginButton: Sign in
+  AdminButton: Administration
+  ProfileButton: My profile
+Admin:
+  Section: Administration
+  Dashboard: Dashboard
+  Users: Users
+  Roles: Roles
+  Reports: Reports
+  Audit: Audit
+  Settings: Settings
+  SecurityDb: Security (DB)
+  Permissions: Permissions
+  Endpoints: Endpoints
+  Account: Account
+  BackHome: Back to home
+Common:
+  Save: Save
+  Cancel: Cancel
+  Success: Operation successful.
+Language:
+  Selector: Language

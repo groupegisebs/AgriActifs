@@ -1,0 +1,15 @@
+@model AgriActifs.Web.Models.ViewModels.ThemeEditViewModel
+@{
+    ViewData["Title"] = "Créer un thème";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="IsSystem" />
+    <partial name="_ThemeForm" model="Model" />
+    <button type="submit" class="btn btn-primary mt-3">Créer</button>
+    <a asp-action="Index" class="btn btn-outline-secondary mt-3">Annuler</a>
+</form>

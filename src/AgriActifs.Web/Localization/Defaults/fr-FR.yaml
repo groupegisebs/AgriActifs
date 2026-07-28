@@ -1,0 +1,51 @@
+Nav:
+  Home: Accueil
+  Profile: Profil
+  Admin: Administration
+  Login: Connexion
+  Register: Inscription
+  Logout: Déconnexion
+  MyProfile: Mon profil
+  Security2Fa: Sécurité & 2FA
+Brand:
+  Subtitle: Secure MVC Template
+Footer:
+  Copyright: "© {0} {1}"
+Auth:
+  Login:
+    Title: Connexion
+    Subtitle: Utilisez votre compte pour accéder à l'application.
+    Email: Email
+    Password: Mot de passe
+    RememberMe: Se souvenir de moi
+    Submit: Se connecter
+    ForgotPassword: Mot de passe oublié ?
+    CreateAccount: Créer un compte
+    InvalidCredentials: Email ou mot de passe incorrect.
+    AccountNotActivated: Compte non activé. Confirmez votre email ou contactez un administrateur.
+Home:
+  Badge: GISEBS RBAC MVC Template
+  Title: "Sécurité & rôles,\n100% configurables en BD"
+  Description: Socle ASP.NET Core MVC avec Identity, permissions dynamiques, endpoints sécurisés et administration complète — prêt pour MetaDoc, WarrantySafe et vos apps métier.
+  LoginButton: Se connecter
+  AdminButton: Administration
+  ProfileButton: Mon profil
+Admin:
+  Section: Administration
+  Dashboard: Tableau de bord
+  Users: Utilisateurs
+  Roles: Rôles
+  Reports: Rapports
+  Audit: Audit
+  Settings: Paramètres
+  SecurityDb: Sécurité (BD)
+  Permissions: Habilitations
+  Endpoints: Endpoints
+  Account: Compte
+  BackHome: Retour accueil
+Common:
+  Save: Enregistrer
+  Cancel: Annuler
+  Success: Opération réussie.
+Language:
+  Selector: Langue

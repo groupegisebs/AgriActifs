@@ -1,0 +1,153 @@
+@using AgriActifs.Web
+@using AgriActifs.Web.Models
+@using AgriActifs.Web.Models.ViewModels
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@inject AgriActifs.Web.Services.Interfaces.IAppContextService AppContext
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var isAdmin = area == "Admin";
+    var isAuthenticated = User.Identity?.IsAuthenticated == true;
+    var app = await AppContext.GetSnapshotAsync();
+    var pageTitle = ViewData["Title"]?.ToString() ?? app.AppName;
+}
+<!DOCTYPE html>
+<html lang="@System.Globalization.CultureInfo.CurrentUICulture.Name" data-bs-theme="@app.BootstrapColorMode">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@pageTitle - @app.AppName</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/AgriActifs.Web.styles.css" asp-append-version="true" />
+    @await Component.InvokeAsync("ThemeStyle")
+</head>
+<body>
+    <header class="app-topbar">
+        <div class="app-topbar-inner">
+            <div class="d-flex align-items-center gap-2">
+                @if (isAdmin)
+                {
+                    <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Menu">
+                        <i class="bi bi-list"></i>
+                    </button>
+                }
+                @await Component.InvokeAsync("AppBranding")
+            </div>
+
+            @if (!isAdmin)
+            {
+                <ul class="app-nav">
+                    <li>
+                        <a class="app-nav-link @(controller == "Home" ? "active" : "")"
+                           asp-area="" asp-controller="Home" asp-action="Index">
+                            <i class="bi bi-house"></i> @Localizer["Nav.Home"]
+                        </a>
+                    </li>
+                    @if (isAuthenticated)
+                    {
+                        <li>
+                            <a class="app-nav-link @(area == "Ferme" ? "active" : "")"
+                               asp-area="Ferme" asp-controller="Dashboard" asp-action="Index">
+                                <i class="bi bi-tree"></i> Ferme
+                            </a>
+                        </li>
+                        <li>
+                            <a class="app-nav-link @(controller == "Profile" ? "active" : "")"
+                               asp-controller="Profile" asp-action="Index">
+                                <i class="bi bi-person"></i> @Localizer["Nav.Profile"]
+                            </a>
+                        </li>
+                        <gise-permission resource="Dashboard" action="View">
+                            <li>
+                                <a class="app-nav-link" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                                    <i class="bi bi-grid"></i> @Localizer["Nav.Admin"]
+                                </a>
+                            </li>
+                        </gise-permission>
+                    }
+                </ul>
+            }
+
+            <div class="d-flex align-items-center gap-2">
+                @await Component.InvokeAsync("LanguageSelector")
+                <partial name="_LoginPartial" />
+            </div>
+        </div>
+    </header>
+
+    <div class="app-shell @(isAdmin ? "has-sidebar" : "")">
+        @if (isAdmin)
+        {
+            <aside class="app-sidebar" id="appSidebar">
+                <div class="app-sidebar-label">@Localizer["Admin.Section"]</div>
+                <a class="app-sidebar-link @(controller == "Dashboard" ? "active" : "")"
+                   asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                    <i class="bi bi-speedometer2"></i> @Localizer["Admin.Dashboard"]
+                </a>
+                <a class="app-sidebar-link @(controller == "Users" || controller == "UserRoles" ? "active" : "")"
+                   asp-area="Admin" asp-controller="Users" asp-action="Index">
+                    <i class="bi bi-people"></i> @Localizer["Admin.Users"]
+                </a>
+                <a class="app-sidebar-link @(controller == "Roles" ? "active" : "")"
+                   asp-area="Admin" asp-controller="Roles" asp-action="Index">
+                    <i class="bi bi-person-badge"></i> @Localizer["Admin.Roles"]
+                </a>
+                <a class="app-sidebar-link @(controller == "Reports" ? "active" : "")"
+                   asp-area="Admin" asp-controller="Reports" asp-action="Index">
+                    <i class="bi bi-bar-chart"></i> @Localizer["Admin.Reports"]
+                </a>
+                <a class="app-sidebar-link @(controller == "Audit" ? "active" : "")"
+                   asp-area="Admin" asp-controller="Audit" asp-action="Index">
+                    <i class="bi bi-journal-text"></i> @Localizer["Admin.Audit"]
+                </a>
+                <a class="app-sidebar-link @(controller == "Settings" || controller == "Themes" || controller == "Localization" ? "active" : "")"
+                   asp-area="Admin" asp-controller="Settings" asp-action="Index">
+                    <i class="bi bi-gear"></i> @Localizer["Admin.Settings"]
+                </a>
+
+                <div class="app-sidebar-label">@Localizer["Admin.SecurityDb"]</div>
+                <gise-permission resource="Permissions" action="Manage">
+                    <a class="app-sidebar-link @(controller == "PermissionMatrix" ? "active" : "")"
+                       asp-area="Admin" asp-controller="PermissionMatrix" asp-action="Index">
+                        <i class="bi bi-check2-square"></i> @Localizer["Admin.Permissions"]
+                    </a>
+                </gise-permission>
+                <gise-permission resource="SecuredEndpoints" action="Manage">
+                    <a class="app-sidebar-link @(controller == "SecuredEndpoints" ? "active" : "")"
+                       asp-area="Admin" asp-controller="SecuredEndpoints" asp-action="Index">
+                        <i class="bi bi-diagram-3"></i> @Localizer["Admin.Endpoints"]
+                    </a>
+                </gise-permission>
+
+                <div class="app-sidebar-label mt-3">@Localizer["Admin.Account"]</div>
+                <a class="app-sidebar-link" asp-controller="Profile" asp-action="Index">
+                    <i class="bi bi-person-circle"></i> @Localizer["Nav.MyProfile"]
+                </a>
+                <a class="app-sidebar-link" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-arrow-left"></i> @Localizer["Admin.BackHome"]
+                </a>
+            </aside>
+        }
+
+        <main class="app-content" role="main">
+            <div class="app-container">
+                @RenderBody()
+            </div>
+        </main>
+    </div>
+
+    <footer class="app-footer">
+        @string.Format(Localizer["Footer.Copyright"].Value, DateTime.UtcNow.Year, app.AppName)
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

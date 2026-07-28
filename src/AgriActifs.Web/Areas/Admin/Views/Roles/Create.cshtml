@@ -1,0 +1,43 @@
+@model RoleEditViewModel
+@{
+    ViewData["Title"] = "Créer un rôle";
+}
+
+<partial name="_AlertMessages" />
+
+<div class="page-header mb-4">
+    <h1 class="page-header-title">Créer un rôle</h1>
+    <p class="page-header-subtitle">Après la création, configurez les habilitations dans la matrice (cases à cocher).</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="gise-card">
+            <div class="gise-card-body">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label">Nom du rôle</label>
+                        <input asp-for="Name" class="form-control" placeholder="Ex: Manager, Auditeur, Éditeur..." />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    <div class="mb-4">
+                        <label asp-for="Description" class="form-label">Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="3" placeholder="Rôle métier et périmètre..."></textarea>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-glow">
+                            <i class="bi bi-plus-lg me-1"></i> Créer et configurer les habilitations
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Annuler</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

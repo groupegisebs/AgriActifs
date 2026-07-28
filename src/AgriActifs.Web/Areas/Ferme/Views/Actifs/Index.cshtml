@@ -1,0 +1,32 @@
+@model IEnumerable<ActifAgricole>
+@{ ViewData["Title"] = "Actifs agricoles"; }
+<div class="container py-4">
+    <div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
+        <h1 class="h3">Actifs</h1>
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-secondary" asp-action="Export">Export CSV</a>
+            <a class="btn btn-primary" asp-action="Create">Nouvel actif</a>
+        </div>
+    </div>
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-auto"><select name="categorie" class="form-select" asp-items="Html.GetEnumSelectList<ActifCategorie>()"><option value="">Toutes catégories</option></select></div>
+        <div class="col-auto"><select name="statut" class="form-select" asp-items="Html.GetEnumSelectList<ActifStatut>()"><option value="">Tous statuts</option></select></div>
+        <div class="col-auto"><button class="btn btn-outline-primary" type="submit">Filtrer</button></div>
+    </form>
+    <table class="table table-striped align-middle">
+        <thead><tr><th>Code</th><th>Nom</th><th>Catégorie</th><th>Statut</th><th>Valeur</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var a in Model)
+        {
+            <tr>
+                <td>@a.InternalCode</td><td>@a.Name</td><td>@a.Categorie</td><td>@a.Statut</td>
+                <td>@a.AcquisitionValue.ToString("C")</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@a.Id">Fiche</a> |
+                    <a asp-action="Edit" asp-route-id="@a.Id">Modifier</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

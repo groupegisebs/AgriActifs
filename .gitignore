@@ -1,0 +1,53 @@
+# Build results
+[Dd]ebug/
+[Rr]elease/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio
+.vs/
+*.rsuser
+
+# Rider
+.idea/
+
+# NuGet
+*.nupkg
+**/packages/*
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# ASP.NET
+appsettings.*.local.json
+secrets.json
+
+# Déploiement — config propre à chaque projet / environnement
+deploy/project.config.json
+deploy/deploy-all.config.json
+deploy/deploy.local.ps1
+publish/
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Local overrides (connection strings, secrets)
+appsettings.*.local.json
+**/appsettings.Development.local.json
+
+# Cursor / IDE
+.cursor/

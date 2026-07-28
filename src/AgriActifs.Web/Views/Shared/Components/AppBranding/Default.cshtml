@@ -1,0 +1,18 @@
+@model AgriActifs.Web.Models.AppContextSnapshot
+<a class="app-brand" asp-area="" asp-controller="Home" asp-action="Index">
+    @if (!string.IsNullOrWhiteSpace(Model.LogoUrl))
+    {
+        <img src="@Model.LogoUrl" alt="@Model.AppName" class="app-brand-logo" />
+    }
+    else
+    {
+        <span class="app-brand-icon"><i class="bi bi-shield-lock-fill"></i></span>
+    }
+    <span>
+        @Model.AppName
+        @if (!string.IsNullOrWhiteSpace(Model.Tagline))
+        {
+            <span class="app-brand-sub">@Model.Tagline</span>
+        }
+    </span>
+</a>

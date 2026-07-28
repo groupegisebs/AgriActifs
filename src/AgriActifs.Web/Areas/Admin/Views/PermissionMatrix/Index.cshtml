@@ -1,0 +1,273 @@
+@model HabilitationMatrixViewModel
+@using AgriActifs.Web.Constants
+@inject AgriActifs.Web.Services.Interfaces.IAppContextService AppContext
+@{
+    ViewData["Title"] = "Matrice des habilitations";
+    var app = await AppContext.GetSnapshotAsync();
+    string GrantValue(string roleId, int permissionId) => $"{roleId}|{permissionId}";
+
+    string RoleDisplayName(string name) => name switch
+    {
+        AppRoles.SuperAdmin => "SUPER ADMIN",
+        "Admin" => "ADMIN SYSTÈME",
+        _ => name.ToUpperInvariant()
+    };
+
+    (string CssClass, string Icon) RoleStyle(string name)
+    {
+        var n = name.ToLowerInvariant();
+        if (n.Contains("super")) return ("rbac-role-superadmin", "bi-shield-fill-check");
+        if (n.Contains("admin")) return ("rbac-role-admin", "bi-person-fill-gear");
+        if (n.Contains("manager")) return ("rbac-role-manager", "bi-briefcase-fill");
+        if (n.Contains("collabor")) return ("rbac-role-collaborateur", "bi-person-fill");
+        if (n.Contains("lecteur") || n.Contains("reader")) return ("rbac-role-lecteur", "bi-eye-fill");
+        if (n.Contains("invit") || n.Contains("guest")) return ("rbac-role-invite", "bi-dash-lg");
+        return ("rbac-role-default", "bi-person-badge");
+    }
+
+    bool IsSuperAdmin(string name) => name == AppRoles.SuperAdmin;
+}
+
+<partial name="_AlertMessages" />
+
+<div class="rbac-matrix-page">
+    <div class="rbac-matrix-toolbar d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+        <a asp-area="Admin" asp-controller="Roles" asp-action="Create" class="btn btn-glow btn-sm">
+            <i class="bi bi-person-badge me-1"></i> Nouveau rôle
+        </a>
+        @if (Model.EditableRoles.Any())
+        {
+            <span class="text-muted small">
+                <i class="bi bi-pencil-square me-1"></i> Cliquez sur une cellule pour basculer l'habilitation
+            </span>
+        }
+    </div>
+
+    @if (!Model.AllRoles.Any())
+    {
+        <div class="gise-alert gise-alert-danger">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <span>Aucun rôle configuré. <a asp-area="Admin" asp-controller="Roles" asp-action="Create">Créez un rôle</a> pour configurer les habilitations.</span>
+        </div>
+    }
+    else
+    {
+        <form asp-action="SaveMatrix" method="post" id="rbacMatrixForm">
+            @Html.AntiForgeryToken()
+
+            <div class="rbac-matrix-card">
+                <div class="rbac-matrix-header">
+                    <div class="rbac-matrix-header-main">
+                        <h1 class="rbac-matrix-title">MATRICE DES HABILITATIONS (RBAC)</h1>
+                        <p class="rbac-matrix-meta">
+                            <span class="rbac-matrix-app">@app.AppName</span>
+                            <span class="rbac-matrix-date">@DateTime.Now.ToString("dd/MM/yyyy")</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="rbac-matrix-body">
+                    <div class="rbac-table-wrap">
+                        <table class="rbac-table">
+                            <thead>
+                                <tr class="rbac-table-head-row">
+                                    <th class="rbac-col-module">Module / Fonctionnalité</th>
+                                    <th class="rbac-col-action">Action</th>
+                                    @foreach (var role in Model.AllRoles)
+                                    {
+                                        var style = RoleStyle(role.RoleName);
+                                        <th class="rbac-col-role @style.CssClass">
+                                            <div class="rbac-role-head">
+                                                <i class="bi @style.Icon rbac-role-icon"></i>
+                                                <span class="rbac-role-name">@RoleDisplayName(role.RoleName)</span>
+                                            </div>
+                                        </th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody>
+                            @foreach (var module in Model.Modules)
+                            {
+                                <tr class="rbac-module-row">
+                                    <td class="rbac-module-cell" colspan="@(Model.AllRoles.Count + 2)">
+                                        <div class="rbac-module-label">
+                                            <strong>@module.ModuleTitle</strong>
+                                            @if (!string.IsNullOrWhiteSpace(module.ModuleSubtitle))
+                                            {
+                                                <span class="rbac-module-sub">(@module.ModuleSubtitle)</span>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                                @foreach (var action in module.Actions)
+                                {
+                                    <tr class="rbac-action-row">
+                                        <td class="rbac-col-module rbac-action-resource">
+                                            <span class="rbac-resource-tag">@action.Resource</span>
+                                        </td>
+                                        <td class="rbac-col-action">@action.ActionLabel</td>
+                                        @foreach (var role in Model.AllRoles)
+                                        {
+                                            var granted = action.GrantsByRoleId.GetValueOrDefault(role.RoleId);
+                                            if (IsSuperAdmin(role.RoleName))
+                                            {
+                                                <td class="rbac-col-cell">
+                                                    <span class="rbac-symbol rbac-symbol-granted" title="Accès complet — non modifiable">
+                                                        <i class="bi bi-check-lg"></i>
+                                                    </span>
+                                                </td>
+                                            }
+                                            else
+                                            {
+                                                <td class="rbac-col-cell">
+                                                    <label class="rbac-cell-toggle" title="@action.ActionLabel — @role.RoleName">
+                                                        <input type="checkbox"
+                                                               class="rbac-cell-input"
+                                                               name="Grants"
+                                                               value="@GrantValue(role.RoleId, action.PermissionId)"
+                                                               checked="@granted" />
+                                                        <span class="rbac-symbol rbac-symbol-granted"><i class="bi bi-check-lg"></i></span>
+                                                        <span class="rbac-symbol rbac-symbol-denied"><i class="bi bi-x-lg"></i></span>
+                                                    </label>
+                                                </td>
+                                            }
+                                        }
+                                    </tr>
+                                }
+                            }
+
+                            @foreach (var group in Model.Models)
+                            {
+                                var (modTitle, modSubtitle) = group.Category switch
+                                {
+                                    "Utilisateur" => ("DÉTAIL UTILISATEUR", "Propriétés du modèle utilisateur"),
+                                    "Profil" => ("DÉTAIL PROFIL", "Propriétés du profil utilisateur"),
+                                    "Rôle" => ("DÉTAIL RÔLE", "Propriétés du modèle rôle"),
+                                    _ => (group.Resource.ToUpperInvariant(), group.Category)
+                                };
+
+                                <tr class="rbac-module-row">
+                                    <td class="rbac-module-cell" colspan="@(Model.AllRoles.Count + 2)">
+                                        <div class="rbac-module-label">
+                                            <strong>@modTitle — @group.Resource</strong>
+                                            @if (!string.IsNullOrWhiteSpace(modSubtitle))
+                                            {
+                                                <span class="rbac-module-sub">(@modSubtitle)</span>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                                @foreach (var prop in group.Properties)
+                                {
+                                    @if (prop.View is not null)
+                                    {
+                                        <tr class="rbac-action-row">
+                                            <td class="rbac-col-module rbac-action-resource" rowspan="@(prop.Edit is not null ? 2 : 1)">
+                                                <code class="rbac-property-name">@prop.PropertyName</code>
+                                            </td>
+                                            <td class="rbac-col-action">Lire / Consulter</td>
+                                            @foreach (var role in Model.AllRoles)
+                                            {
+                                                var granted = prop.View.GrantsByRoleId.GetValueOrDefault(role.RoleId);
+                                                if (IsSuperAdmin(role.RoleName))
+                                                {
+                                                    <td class="rbac-col-cell">
+                                                        <span class="rbac-symbol rbac-symbol-granted"><i class="bi bi-check-lg"></i></span>
+                                                    </td>
+                                                }
+                                                else
+                                                {
+                                                    <td class="rbac-col-cell">
+                                                        <label class="rbac-cell-toggle">
+                                                            <input type="checkbox" class="rbac-cell-input" name="Grants"
+                                                                   value="@GrantValue(role.RoleId, prop.View.PermissionId)"
+                                                                   checked="@granted" />
+                                                            <span class="rbac-symbol rbac-symbol-granted"><i class="bi bi-check-lg"></i></span>
+                                                            <span class="rbac-symbol rbac-symbol-denied"><i class="bi bi-x-lg"></i></span>
+                                                        </label>
+                                                    </td>
+                                                }
+                                            }
+                                        </tr>
+                                    }
+                                    @if (prop.Edit is not null)
+                                    {
+                                        <tr class="rbac-action-row">
+                                            @if (prop.View is null)
+                                            {
+                                                <td class="rbac-col-module rbac-action-resource">
+                                                    <code class="rbac-property-name">@prop.PropertyName</code>
+                                                </td>
+                                            }
+                                            <td class="rbac-col-action">Modifier</td>
+                                            @foreach (var role in Model.AllRoles)
+                                            {
+                                                var granted = prop.Edit.GrantsByRoleId.GetValueOrDefault(role.RoleId);
+                                                if (IsSuperAdmin(role.RoleName))
+                                                {
+                                                    <td class="rbac-col-cell">
+                                                        <span class="rbac-symbol rbac-symbol-granted"><i class="bi bi-check-lg"></i></span>
+                                                    </td>
+                                                }
+                                                else
+                                                {
+                                                    <td class="rbac-col-cell">
+                                                        <label class="rbac-cell-toggle">
+                                                            <input type="checkbox" class="rbac-cell-input" name="Grants"
+                                                                   value="@GrantValue(role.RoleId, prop.Edit.PermissionId)"
+                                                                   checked="@granted" />
+                                                            <span class="rbac-symbol rbac-symbol-granted"><i class="bi bi-check-lg"></i></span>
+                                                            <span class="rbac-symbol rbac-symbol-denied"><i class="bi bi-x-lg"></i></span>
+                                                        </label>
+                                                    </td>
+                                                }
+                                            }
+                                        </tr>
+                                    }
+                                }
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="rbac-matrix-footer">
+                    <div class="rbac-legend">
+                        <div class="rbac-legend-item">
+                            <span class="rbac-symbol rbac-symbol-granted rbac-legend-symbol"><i class="bi bi-check-lg"></i></span>
+                            <span>Autorisé / Accès complet</span>
+                        </div>
+                        <div class="rbac-legend-item">
+                            <span class="rbac-symbol rbac-symbol-partial rbac-legend-symbol">~</span>
+                            <span>Accès partiel / Accès limité ou conditionnel</span>
+                        </div>
+                        <div class="rbac-legend-item">
+                            <span class="rbac-symbol rbac-symbol-denied rbac-legend-symbol"><i class="bi bi-x-lg"></i></span>
+                            <span>Non autorisé / Accès refusé</span>
+                        </div>
+                    </div>
+                    <p class="rbac-info-note">
+                        <i class="bi bi-info-circle-fill"></i>
+                        Cette matrice définit les habilitations par rôle. Les accès peuvent être restreints davantage au niveau des données (filtrage, périmètres).
+                    </p>
+                </div>
+            </div>
+
+            @if (Model.EditableRoles.Any())
+            {
+                <div class="d-flex flex-wrap gap-2 sticky-save-bar mt-3">
+                    <button type="submit" class="btn btn-glow">
+                        <i class="bi bi-check-lg me-1"></i> Enregistrer la matrice
+                    </button>
+                    <a asp-area="Admin" asp-controller="Roles" asp-action="Index" class="btn btn-outline-secondary">
+                        Gérer les rôles
+                    </a>
+                </div>
+            }
+        </form>
+    }
+</div>
+
+@section Scripts {
+    <script src="~/js/rbac-matrix.js" asp-append-version="true"></script>
+}

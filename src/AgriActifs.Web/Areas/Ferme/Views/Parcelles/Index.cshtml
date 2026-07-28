@@ -1,0 +1,22 @@
+@model IEnumerable<Parcelle>
+@{ ViewData["Title"] = "Parcelles"; }
+<div class="container py-4">
+    <div class="d-flex justify-content-between mb-3">
+        <h1 class="h3">Parcelles</h1>
+        <a class="btn btn-primary" asp-action="Create">Nouvelle</a>
+    </div>
+    <table class="table table-striped">
+        <thead><tr><th>Code</th><th>Nom</th><th>Ha</th><th>Sol</th><th>Irrigation</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var p in Model)
+        {
+            <tr>
+                <td>@p.Code</td><td>@p.Name</td><td>@p.AreaHa</td><td>@p.SoilType</td>
+                <td>@(p.HasIrrigation ? "Oui" : "Non")</td>
+                <td><a asp-action="Edit" asp-route-id="@p.Id">Modifier</a></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    <a asp-controller="Dashboard" asp-action="Index">Retour</a>
+</div>

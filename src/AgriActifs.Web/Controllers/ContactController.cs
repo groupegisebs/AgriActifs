@@ -14,6 +14,7 @@ namespace AgriActifs.Web.Controllers;
 public class ContactController(
     IOptions<DemoOptions> demoOptions,
     IOptions<AuthMessageSenderOptions> emailOptions,
+    IMailGatewayClient mailGateway,
     IEmailSender emailSender,
     ILogger<ContactController> logger) : Controller
 {
@@ -22,6 +23,7 @@ public class ContactController(
 
     private readonly DemoOptions _demo = demoOptions.Value;
     private readonly AuthMessageSenderOptions _email = emailOptions.Value;
+    private readonly IMailGatewayClient _mailGateway = mailGateway;
 
     [HttpGet]
     public IActionResult Promoteur(DemandePromoteurType? type = null)
@@ -46,10 +48,10 @@ public class ContactController(
         if (!ModelState.IsValid)
             return View(model);
 
-        if (string.IsNullOrWhiteSpace(_email.SendGridKey))
+        if (!_mailGateway.IsConfigured && string.IsNullOrWhiteSpace(_email.SendGridKey))
         {
             ModelState.AddModelError(string.Empty,
-                "L'envoi courriel n'est pas configuré (Email:SendGridKey). La demande n'a pas pu être transmise à CEO@GISEBS.COM.");
+                "L'envoi courriel n'est pas configuré (Email:MailGateway:ApiKey SecureMail ou Email:SendGridKey). La demande n'a pas pu être transmise à CEO@GISEBS.COM.");
             return View(model);
         }
 

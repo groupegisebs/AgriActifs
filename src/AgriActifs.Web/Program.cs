@@ -64,6 +64,15 @@ app.MapControllerRoute(
 app.MapRazorPages()
    .WithStaticAssets();
 
-await SeedData.InitializeAsync(app.Services);
+try
+{
+    Console.WriteLine($"AgriActifs seed — {typeof(Program).Assembly.GetName().Version}");
+    await SeedData.InitializeAsync(app.Services);
+}
+catch (Exception ex)
+{
+    Console.Error.WriteLine($"SEED FAILED: {ex}");
+    throw;
+}
 
 app.Run();

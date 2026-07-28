@@ -94,73 +94,73 @@ public static class SeedData
 
     public static async Task EnsureCatalogAsync(ApplicationDbContext context)
     {
-        var existingCodes = await context.PermissionDefinitions.Select(p => p.Code).ToHashSetAsync();
+        var schema = SqlIdent(context.Schema);
+        var permissions = $"{schema}.\"PermissionDefinitions\"";
+        var endpoints = $"{schema}.\"SecuredEndpoints\"";
+        var reports = $"{schema}.\"ReportDefinitions\"";
+
+        // INSERT … WHERE NOT EXISTS : idempotent, évite 23505 même avec doublons catalogue.
         foreach (var permission in CatalogSeedData.Permissions)
         {
-            if (existingCodes.Contains(permission.Code))
-                continue;
+            var propertyName = permission.PropertyName is null
+                ? "NULL"
+                : $"'{SqlLiteral(permission.PropertyName)}'";
 
-            context.PermissionDefinitions.Add(new PermissionDefinition
-            {
-                Code = permission.Code,
-                Resource = permission.Resource,
-                Action = permission.Action,
-                PropertyName = permission.PropertyName,
-                DisplayName = permission.DisplayName,
-                Category = permission.Category,
-                IsSystem = true,
-                IsActive = true
-            });
+#pragma warning disable EF1002
+            await context.Database.ExecuteSqlRawAsync($"""
+                INSERT INTO {permissions} ("Code", "Resource", "Action", "PropertyName", "DisplayName", "Category", "IsSystem", "IsActive")
+                SELECT '{SqlLiteral(permission.Code)}', '{SqlLiteral(permission.Resource)}', {(int)permission.Action}, {propertyName}, '{SqlLiteral(permission.DisplayName)}', '{SqlLiteral(permission.Category)}', TRUE, TRUE
+                WHERE NOT EXISTS (SELECT 1 FROM {permissions} WHERE "Code" = '{SqlLiteral(permission.Code)}');
+                """);
+#pragma warning restore EF1002
         }
-        await context.SaveChangesAsync();
 
-        var permissionMap = await context.PermissionDefinitions.ToDictionaryAsync(p => p.Code, p => p.Id);
-        var endpointKeys = await context.SecuredEndpoints.AsNoTracking()
-            .Select(e => new { e.Area, e.Controller, e.Action, e.HttpMethod })
-            .ToListAsync();
-        var knownEndpointKeys = endpointKeys
-            .Select(e => EndpointKey(e.Area, e.Controller, e.Action, e.HttpMethod))
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var catalogEndpoints = CatalogSeedData.Endpoints
+            .GroupBy(e => $"{e.Area}|{e.Controller}|{e.Action}|{e.HttpMethod}", StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.First());
 
-        foreach (var endpoint in CatalogSeedData.Endpoints)
+        foreach (var endpoint in catalogEndpoints)
         {
-            if (!permissionMap.TryGetValue(endpoint.PermissionCode, out var permissionId))
-                continue;
+            var area = endpoint.Area is null ? "NULL" : $"'{SqlLiteral(endpoint.Area)}'";
+            var httpMethod = endpoint.HttpMethod is null ? "NULL" : $"'{SqlLiteral(endpoint.HttpMethod)}'";
+            var areaMatch = endpoint.Area is null
+                ? "e.\"Area\" IS NULL"
+                : $"e.\"Area\" = '{SqlLiteral(endpoint.Area)}'";
+            var httpMatch = endpoint.HttpMethod is null
+                ? "e.\"HttpMethod\" IS NULL"
+                : $"e.\"HttpMethod\" = '{SqlLiteral(endpoint.HttpMethod)}'";
 
-            var key = EndpointKey(endpoint.Area, endpoint.Controller, endpoint.Action, endpoint.HttpMethod);
-            if (!knownEndpointKeys.Add(key))
-                continue;
-
-            context.SecuredEndpoints.Add(new SecuredEndpoint
-            {
-                Area = endpoint.Area,
-                Controller = endpoint.Controller,
-                Action = endpoint.Action,
-                HttpMethod = endpoint.HttpMethod,
-                PermissionDefinitionId = permissionId,
-                IsActive = true
-            });
+#pragma warning disable EF1002
+            await context.Database.ExecuteSqlRawAsync($"""
+                INSERT INTO {endpoints} ("Area", "Controller", "Action", "HttpMethod", "PermissionDefinitionId", "IsActive")
+                SELECT {area}, '{SqlLiteral(endpoint.Controller)}', '{SqlLiteral(endpoint.Action)}', {httpMethod}, p."Id", TRUE
+                FROM {permissions} p
+                WHERE p."Code" = '{SqlLiteral(endpoint.PermissionCode)}'
+                AND NOT EXISTS (
+                    SELECT 1 FROM {endpoints} e
+                    WHERE {areaMatch}
+                      AND e."Controller" = '{SqlLiteral(endpoint.Controller)}'
+                      AND e."Action" = '{SqlLiteral(endpoint.Action)}'
+                      AND {httpMatch});
+                """);
+#pragma warning restore EF1002
         }
 
-        var reportCodes = await context.ReportDefinitions.Select(r => r.Code).ToHashSetAsync();
         foreach (var report in CatalogSeedData.Reports)
         {
-            if (!reportCodes.Add(report.Code)) continue;
-            context.ReportDefinitions.Add(new Models.ReportDefinition
-            {
-                Code = report.Code,
-                Name = report.Name,
-                Category = report.Category,
-                RequiredPermissionCode = report.RequiredPermissionCode,
-                IsActive = true
-            });
+#pragma warning disable EF1002
+            await context.Database.ExecuteSqlRawAsync($"""
+                INSERT INTO {reports} ("Code", "Name", "Category", "RequiredPermissionCode", "IsActive")
+                SELECT '{SqlLiteral(report.Code)}', '{SqlLiteral(report.Name)}', '{SqlLiteral(report.Category)}', '{SqlLiteral(report.RequiredPermissionCode)}', TRUE
+                WHERE NOT EXISTS (SELECT 1 FROM {reports} WHERE "Code" = '{SqlLiteral(report.Code)}');
+                """);
+#pragma warning restore EF1002
         }
-
-        await context.SaveChangesAsync();
     }
 
-    private static string EndpointKey(string? area, string controller, string action, string? httpMethod) =>
-        $"{area ?? ""}\0{controller}\0{action}\0{httpMethod ?? ""}";
+    private static string SqlIdent(string value) => $"\"{value.Replace("\"", "\"\"", StringComparison.Ordinal)}\"";
+
+    private static string SqlLiteral(string value) => value.Replace("'", "''", StringComparison.Ordinal);
 
     private static async Task SeedDemoAsync(ApplicationDbContext db, UserManager<ApplicationUser> userManager)
     {

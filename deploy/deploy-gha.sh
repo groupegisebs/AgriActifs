@@ -173,6 +173,9 @@ echo "Attente démarrage ${SERVICE_NAME} sur le port ${LISTEN_PORT}..."
 ssh "${SSH_OPTS[@]}" "${SSH_TARGET}" bash -s <<REMOTE_HEALTH
 set -eu
 PORT='${LISTEN_PORT}'
+# Vider le bruit des crash-loops précédents pour ne garder que ce démarrage
+sudo journalctl -u '${SERVICE_NAME}' --rotate 2>/dev/null || true
+sudo journalctl -u '${SERVICE_NAME}' --vacuum-time=1s 2>/dev/null || true
 for i in \$(seq 1 45); do
   if curl -fsS -o /dev/null "http://127.0.0.1:\${PORT}/" 2>/dev/null; then
     echo "HTTP 200 après \${i} tentative(s)"
@@ -180,12 +183,12 @@ for i in \$(seq 1 45); do
   fi
   if ! systemctl is-active --quiet '${SERVICE_NAME}'; then
     echo "Service inactif — logs récents :"
-    journalctl -u '${SERVICE_NAME}' -n 15 --no-pager || true
+    journalctl -u '${SERVICE_NAME}' -n 40 --no-pager -o cat || true
   fi
   sleep 2
 done
 echo "::error::${SERVICE_NAME} ne répond pas après 90 s"
-journalctl -u '${SERVICE_NAME}' -n 30 --no-pager || true
+journalctl -u '${SERVICE_NAME}' -n 80 --no-pager -o cat || true
 exit 1
 REMOTE_HEALTH
 

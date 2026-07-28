@@ -5,7 +5,7 @@
 @inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 @inject IOptions<DemoOptions> DemoOptionsAccessor
 @{
-    ViewData["Title"] = Localizer["Auth.Login.Title"];
+    ViewData["Title"] = Localizer["Auth.Login.Title"].Value;
     var demo = DemoOptionsAccessor.Value;
     var showDemoAccounts = demo.Enabled;
 }

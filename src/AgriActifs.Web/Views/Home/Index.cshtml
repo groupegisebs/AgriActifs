@@ -1,7 +1,7 @@
 ﻿@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 @inject Microsoft.Extensions.Options.IOptions<AgriActifs.Web.Options.DemoOptions> DemoOptionsAccessor
 @{
-    ViewData["Title"] = Localizer["Home.Brand"];
+    ViewData["Title"] = Localizer["Home.Brand"].Value;
     ViewData["FullBleedLanding"] = true;
     var isAuthenticated = User.Identity?.IsAuthenticated == true;
     var isDemo = DemoOptionsAccessor.Value.Enabled;

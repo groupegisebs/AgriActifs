@@ -14,10 +14,27 @@
     var hasSidebar = isAdmin || isFerme;
     var isAuthenticated = User.Identity?.IsAuthenticated == true;
     var app = await AppContext.GetSnapshotAsync();
-    var pageTitle = ViewData["Title"]?.ToString() ?? app.AppName;
+    var pageTitle = ResolvePageTitle(ViewData["Title"], app.AppName);
     var fullBleedLanding = ViewData["FullBleedLanding"] as bool? == true;
     var demo = DemoOptionsAccessor.Value;
     var isDemoMode = demo.Enabled;
+    string ResolvePageTitle(object? title, string fallback)
+    {
+        if (title is string s && !string.IsNullOrWhiteSpace(s))
+            return s;
+        if (title is Microsoft.AspNetCore.Mvc.Localization.LocalizedHtmlString localized
+            && !string.IsNullOrWhiteSpace(localized.Value))
+            return localized.Value;
+        if (title is Microsoft.AspNetCore.Html.IHtmlContent html)
+        {
+            using var writer = new System.IO.StringWriter();
+            html.WriteTo(writer, System.Text.Encodings.Web.HtmlEncoder.Default);
+            var value = System.Net.WebUtility.HtmlDecode(writer.ToString());
+            if (!string.IsNullOrWhiteSpace(value))
+                return value;
+        }
+        return fallback;
+    }
 }
 <!DOCTYPE html>
 <html lang="@System.Globalization.CultureInfo.CurrentUICulture.Name" data-bs-theme="@app.BootstrapColorMode">
@@ -25,6 +42,16 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@pageTitle - @app.AppName</title>
+    @if (!string.IsNullOrWhiteSpace(app.LogoUrl))
+    {
+        <link rel="icon" href="@app.LogoUrl" />
+    }
+    else
+    {
+        <link rel="icon" href="~/img/favicon.svg" type="image/svg+xml" asp-append-version="true" />
+    }
+    <link rel="icon" href="~/favicon.ico" sizes="any" asp-append-version="true" />
+    <link rel="apple-touch-icon" href="~/img/apple-touch-icon.png" asp-append-version="true" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />

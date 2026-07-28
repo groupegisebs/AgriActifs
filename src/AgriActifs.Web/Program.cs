@@ -17,7 +17,7 @@ builder.Services.AddGiseLocalization();
 
 builder.Services.AddSecureIdentity(builder.Configuration);
 builder.Services.AddSecureAuthorization();
-builder.Services.AddApplicationServices();
+builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddEmailServices(builder.Configuration);
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>

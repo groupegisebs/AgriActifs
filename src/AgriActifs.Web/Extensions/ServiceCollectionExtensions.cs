@@ -1,4 +1,5 @@
 using AgriActifs.Web.Models.Identity;
+using AgriActifs.Web.Options;
 using AgriActifs.Web.Services.Email;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -61,8 +62,9 @@ public static class IdentityExtensions
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.Configure<DemoOptions>(configuration.GetSection(DemoOptions.SectionName));
         services.AddMemoryCache();
         services.AddHttpContextAccessor();
         services.AddScoped<Services.Interfaces.IAuditService, Services.AuditService>();

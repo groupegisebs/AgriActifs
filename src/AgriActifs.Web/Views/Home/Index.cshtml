@@ -1,8 +1,10 @@
 ﻿@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@inject Microsoft.Extensions.Options.IOptions<AgriActifs.Web.Options.DemoOptions> DemoOptionsAccessor
 @{
     ViewData["Title"] = Localizer["Home.Brand"];
     ViewData["FullBleedLanding"] = true;
     var isAuthenticated = User.Identity?.IsAuthenticated == true;
+    var isDemo = DemoOptionsAccessor.Value.Enabled;
 }
 
 <section class="agri-landing" aria-label="@Localizer["Home.Brand"]">
@@ -19,6 +21,12 @@
     </div>
 
     <div class="agri-landing-content">
+        @if (isDemo)
+        {
+            <p class="agri-landing-demo agri-landing-anim agri-landing-anim--1">
+                <span class="demo-mode-pill">Mode démo</span>
+            </p>
+        }
         <p class="agri-landing-brand agri-landing-anim agri-landing-anim--1">@Localizer["Home.Brand"]</p>
         <h1 class="agri-landing-title agri-landing-anim agri-landing-anim--2">@Localizer["Home.Title"]</h1>
         <p class="agri-landing-lead agri-landing-anim agri-landing-anim--3">@Localizer["Home.Description"]</p>
@@ -39,6 +47,12 @@
             {
                 <a asp-area="Identity" asp-page="/Account/Login" class="btn agri-landing-btn agri-landing-btn--primary">
                     @Localizer["Home.LoginButton"]
+                </a>
+            }
+            @if (isDemo)
+            {
+                <a asp-controller="Contact" asp-action="Promoteur" class="btn agri-landing-btn agri-landing-btn--ghost">
+                    Contacter le promoteur
                 </a>
             }
         </div>

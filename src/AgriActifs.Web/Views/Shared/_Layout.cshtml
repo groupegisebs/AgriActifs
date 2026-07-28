@@ -1,8 +1,11 @@
 @using AgriActifs.Web
 @using AgriActifs.Web.Models
 @using AgriActifs.Web.Models.ViewModels
+@using AgriActifs.Web.Options
+@using Microsoft.Extensions.Options
 @inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 @inject AgriActifs.Web.Services.Interfaces.IAppContextService AppContext
+@inject IOptions<DemoOptions> DemoOptionsAccessor
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
     var controller = ViewContext.RouteData.Values["controller"]?.ToString();
@@ -13,6 +16,8 @@
     var app = await AppContext.GetSnapshotAsync();
     var pageTitle = ViewData["Title"]?.ToString() ?? app.AppName;
     var fullBleedLanding = ViewData["FullBleedLanding"] as bool? == true;
+    var demo = DemoOptionsAccessor.Value;
+    var isDemoMode = demo.Enabled;
 }
 <!DOCTYPE html>
 <html lang="@System.Globalization.CultureInfo.CurrentUICulture.Name" data-bs-theme="@app.BootstrapColorMode">
@@ -29,7 +34,26 @@
     <link rel="stylesheet" href="~/AgriActifs.Web.styles.css" asp-append-version="true" />
     @await Component.InvokeAsync("ThemeStyle")
 </head>
-<body class="@(fullBleedLanding ? "page-landing" : null)">
+<body class="@(fullBleedLanding ? "page-landing" : null) @(isDemoMode ? "has-demo-banner" : null)">
+    @if (isDemoMode)
+    {
+        <div class="demo-mode-banner" role="status">
+            <div class="demo-mode-banner-inner">
+                <span class="demo-mode-banner-label">
+                    <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+                    Mode démo
+                </span>
+                <span class="demo-mode-banner-text">Environnement de démonstration — données fictives</span>
+                <a class="demo-mode-banner-link"
+                   asp-area=""
+                   asp-controller="Contact"
+                   asp-action="Promoteur">
+                    Contacter le promoteur
+                    <i class="bi bi-arrow-right-short" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+    }
     <header class="app-topbar">
         <div class="app-topbar-inner">
             <div class="d-flex align-items-center gap-2">
@@ -40,6 +64,16 @@
                     </button>
                 }
                 @await Component.InvokeAsync("AppBranding")
+                @if (isDemoMode)
+                {
+                    <a class="demo-mode-badge"
+                       asp-area=""
+                       asp-controller="Contact"
+                       asp-action="Promoteur"
+                       title="Contacter le promoteur">
+                        DÉMO
+                    </a>
+                }
             </div>
 
             @if (!hasSidebar)
@@ -147,94 +181,130 @@
                     <span class="app-sidebar-brand-name">AgriActifs</span>
                     <span class="app-sidebar-brand-sub">Exploitation</span>
                 </div>
-                <div class="app-sidebar-label">Pilotage</div>
-                <a class="app-sidebar-link @(controller == "Dashboard" ? "active" : "")"
-                   asp-area="Ferme" asp-controller="Dashboard" asp-action="Index">
-                    <i class="bi bi-speedometer2"></i> Tableau de bord
-                </a>
-                <a class="app-sidebar-link @(controller == "Notifications" ? "active" : "")"
-                   asp-area="Ferme" asp-controller="Notifications" asp-action="Index">
-                    <i class="bi bi-bell"></i> Notifications
-                </a>
-                <a class="app-sidebar-link @(controller == "Carte" ? "active" : "")"
-                   asp-area="Ferme" asp-controller="Carte" asp-action="Index">
-                    <i class="bi bi-map"></i> Carte
-                </a>
-                <a class="app-sidebar-link @(controller == "Terrain" ? "active" : "")"
-                   asp-area="Ferme" asp-controller="Terrain" asp-action="Index">
-                    <i class="bi bi-phone"></i> Mode terrain
-                </a>
 
-                <div class="app-sidebar-label mt-3">Exploitation</div>
-                <a class="app-sidebar-link @(controller == "Parcelles" ? "active" : "")"
-                   asp-area="Ferme" asp-controller="Parcelles" asp-action="Index">
-                    <i class="bi bi-grid-3x3"></i> Parcelles
-                </a>
-                <a class="app-sidebar-link @(controller == "Activites" ? "active" : "")"
-                   asp-area="Ferme" asp-controller="Activites" asp-action="Index">
-                    <i class="bi bi-calendar3"></i> Activités
-                </a>
-                <a class="app-sidebar-link @(controller == "Readiness" ? "active" : "")"
-                   asp-area="Ferme" asp-controller="Readiness" asp-action="Index">
-                    <i class="bi bi-shield-check"></i> Readiness
-                </a>
+                <div class="app-sidebar-group open" data-group="pilotage">
+                    <button type="button" class="app-sidebar-group-toggle" aria-expanded="true">
+                        <span>Pilotage</span>
+                        <i class="bi bi-chevron-down app-sidebar-chevron" aria-hidden="true"></i>
+                    </button>
+                    <div class="app-sidebar-group-body">
+                        <a class="app-sidebar-link @(controller == "Dashboard" ? "active" : "")"
+                           asp-area="Ferme" asp-controller="Dashboard" asp-action="Index">
+                            <i class="bi bi-speedometer2"></i> Tableau de bord
+                        </a>
+                        <a class="app-sidebar-link @(controller == "Notifications" ? "active" : "")"
+                           asp-area="Ferme" asp-controller="Notifications" asp-action="Index">
+                            <i class="bi bi-bell"></i> Notifications
+                        </a>
+                        <a class="app-sidebar-link @(controller == "Carte" ? "active" : "")"
+                           asp-area="Ferme" asp-controller="Carte" asp-action="Index">
+                            <i class="bi bi-map"></i> Carte
+                        </a>
+                        <a class="app-sidebar-link @(controller == "Terrain" ? "active" : "")"
+                           asp-area="Ferme" asp-controller="Terrain" asp-action="Index">
+                            <i class="bi bi-phone"></i> Mode terrain
+                        </a>
+                    </div>
+                </div>
 
-                <div class="app-sidebar-label mt-3">Actifs</div>
-                <a class="app-sidebar-link @(controller == "Actifs" ? "active" : "")"
-                   asp-area="Ferme" asp-controller="Actifs" asp-action="Index">
-                    <i class="bi bi-truck"></i> Machines &amp; équipements
-                </a>
-                <a class="app-sidebar-link @(controller == "Irrigation" ? "active" : "")"
-                   asp-area="Ferme" asp-controller="Irrigation" asp-action="Index">
-                    <i class="bi bi-droplet"></i> Irrigation
-                </a>
-                <a class="app-sidebar-link @(controller == "Energie" ? "active" : "")"
-                   asp-area="Ferme" asp-controller="Energie" asp-action="Index">
-                    <i class="bi bi-lightning-charge"></i> Énergie
-                </a>
-                <a class="app-sidebar-link @(controller == "Capteurs" ? "active" : "")"
-                   asp-area="Ferme" asp-controller="Capteurs" asp-action="Index">
-                    <i class="bi bi-broadcast"></i> Capteurs IoT
-                </a>
+                <div class="app-sidebar-group open" data-group="exploitation">
+                    <button type="button" class="app-sidebar-group-toggle" aria-expanded="true">
+                        <span>Exploitation</span>
+                        <i class="bi bi-chevron-down app-sidebar-chevron" aria-hidden="true"></i>
+                    </button>
+                    <div class="app-sidebar-group-body">
+                        <a class="app-sidebar-link @(controller == "Parcelles" ? "active" : "")"
+                           asp-area="Ferme" asp-controller="Parcelles" asp-action="Index">
+                            <i class="bi bi-grid-3x3"></i> Parcelles
+                        </a>
+                        <a class="app-sidebar-link @(controller == "Activites" ? "active" : "")"
+                           asp-area="Ferme" asp-controller="Activites" asp-action="Index">
+                            <i class="bi bi-calendar3"></i> Activités
+                        </a>
+                        <a class="app-sidebar-link @(controller == "Readiness" ? "active" : "")"
+                           asp-area="Ferme" asp-controller="Readiness" asp-action="Index">
+                            <i class="bi bi-shield-check"></i> Readiness
+                        </a>
+                    </div>
+                </div>
 
-                <div class="app-sidebar-label mt-3">Opérations</div>
-                <a class="app-sidebar-link @(controller == "Maintenance" ? "active" : "")"
-                   asp-area="Ferme" asp-controller="Maintenance" asp-action="Index">
-                    <i class="bi bi-wrench"></i> Maintenance
-                </a>
-                <a class="app-sidebar-link @(controller == "Stocks" ? "active" : "")"
-                   asp-area="Ferme" asp-controller="Stocks" asp-action="Index">
-                    <i class="bi bi-box-seam"></i> Stocks
-                </a>
-                <a class="app-sidebar-link @(controller == "Fournisseurs" ? "active" : "")"
-                   asp-area="Ferme" asp-controller="Fournisseurs" asp-action="Index">
-                    <i class="bi bi-shop"></i> Fournisseurs
-                </a>
-                <a class="app-sidebar-link @(controller == "Documents" ? "active" : "")"
-                   asp-area="Ferme" asp-controller="Documents" asp-action="Index">
-                    <i class="bi bi-folder2-open"></i> Documents
-                </a>
-                <a class="app-sidebar-link @(controller == "Rapports" ? "active" : "")"
-                   asp-area="Ferme" asp-controller="Rapports" asp-action="Index">
-                    <i class="bi bi-graph-up"></i> Rapports
-                </a>
-                <a class="app-sidebar-link @(controller == "Exploitations" ? "active" : "")"
-                   asp-area="Ferme" asp-controller="Exploitations" asp-action="Index">
-                    <i class="bi bi-building"></i> Exploitations
-                </a>
+                <div class="app-sidebar-group open" data-group="actifs">
+                    <button type="button" class="app-sidebar-group-toggle" aria-expanded="true">
+                        <span>Actifs</span>
+                        <i class="bi bi-chevron-down app-sidebar-chevron" aria-hidden="true"></i>
+                    </button>
+                    <div class="app-sidebar-group-body">
+                        <a class="app-sidebar-link @(controller == "Actifs" ? "active" : "")"
+                           asp-area="Ferme" asp-controller="Actifs" asp-action="Index">
+                            <i class="bi bi-truck"></i> Machines &amp; équipements
+                        </a>
+                        <a class="app-sidebar-link @(controller == "Irrigation" ? "active" : "")"
+                           asp-area="Ferme" asp-controller="Irrigation" asp-action="Index">
+                            <i class="bi bi-droplet"></i> Irrigation
+                        </a>
+                        <a class="app-sidebar-link @(controller == "Energie" ? "active" : "")"
+                           asp-area="Ferme" asp-controller="Energie" asp-action="Index">
+                            <i class="bi bi-lightning-charge"></i> Énergie
+                        </a>
+                        <a class="app-sidebar-link @(controller == "Capteurs" ? "active" : "")"
+                           asp-area="Ferme" asp-controller="Capteurs" asp-action="Index">
+                            <i class="bi bi-broadcast"></i> Capteurs IoT
+                        </a>
+                    </div>
+                </div>
 
-                <div class="app-sidebar-label mt-3">Compte</div>
-                <a class="app-sidebar-link" asp-area="" asp-controller="Home" asp-action="Index">
-                    <i class="bi bi-house"></i> Accueil
-                </a>
-                <a class="app-sidebar-link" asp-controller="Profile" asp-action="Index">
-                    <i class="bi bi-person-circle"></i> @Localizer["Nav.MyProfile"]
-                </a>
-                <gise-permission resource="Dashboard" action="View">
-                    <a class="app-sidebar-link" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
-                        <i class="bi bi-grid"></i> @Localizer["Nav.Admin"]
-                    </a>
-                </gise-permission>
+                <div class="app-sidebar-group open" data-group="operations">
+                    <button type="button" class="app-sidebar-group-toggle" aria-expanded="true">
+                        <span>Opérations</span>
+                        <i class="bi bi-chevron-down app-sidebar-chevron" aria-hidden="true"></i>
+                    </button>
+                    <div class="app-sidebar-group-body">
+                        <a class="app-sidebar-link @(controller == "Maintenance" ? "active" : "")"
+                           asp-area="Ferme" asp-controller="Maintenance" asp-action="Index">
+                            <i class="bi bi-wrench"></i> Maintenance
+                        </a>
+                        <a class="app-sidebar-link @(controller == "Stocks" ? "active" : "")"
+                           asp-area="Ferme" asp-controller="Stocks" asp-action="Index">
+                            <i class="bi bi-box-seam"></i> Stocks
+                        </a>
+                        <a class="app-sidebar-link @(controller == "Fournisseurs" ? "active" : "")"
+                           asp-area="Ferme" asp-controller="Fournisseurs" asp-action="Index">
+                            <i class="bi bi-shop"></i> Fournisseurs
+                        </a>
+                        <a class="app-sidebar-link @(controller == "Documents" ? "active" : "")"
+                           asp-area="Ferme" asp-controller="Documents" asp-action="Index">
+                            <i class="bi bi-folder2-open"></i> Documents
+                        </a>
+                        <a class="app-sidebar-link @(controller == "Rapports" ? "active" : "")"
+                           asp-area="Ferme" asp-controller="Rapports" asp-action="Index">
+                            <i class="bi bi-graph-up"></i> Rapports
+                        </a>
+                        <a class="app-sidebar-link @(controller == "Exploitations" ? "active" : "")"
+                           asp-area="Ferme" asp-controller="Exploitations" asp-action="Index">
+                            <i class="bi bi-building"></i> Exploitations
+                        </a>
+                    </div>
+                </div>
+
+                <div class="app-sidebar-group open" data-group="compte">
+                    <button type="button" class="app-sidebar-group-toggle" aria-expanded="true">
+                        <span>Compte</span>
+                        <i class="bi bi-chevron-down app-sidebar-chevron" aria-hidden="true"></i>
+                    </button>
+                    <div class="app-sidebar-group-body">
+                        <a class="app-sidebar-link" asp-area="" asp-controller="Home" asp-action="Index">
+                            <i class="bi bi-house"></i> Accueil
+                        </a>
+                        <a class="app-sidebar-link" asp-controller="Profile" asp-action="Index">
+                            <i class="bi bi-person-circle"></i> @Localizer["Nav.MyProfile"]
+                        </a>
+                        <gise-permission resource="Dashboard" action="View">
+                            <a class="app-sidebar-link" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                                <i class="bi bi-grid"></i> @Localizer["Nav.Admin"]
+                            </a>
+                        </gise-permission>
+                    </div>
+                </div>
             </aside>
         }
 

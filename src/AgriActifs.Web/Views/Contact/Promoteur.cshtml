@@ -1,0 +1,85 @@
+@model AgriActifs.Web.Models.ViewModels.PromoteurContactViewModel
+@{
+    ViewData["Title"] = "Contacter le promoteur";
+}
+
+<div class="container py-4" style="max-width:640px">
+    <div class="demo-contact-hero mb-4">
+        <span class="demo-mode-pill">Mode démo</span>
+        <h1 class="h3 mt-2 mb-1">Contacter le promoteur</h1>
+        <p class="text-muted mb-0">
+            Cette instance AgriActifs est une démonstration.
+            Précisez le type de demande pour être mis en relation avec
+            <strong>@(Model.PromoterName ?? "le promoteur")</strong>.
+        </p>
+        @if (!string.IsNullOrWhiteSpace(Model.PromoterEmail) || !string.IsNullOrWhiteSpace(Model.PromoterPhone))
+        {
+            <p class="small text-muted mt-2 mb-0">
+                @if (!string.IsNullOrWhiteSpace(Model.PromoterEmail))
+                {
+                    <span><i class="bi bi-envelope"></i> @Model.PromoterEmail</span>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.PromoterPhone))
+                {
+                    <span class="ms-3"><i class="bi bi-telephone"></i> @Model.PromoterPhone</span>
+                }
+            </p>
+        }
+    </div>
+
+    @if (TempData["Success"] is string ok)
+    {
+        <div class="alert alert-success">@ok</div>
+    }
+
+    <form method="post" asp-action="Promoteur" class="demo-contact-form">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="mb-3">
+            <label asp-for="TypeDemande" class="form-label"></label>
+            <select asp-for="TypeDemande" class="form-select" asp-items="Html.GetEnumSelectList<DemandePromoteurType>()"></select>
+            <span asp-validation-for="TypeDemande" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Nom" class="form-label"></label>
+            <input asp-for="Nom" class="form-control" autocomplete="name" />
+            <span asp-validation-for="Nom" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Organisation" class="form-label"></label>
+            <input asp-for="Organisation" class="form-control" autocomplete="organization" />
+            <span asp-validation-for="Organisation" class="text-danger"></span>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control" autocomplete="email" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label asp-for="Telephone" class="form-label"></label>
+                <input asp-for="Telephone" class="form-control" autocomplete="tel" />
+                <span asp-validation-for="Telephone" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Message" class="form-label"></label>
+            <textarea asp-for="Message" class="form-control" rows="5" placeholder="Décrivez votre besoin, le nombre d'exploitations, le calendrier souhaité…"></textarea>
+            <span asp-validation-for="Message" class="text-danger"></span>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2">
+            <button type="submit" class="btn btn-danger">Envoyer la demande</button>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Retour</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

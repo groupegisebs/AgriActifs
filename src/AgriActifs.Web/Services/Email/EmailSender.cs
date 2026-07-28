@@ -7,7 +7,6 @@ namespace AgriActifs.Web.Services.Email;
 
 public class EmailSender(
     IOptions<AuthMessageSenderOptions> optionsAccessor,
-    IWebHostEnvironment environment,
     ILogger<EmailSender> logger) : IEmailSender
 {
     private readonly AuthMessageSenderOptions _options = optionsAccessor.Value;
@@ -16,22 +15,16 @@ public class EmailSender(
     {
         if (string.IsNullOrWhiteSpace(_options.SendGridKey))
         {
-            if (environment.IsDevelopment())
-            {
-                logger.LogWarning(
-                    """
-                    [DEV EMAIL - SendGrid non configuré]
-                    To: {Email}
-                    Subject: {Subject}
-                    Body:
-                    {Body}
-                    """,
-                    email, subject, htmlMessage);
-                return;
-            }
-
-            throw new InvalidOperationException(
-                "La clé SendGrid n'est pas configurée. Définissez Email:SendGridKey via User Secrets ou variables d'environnement.");
+            logger.LogWarning(
+                """
+                [EMAIL - SendGrid non configuré]
+                To: {Email}
+                Subject: {Subject}
+                Body:
+                {Body}
+                """,
+                email, subject, htmlMessage);
+            return;
         }
 
         var client = new SendGridClient(_options.SendGridKey);

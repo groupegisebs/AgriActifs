@@ -19,6 +19,13 @@ public static class SeedData
     private const string AdminPassword = "Agri@Admin2026!";
     private const string DemoPassword = "Demo@Agri2026!";
 
+    /// <summary>Date UTC à minuit — Npgsql refuse Kind=Unspecified sur timestamptz.</summary>
+    private static DateTime UtcDate(int year, int month, int day) =>
+        new(year, month, day, 0, 0, 0, DateTimeKind.Utc);
+
+    private static DateTime UtcToday() =>
+        DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
+
     public static async Task InitializeAsync(IServiceProvider services)
     {
         using var scope = services.CreateScope();
@@ -225,14 +232,14 @@ public static class SeedData
                 ExploitationId = exploitation.Id, Code = "P01", Name = "Champ Nord", AreaHa = 18, SoilType = "Loam",
                 HasIrrigation = true, CurrentCulture = "Maïs", PreviousCulture = "Soya", PlannedCulture = "Blé",
                 EstimatedYieldPerHa = 8.5m, ActualYieldPerHa = 8.2m, ResponsibleName = "Jean",
-                Etat = ParcelleEtat.EnProduction, SowingDate = new DateTime(2026, 5, 10)
+                Etat = ParcelleEtat.EnProduction, SowingDate = UtcDate(2026, 5, 10)
             },
             new Parcelle
             {
                 ExploitationId = exploitation.Id, Code = "P02", Name = "Champ Sud", AreaHa = 22, SoilType = "Argile",
                 HasIrrigation = false, CurrentCulture = "Soya", PreviousCulture = "Maïs",
                 EstimatedYieldPerHa = 3.2m, ResponsibleName = "Marie", Etat = ParcelleEtat.EnProduction,
-                SowingDate = new DateTime(2026, 5, 18)
+                SowingDate = UtcDate(2026, 5, 18)
             },
             new Parcelle
             {
@@ -268,7 +275,7 @@ public static class SeedData
             new StockArticle { ExploitationId = exploitation.Id, Sku = "SEM-SOYA", Name = "Semences soya", Categorie = StockCategorie.Semences, Unit = "sac", QuantityOnHand = 8, ReorderLevel = 4, UnitCost = 85 },
             new StockArticle { ExploitationId = exploitation.Id, Sku = "ENG-UREE", Name = "Urée 46-0-0", Categorie = StockCategorie.Engrais, Unit = "t", QuantityOnHand = 4, ReorderLevel = 2, UnitCost = 780 },
             new StockArticle { ExploitationId = exploitation.Id, Sku = "ENG-NPK", Name = "NPK 15-15-15", Categorie = StockCategorie.Engrais, Unit = "t", QuantityOnHand = 1.5m, ReorderLevel = 2, UnitCost = 920 },
-            new StockArticle { ExploitationId = exploitation.Id, Sku = "PHY-GLY", Name = "Glyphosate", Categorie = StockCategorie.Phyto, Unit = "L", QuantityOnHand = 40, ReorderLevel = 20, UnitCost = 12, ExpirationDate = new DateTime(2027, 6, 1) },
+            new StockArticle { ExploitationId = exploitation.Id, Sku = "PHY-GLY", Name = "Glyphosate", Categorie = StockCategorie.Phyto, Unit = "L", QuantityOnHand = 40, ReorderLevel = 20, UnitCost = 12, ExpirationDate = UtcDate(2027, 6, 1) },
             new StockArticle { ExploitationId = exploitation.Id, Sku = "PHY-FON", Name = "Fongicide", Categorie = StockCategorie.Phyto, Unit = "L", QuantityOnHand = 8, ReorderLevel = 10, UnitCost = 45 },
             new StockArticle { ExploitationId = exploitation.Id, Sku = "REC-MAIS", Name = "Maïs récolté", Categorie = StockCategorie.Recolte, Unit = "t", QuantityOnHand = 120, ReorderLevel = 0, UnitCost = 220 },
             new StockArticle { ExploitationId = exploitation.Id, Sku = "PIE-FIL", Name = "Filtres hydrauliques", Categorie = StockCategorie.Pieces, Unit = "u", QuantityOnHand = 6, ReorderLevel = 4, UnitCost = 35 },
@@ -282,10 +289,10 @@ public static class SeedData
         if (actifs.Count >= 6)
         {
             db.Interventions.AddRange(
-                new InterventionMaintenance { ExploitationId = exploitation.Id, ActifAgricoleId = actifs[0].Id, Title = "Entretien 500h", Type = InterventionType.Preventif, Statut = InterventionStatut.Ouverte, PlannedDate = DateTime.UtcNow.Date.AddDays(3), LaborCost = 350, Description = "Vidange et filtres" },
-                new InterventionMaintenance { ExploitationId = exploitation.Id, ActifAgricoleId = actifs[2].Id, Title = "Réparation convoyeur", Type = InterventionType.Correctif, Statut = InterventionStatut.EnCours, PlannedDate = DateTime.UtcNow.Date.AddDays(-1), LaborCost = 800, PartsCost = 450 },
-                new InterventionMaintenance { ExploitationId = exploitation.Id, ActifAgricoleId = actifs[1].Id, Title = "Contrôle annuel", Type = InterventionType.Preventif, Statut = InterventionStatut.Cloturee, PlannedDate = DateTime.UtcNow.Date.AddDays(-30), CompletedDate = DateTime.UtcNow.Date.AddDays(-28), LaborCost = 200, Report = "OK" },
-                new InterventionMaintenance { ExploitationId = exploitation.Id, ActifAgricoleId = actifs[5].Id, Title = "Inspection pivot", Type = InterventionType.Preventif, Statut = InterventionStatut.Cloturee, PlannedDate = DateTime.UtcNow.Date.AddDays(-60), CompletedDate = DateTime.UtcNow.Date.AddDays(-59), LaborCost = 150 }
+                new InterventionMaintenance { ExploitationId = exploitation.Id, ActifAgricoleId = actifs[0].Id, Title = "Entretien 500h", Type = InterventionType.Preventif, Statut = InterventionStatut.Ouverte, PlannedDate = UtcToday().AddDays(3), LaborCost = 350, Description = "Vidange et filtres" },
+                new InterventionMaintenance { ExploitationId = exploitation.Id, ActifAgricoleId = actifs[2].Id, Title = "Réparation convoyeur", Type = InterventionType.Correctif, Statut = InterventionStatut.EnCours, PlannedDate = UtcToday().AddDays(-1), LaborCost = 800, PartsCost = 450 },
+                new InterventionMaintenance { ExploitationId = exploitation.Id, ActifAgricoleId = actifs[1].Id, Title = "Contrôle annuel", Type = InterventionType.Preventif, Statut = InterventionStatut.Cloturee, PlannedDate = UtcToday().AddDays(-30), CompletedDate = UtcToday().AddDays(-28), LaborCost = 200, Report = "OK" },
+                new InterventionMaintenance { ExploitationId = exploitation.Id, ActifAgricoleId = actifs[5].Id, Title = "Inspection pivot", Type = InterventionType.Preventif, Statut = InterventionStatut.Cloturee, PlannedDate = UtcToday().AddDays(-60), CompletedDate = UtcToday().AddDays(-59), LaborCost = 150 }
             );
             actifs[2].Statut = ActifStatut.EnMaintenance;
         }
@@ -363,7 +370,7 @@ public static class SeedData
                         Title = "Entretien 500h",
                         Type = InterventionType.Preventif,
                         Statut = InterventionStatut.Ouverte,
-                        PlannedDate = DateTime.UtcNow.Date.AddDays(3),
+                        PlannedDate = UtcToday().AddDays(3),
                         LaborCost = 350,
                         Description = "Vidange et filtres"
                     },
@@ -374,7 +381,7 @@ public static class SeedData
                         Title = "Réparation convoyeur",
                         Type = InterventionType.Correctif,
                         Statut = InterventionStatut.EnCours,
-                        PlannedDate = DateTime.UtcNow.Date.AddDays(-1),
+                        PlannedDate = UtcToday().AddDays(-1),
                         LaborCost = 800,
                         PartsCost = 450
                     });
@@ -397,31 +404,31 @@ public static class SeedData
             {
                 ExploitationId = exploitationId, InternalCode = "TR-01", Name = "Tracteur John Deere 6155M",
                 Categorie = ActifCategorie.Machinerie, SubCategory = "Tracteur", Brand = "John Deere", Model = "6155M",
-                Year = 2019, AcquisitionValue = 185000, AcquisitionDate = new DateTime(2019, 4, 12),
+                Year = 2019, AcquisitionValue = 185000, AcquisitionDate = UtcDate(2019, 4, 12),
                 ParcelleId = p0, Building = "Hangar A", EngineHours = 4820, NextServiceHours = 5000,
-                NextServiceDate = DateTime.UtcNow.Date.AddDays(14), WarrantyEndDate = DateTime.UtcNow.Date.AddDays(20),
+                NextServiceDate = UtcToday().AddDays(14), WarrantyEndDate = UtcToday().AddDays(20),
                 QrPayload = "TR-01", GpsLat = 45.6308, GpsLng = -72.9569, LocationNote = "Hangar A"
             },
             new ActifAgricole
             {
                 ExploitationId = exploitationId, InternalCode = "TR-02", Name = "Tracteur New Holland T6",
                 Categorie = ActifCategorie.Machinerie, Brand = "New Holland", Model = "T6.180", Year = 2016,
-                AcquisitionValue = 95000, AcquisitionDate = new DateTime(2016, 6, 1),
-                EngineHours = 7100, NextServiceHours = 7000, NextServiceDate = DateTime.UtcNow.Date.AddDays(-5),
+                AcquisitionValue = 95000, AcquisitionDate = UtcDate(2016, 6, 1),
+                EngineHours = 7100, NextServiceHours = 7000, NextServiceDate = UtcToday().AddDays(-5),
                 Building = "Hangar A", QrPayload = "TR-02", Statut = ActifStatut.EnService
             },
             new ActifAgricole
             {
                 ExploitationId = exploitationId, InternalCode = "MO-01", Name = "Moissonneuse Case IH",
                 Categorie = ActifCategorie.Machinerie, Brand = "Case IH", Model = "6140", Year = 2018,
-                AcquisitionValue = 320000, AcquisitionDate = new DateTime(2018, 8, 20),
+                AcquisitionValue = 320000, AcquisitionDate = UtcDate(2018, 8, 20),
                 EngineHours = 2100, NextServiceHours = 2500, Building = "Hangar B", QrPayload = "MO-01"
             },
             new ActifAgricole
             {
                 ExploitationId = exploitationId, InternalCode = "VH-01", Name = "Camion grain 10 roues",
                 Categorie = ActifCategorie.Vehicules, Brand = "Freightliner", Year = 2015,
-                AcquisitionValue = 78000, OdometerKm = 245000, NextServiceDate = DateTime.UtcNow.Date.AddDays(40),
+                AcquisitionValue = 78000, OdometerKm = 245000, NextServiceDate = UtcToday().AddDays(40),
                 Building = "Garage", QrPayload = "VH-01"
             },
             new ActifAgricole
@@ -447,7 +454,7 @@ public static class SeedData
             {
                 ExploitationId = exploitationId, InternalCode = "BA-01", Name = "Hangar matériel",
                 Categorie = ActifCategorie.Installations, AcquisitionValue = 250000,
-                AcquisitionDate = new DateTime(2012, 1, 1), Building = "Hangar A", LocationNote = "Siège",
+                AcquisitionDate = UtcDate(2012, 1, 1), Building = "Hangar A", LocationNote = "Siège",
                 QrPayload = "BA-01"
             }
         };
@@ -475,7 +482,7 @@ public static class SeedData
                     Title = "Semis maïs Champ Nord",
                     Type = ActiviteType.Semis,
                     Statut = ActiviteStatut.Planifiee,
-                    PlannedDate = DateTime.UtcNow.Date.AddDays(2),
+                    PlannedDate = UtcToday().AddDays(2),
                     ParcelleId = parcelles.ElementAtOrDefault(0)?.Id,
                     ActifAgricoleId = tracteur?.Id,
                     AssignedTo = "Jean",
@@ -487,7 +494,7 @@ public static class SeedData
                     Title = "Irrigation Secteur A",
                     Type = ActiviteType.Irrigation,
                     Statut = ActiviteStatut.EnCours,
-                    PlannedDate = DateTime.UtcNow.Date,
+                    PlannedDate = UtcToday(),
                     ParcelleId = parcelles.ElementAtOrDefault(0)?.Id,
                     ActifAgricoleId = pompe?.Id,
                     AssignedTo = "Luc"
@@ -498,7 +505,7 @@ public static class SeedData
                     Title = "Traitement fongicide Sud",
                     Type = ActiviteType.Traitement,
                     Statut = ActiviteStatut.Planifiee,
-                    PlannedDate = DateTime.UtcNow.Date.AddDays(5),
+                    PlannedDate = UtcToday().AddDays(5),
                     ParcelleId = parcelles.ElementAtOrDefault(1)?.Id
                 });
         }
@@ -516,7 +523,7 @@ public static class SeedData
                     ReservoirNote = "Réservoir principal",
                     DebitM3H = 45,
                     PressionBar = 3.2m,
-                    LastServiceDate = DateTime.UtcNow.Date.AddDays(-40)
+                    LastServiceDate = UtcToday().AddDays(-40)
                 },
                 new IrrigationSecteur
                 {
@@ -537,7 +544,7 @@ public static class SeedData
                 {
                     ExploitationId = exploitation.Id,
                     ActifAgricoleId = gen.Id,
-                    ReadingDate = DateTime.UtcNow.Date.AddDays(-7),
+                    ReadingDate = UtcToday().AddDays(-7),
                     Kwh = 420,
                     Cost = 95,
                     Source = "Diesel"
@@ -546,7 +553,7 @@ public static class SeedData
                 {
                     ExploitationId = exploitation.Id,
                     ActifAgricoleId = gen.Id,
-                    ReadingDate = DateTime.UtcNow.Date.AddDays(-1),
+                    ReadingDate = UtcToday().AddDays(-1),
                     Kwh = 85,
                     Cost = 22,
                     Source = "Diesel"
@@ -562,7 +569,7 @@ public static class SeedData
                     Title = "Garantie John Deere 6155M",
                     Categorie = DocumentCategorie.Garantie,
                     ActifAgricoleId = tracteur.Id,
-                    DocumentDate = new DateTime(2019, 4, 12),
+                    DocumentDate = UtcDate(2019, 4, 12),
                     Tags = "garantie,tracteur",
                     FileUrl = "#"
                 },
@@ -571,7 +578,7 @@ public static class SeedData
                     ExploitationId = exploitation.Id,
                     Title = "Police assurance flotte 2026",
                     Categorie = DocumentCategorie.Assurance,
-                    DocumentDate = new DateTime(2026, 1, 1),
+                    DocumentDate = UtcDate(2026, 1, 1),
                     Tags = "assurance"
                 });
         }
@@ -584,14 +591,14 @@ public static class SeedData
                 f.Categorie = FournisseurCategorie.Machinerie;
                 f.Rating = 4;
                 f.ContractRef = "CTR-MCQ-2025";
-                f.ContractEndDate = DateTime.UtcNow.Date.AddMonths(8);
+                f.ContractEndDate = UtcToday().AddMonths(8);
             }
             else
             {
                 f.Categorie = FournisseurCategorie.Intrants;
                 f.Rating = 5;
                 f.ContractRef = "CTR-AIP-2026";
-                f.ContractEndDate = DateTime.UtcNow.Date.AddMonths(14);
+                f.ContractEndDate = UtcToday().AddMonths(14);
             }
         }
 

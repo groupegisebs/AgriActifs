@@ -31,7 +31,7 @@ public class ActivitesController(
     public async Task<IActionResult> Create(CancellationToken cancellationToken)
     {
         await LoadLookupsAsync(cancellationToken);
-        return View(new ActiviteAgricole { PlannedDate = DateTime.UtcNow.Date });
+        return View(new ActiviteAgricole { PlannedDate = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc) });
     }
 
     [HttpPost, ValidateAntiForgeryToken]
@@ -115,7 +115,7 @@ public class DocumentsController(
         await LoadLookupsAsync(cancellationToken);
         return View(new DocumentFerme
         {
-            DocumentDate = DateTime.UtcNow.Date,
+            DocumentDate = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc),
             ActifAgricoleId = actifId
         });
     }
@@ -334,7 +334,7 @@ public class EnergieController(
     public async Task<IActionResult> CreateReleve(CancellationToken cancellationToken)
     {
         await LoadActifsAsync(cancellationToken);
-        return View(new EnergieReleve { ReadingDate = DateTime.UtcNow.Date });
+        return View(new EnergieReleve { ReadingDate = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc) });
     }
 
     [HttpPost, ValidateAntiForgeryToken]

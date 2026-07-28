@@ -622,7 +622,7 @@ public class MaintenanceController(
         {
             Intervention = new InterventionMaintenance
             {
-                PlannedDate = DateTime.UtcNow.Date,
+                PlannedDate = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc),
                 ActifAgricoleId = actifId
             },
             PieceLines = [new InterventionPieceLine(), new InterventionPieceLine(), new InterventionPieceLine()]
@@ -783,7 +783,7 @@ public class MaintenanceController(
                 {
                     if (actif.EngineHours is not null)
                         actif.NextServiceHours = actif.EngineHours + 250;
-                    actif.NextServiceDate = DateTime.UtcNow.Date.AddMonths(6);
+                    actif.NextServiceDate = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc).AddMonths(6);
                 }
             }
         }

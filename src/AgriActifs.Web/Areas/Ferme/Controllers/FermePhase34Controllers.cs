@@ -359,7 +359,7 @@ public class TerrainController(
             Type = InterventionType.Correctif,
             Statut = InterventionStatut.Ouverte,
             Priorite = InterventionPriorite.Urgente,
-            PlannedDate = DateTime.UtcNow.Date,
+            PlannedDate = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc),
             Description = description ?? "Déclarée depuis l'app terrain",
             AssignedToName = User.Identity?.Name
         };
@@ -400,7 +400,7 @@ public class TerrainController(
             Categorie = DocumentCategorie.Photo,
             FileUrl = photoUrl.Trim(),
             ActifAgricoleId = id,
-            DocumentDate = DateTime.UtcNow.Date,
+            DocumentDate = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc),
             UploadedAt = DateTime.UtcNow,
             UploadedByUserId = CurrentUserId,
             Tags = "terrain,photo"

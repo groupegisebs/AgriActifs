@@ -59,34 +59,46 @@ public static class SeedData
         }
     }
 
-    /// <summary>Permissions différenciées par rôle métier ferme.</summary>
+    /// <summary>Permissions différenciées par rôle métier ferme (menus + actions).</summary>
     private static async Task EnsureDemoFermeRoleGrantsAsync(IPermissionAdminService permissionAdmin)
     {
-        var viewOnly = new[]
+        // Lecture seule — consultation / export, pas de mode terrain ni IoT avancé
+        var observateur = new[]
         {
-            "FermeDashboard.View", "Exploitations.View", "Parcelles.View", "Actifs.View", "Actifs.Export",
-            "Stocks.View", "Maintenance.View", "Fournisseurs.View", "Activites.View", "Documents.View",
-            "Notifications.View", "Irrigation.View", "Energie.View", "RapportsFerme.View", "Carte.View",
-            "Capteurs.View", "Readiness.View", "Terrain.View"
+            "FermeDashboard.View", "Notifications.View", "Carte.View",
+            "Parcelles.View", "Activites.View", "Readiness.View",
+            "Actifs.View", "Actifs.Export",
+            "Maintenance.View", "Stocks.View", "Documents.View", "RapportsFerme.View", "Fournisseurs.View"
         };
 
-        var ouvrier = viewOnly.Concat(
-        [
-            "Activites.Manage", "Maintenance.Manage", "Stocks.Adjust", "Terrain.Manage", "Notifications.View"
-        ]).Distinct().ToArray();
+        // Ouvrier — terrain, activités, maintenance, stocks
+        var ouvrier = new[]
+        {
+            "FermeDashboard.View", "Notifications.View", "Terrain.View", "Terrain.Manage",
+            "Parcelles.View", "Activites.View", "Activites.Manage",
+            "Actifs.View",
+            "Maintenance.View", "Maintenance.Manage",
+            "Stocks.View", "Stocks.Adjust"
+        };
 
-        var technicien = ouvrier.Concat(
-        [
-            "Actifs.Create", "Actifs.Edit", "Stocks.Manage", "Maintenance.Close",
-            "Capteurs.Manage", "Irrigation.Manage", "Energie.Manage",
-            "Documents.Manage", "Fournisseurs.View", "Parcelles.Manage"
-        ]).Distinct().ToArray();
+        // Technicien — actifs, IoT, irrigation, énergie (+ terrain)
+        var technicien = new[]
+        {
+            "FermeDashboard.View", "Notifications.View", "Carte.View", "Terrain.View", "Terrain.Manage",
+            "Parcelles.View", "Parcelles.Manage", "Activites.View", "Activites.Manage", "Readiness.View",
+            "Actifs.View", "Actifs.Create", "Actifs.Edit", "Actifs.Export",
+            "Irrigation.View", "Irrigation.Manage", "Energie.View", "Energie.Manage",
+            "Capteurs.View", "Capteurs.Manage",
+            "Maintenance.View", "Maintenance.Manage", "Maintenance.Close",
+            "Stocks.View", "Stocks.Manage", "Stocks.Adjust",
+            "Documents.View", "Documents.Manage", "Fournisseurs.View"
+        };
 
         // Gérant : toute la catégorie Ferme
         await permissionAdmin.EnsureRoleCategoryGrantsAsync(AppRoles.Gerant, "Ferme");
         await permissionAdmin.EnsureRolePermissionCodesAsync(AppRoles.Technicien, technicien);
         await permissionAdmin.EnsureRolePermissionCodesAsync(AppRoles.Ouvrier, ouvrier);
-        await permissionAdmin.EnsureRolePermissionCodesAsync(AppRoles.Observateur, viewOnly);
+        await permissionAdmin.EnsureRolePermissionCodesAsync(AppRoles.Observateur, observateur);
     }
 
     private static async Task SeedRolesAsync(RoleManager<ApplicationRole> roleManager)

@@ -188,22 +188,30 @@
                         <i class="bi bi-chevron-down app-sidebar-chevron" aria-hidden="true"></i>
                     </button>
                     <div class="app-sidebar-group-body">
-                        <a class="app-sidebar-link @(controller == "Dashboard" ? "active" : "")"
-                           asp-area="Ferme" asp-controller="Dashboard" asp-action="Index">
-                            <i class="bi bi-speedometer2"></i> Tableau de bord
-                        </a>
-                        <a class="app-sidebar-link @(controller == "Notifications" ? "active" : "")"
-                           asp-area="Ferme" asp-controller="Notifications" asp-action="Index">
-                            <i class="bi bi-bell"></i> Notifications
-                        </a>
-                        <a class="app-sidebar-link @(controller == "Carte" ? "active" : "")"
-                           asp-area="Ferme" asp-controller="Carte" asp-action="Index">
-                            <i class="bi bi-map"></i> Carte
-                        </a>
-                        <a class="app-sidebar-link @(controller == "Terrain" ? "active" : "")"
-                           asp-area="Ferme" asp-controller="Terrain" asp-action="Index">
-                            <i class="bi bi-phone"></i> Mode terrain
-                        </a>
+                        <gise-permission resource="FermeDashboard" action="View">
+                            <a class="app-sidebar-link @(controller == "Dashboard" ? "active" : "")"
+                               asp-area="Ferme" asp-controller="Dashboard" asp-action="Index">
+                                <i class="bi bi-speedometer2"></i> Tableau de bord
+                            </a>
+                        </gise-permission>
+                        <gise-permission resource="Notifications" action="View">
+                            <a class="app-sidebar-link @(controller == "Notifications" ? "active" : "")"
+                               asp-area="Ferme" asp-controller="Notifications" asp-action="Index">
+                                <i class="bi bi-bell"></i> Notifications
+                            </a>
+                        </gise-permission>
+                        <gise-permission resource="Carte" action="View">
+                            <a class="app-sidebar-link @(controller == "Carte" ? "active" : "")"
+                               asp-area="Ferme" asp-controller="Carte" asp-action="Index">
+                                <i class="bi bi-map"></i> Carte
+                            </a>
+                        </gise-permission>
+                        <gise-permission resource="Terrain" action="View">
+                            <a class="app-sidebar-link @(controller == "Terrain" ? "active" : "")"
+                               asp-area="Ferme" asp-controller="Terrain" asp-action="Index">
+                                <i class="bi bi-phone"></i> Mode terrain
+                            </a>
+                        </gise-permission>
                     </div>
                 </div>
 
@@ -213,18 +221,24 @@
                         <i class="bi bi-chevron-down app-sidebar-chevron" aria-hidden="true"></i>
                     </button>
                     <div class="app-sidebar-group-body">
-                        <a class="app-sidebar-link @(controller == "Parcelles" ? "active" : "")"
-                           asp-area="Ferme" asp-controller="Parcelles" asp-action="Index">
-                            <i class="bi bi-grid-3x3"></i> Parcelles
-                        </a>
-                        <a class="app-sidebar-link @(controller == "Activites" ? "active" : "")"
-                           asp-area="Ferme" asp-controller="Activites" asp-action="Index">
-                            <i class="bi bi-calendar3"></i> Activités
-                        </a>
-                        <a class="app-sidebar-link @(controller == "Readiness" ? "active" : "")"
-                           asp-area="Ferme" asp-controller="Readiness" asp-action="Index">
-                            <i class="bi bi-shield-check"></i> Readiness
-                        </a>
+                        <gise-permission resource="Parcelles" action="View">
+                            <a class="app-sidebar-link @(controller == "Parcelles" ? "active" : "")"
+                               asp-area="Ferme" asp-controller="Parcelles" asp-action="Index">
+                                <i class="bi bi-grid-3x3"></i> Parcelles
+                            </a>
+                        </gise-permission>
+                        <gise-permission resource="Activites" action="View">
+                            <a class="app-sidebar-link @(controller == "Activites" ? "active" : "")"
+                               asp-area="Ferme" asp-controller="Activites" asp-action="Index">
+                                <i class="bi bi-calendar3"></i> Activités
+                            </a>
+                        </gise-permission>
+                        <gise-permission resource="Readiness" action="View">
+                            <a class="app-sidebar-link @(controller == "Readiness" ? "active" : "")"
+                               asp-area="Ferme" asp-controller="Readiness" asp-action="Index">
+                                <i class="bi bi-shield-check"></i> Readiness
+                            </a>
+                        </gise-permission>
                     </div>
                 </div>
 
@@ -234,22 +248,30 @@
                         <i class="bi bi-chevron-down app-sidebar-chevron" aria-hidden="true"></i>
                     </button>
                     <div class="app-sidebar-group-body">
-                        <a class="app-sidebar-link @(controller == "Actifs" ? "active" : "")"
-                           asp-area="Ferme" asp-controller="Actifs" asp-action="Index">
-                            <i class="bi bi-truck"></i> Machines &amp; équipements
-                        </a>
-                        <a class="app-sidebar-link @(controller == "Irrigation" ? "active" : "")"
-                           asp-area="Ferme" asp-controller="Irrigation" asp-action="Index">
-                            <i class="bi bi-droplet"></i> Irrigation
-                        </a>
-                        <a class="app-sidebar-link @(controller == "Energie" ? "active" : "")"
-                           asp-area="Ferme" asp-controller="Energie" asp-action="Index">
-                            <i class="bi bi-lightning-charge"></i> Énergie
-                        </a>
-                        <a class="app-sidebar-link @(controller == "Capteurs" ? "active" : "")"
-                           asp-area="Ferme" asp-controller="Capteurs" asp-action="Index">
-                            <i class="bi bi-broadcast"></i> Capteurs IoT
-                        </a>
+                        <gise-permission resource="Actifs" action="View">
+                            <a class="app-sidebar-link @(controller == "Actifs" ? "active" : "")"
+                               asp-area="Ferme" asp-controller="Actifs" asp-action="Index">
+                                <i class="bi bi-truck"></i> Machines &amp; équipements
+                            </a>
+                        </gise-permission>
+                        <gise-permission resource="Irrigation" action="View">
+                            <a class="app-sidebar-link @(controller == "Irrigation" ? "active" : "")"
+                               asp-area="Ferme" asp-controller="Irrigation" asp-action="Index">
+                                <i class="bi bi-droplet"></i> Irrigation
+                            </a>
+                        </gise-permission>
+                        <gise-permission resource="Energie" action="View">
+                            <a class="app-sidebar-link @(controller == "Energie" ? "active" : "")"
+                               asp-area="Ferme" asp-controller="Energie" asp-action="Index">
+                                <i class="bi bi-lightning-charge"></i> Énergie
+                            </a>
+                        </gise-permission>
+                        <gise-permission resource="Capteurs" action="View">
+                            <a class="app-sidebar-link @(controller == "Capteurs" ? "active" : "")"
+                               asp-area="Ferme" asp-controller="Capteurs" asp-action="Index">
+                                <i class="bi bi-broadcast"></i> Capteurs IoT
+                            </a>
+                        </gise-permission>
                     </div>
                 </div>
 
@@ -259,30 +281,42 @@
                         <i class="bi bi-chevron-down app-sidebar-chevron" aria-hidden="true"></i>
                     </button>
                     <div class="app-sidebar-group-body">
-                        <a class="app-sidebar-link @(controller == "Maintenance" ? "active" : "")"
-                           asp-area="Ferme" asp-controller="Maintenance" asp-action="Index">
-                            <i class="bi bi-wrench"></i> Maintenance
-                        </a>
-                        <a class="app-sidebar-link @(controller == "Stocks" ? "active" : "")"
-                           asp-area="Ferme" asp-controller="Stocks" asp-action="Index">
-                            <i class="bi bi-box-seam"></i> Stocks
-                        </a>
-                        <a class="app-sidebar-link @(controller == "Fournisseurs" ? "active" : "")"
-                           asp-area="Ferme" asp-controller="Fournisseurs" asp-action="Index">
-                            <i class="bi bi-shop"></i> Fournisseurs
-                        </a>
-                        <a class="app-sidebar-link @(controller == "Documents" ? "active" : "")"
-                           asp-area="Ferme" asp-controller="Documents" asp-action="Index">
-                            <i class="bi bi-folder2-open"></i> Documents
-                        </a>
-                        <a class="app-sidebar-link @(controller == "Rapports" ? "active" : "")"
-                           asp-area="Ferme" asp-controller="Rapports" asp-action="Index">
-                            <i class="bi bi-graph-up"></i> Rapports
-                        </a>
-                        <a class="app-sidebar-link @(controller == "Exploitations" ? "active" : "")"
-                           asp-area="Ferme" asp-controller="Exploitations" asp-action="Index">
-                            <i class="bi bi-building"></i> Exploitations
-                        </a>
+                        <gise-permission resource="Maintenance" action="View">
+                            <a class="app-sidebar-link @(controller == "Maintenance" ? "active" : "")"
+                               asp-area="Ferme" asp-controller="Maintenance" asp-action="Index">
+                                <i class="bi bi-wrench"></i> Maintenance
+                            </a>
+                        </gise-permission>
+                        <gise-permission resource="Stocks" action="View">
+                            <a class="app-sidebar-link @(controller == "Stocks" ? "active" : "")"
+                               asp-area="Ferme" asp-controller="Stocks" asp-action="Index">
+                                <i class="bi bi-box-seam"></i> Stocks
+                            </a>
+                        </gise-permission>
+                        <gise-permission resource="Fournisseurs" action="View">
+                            <a class="app-sidebar-link @(controller == "Fournisseurs" ? "active" : "")"
+                               asp-area="Ferme" asp-controller="Fournisseurs" asp-action="Index">
+                                <i class="bi bi-shop"></i> Fournisseurs
+                            </a>
+                        </gise-permission>
+                        <gise-permission resource="Documents" action="View">
+                            <a class="app-sidebar-link @(controller == "Documents" ? "active" : "")"
+                               asp-area="Ferme" asp-controller="Documents" asp-action="Index">
+                                <i class="bi bi-folder2-open"></i> Documents
+                            </a>
+                        </gise-permission>
+                        <gise-permission resource="RapportsFerme" action="View">
+                            <a class="app-sidebar-link @(controller == "Rapports" ? "active" : "")"
+                               asp-area="Ferme" asp-controller="Rapports" asp-action="Index">
+                                <i class="bi bi-graph-up"></i> Rapports
+                            </a>
+                        </gise-permission>
+                        <gise-permission resource="Exploitations" action="View">
+                            <a class="app-sidebar-link @(controller == "Exploitations" ? "active" : "")"
+                               asp-area="Ferme" asp-controller="Exploitations" asp-action="Index">
+                                <i class="bi bi-building"></i> Exploitations
+                            </a>
+                        </gise-permission>
                     </div>
                 </div>
 

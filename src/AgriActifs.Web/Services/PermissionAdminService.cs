@@ -112,35 +112,50 @@ public class PermissionAdminService(
             .Select(c => c.Trim())
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
-        if (codes.Count == 0)
-            return;
 
-        var permissionIds = await dbContext.PermissionDefinitions
-            .Where(p => p.IsActive && codes.Contains(p.Code))
-            .Select(p => p.Id)
+        var targetIds = codes.Count == 0
+            ? new HashSet<int>()
+            : (await dbContext.PermissionDefinitions
+                .Where(p => p.IsActive && codes.Contains(p.Code))
+                .Select(p => p.Id)
+                .ToListAsync(cancellationToken))
+            .ToHashSet();
+
+        var existingGrants = await dbContext.RolePermissionGrants
+            .Where(g => g.RoleId == role.Id)
             .ToListAsync(cancellationToken);
 
-        var grantedIds = await dbContext.RolePermissionGrants
-            .Where(g => g.RoleId == role.Id && g.IsGranted)
-            .Select(g => g.PermissionDefinitionId)
-            .ToHashSetAsync(cancellationToken);
-
-        var added = false;
-        foreach (var permissionId in permissionIds)
+        var changed = false;
+        foreach (var grant in existingGrants)
         {
-            if (grantedIds.Contains(permissionId))
-                continue;
+            if (targetIds.Contains(grant.PermissionDefinitionId))
+            {
+                if (!grant.IsGranted)
+                {
+                    grant.IsGranted = true;
+                    changed = true;
+                }
 
+                targetIds.Remove(grant.PermissionDefinitionId);
+                continue;
+            }
+
+            dbContext.RolePermissionGrants.Remove(grant);
+            changed = true;
+        }
+
+        foreach (var permissionId in targetIds)
+        {
             dbContext.RolePermissionGrants.Add(new RolePermissionGrant
             {
                 RoleId = role.Id,
                 PermissionDefinitionId = permissionId,
                 IsGranted = true
             });
-            added = true;
+            changed = true;
         }
 
-        if (added)
+        if (changed)
         {
             await dbContext.SaveChangesAsync(cancellationToken);
             dynamicPermissionService.InvalidateCache();

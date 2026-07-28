@@ -37,6 +37,12 @@ function initSidebarGroups(sidebar) {
         const body = group.querySelector('.app-sidebar-group-body');
         if (!btn || !body) return;
 
+        // Masquer les sections sans lien visible (filtrage par permission)
+        if (!body.querySelector('.app-sidebar-link')) {
+            group.hidden = true;
+            return;
+        }
+
         const hasActive = group.querySelector('.app-sidebar-link.active') !== null;
         const isCollapsed = !hasActive && collapsed.includes(id);
 

@@ -44,6 +44,7 @@ public class PermissionTagHelper(IDynamicPermissionService permissionService, IH
             return;
         }
 
-        await output.GetChildContentAsync();
+        var childContent = await output.GetChildContentAsync();
+        output.Content.SetHtmlContent(childContent);
     }
 }

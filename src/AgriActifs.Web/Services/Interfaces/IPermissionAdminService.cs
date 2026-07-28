@@ -13,6 +13,6 @@ public interface IPermissionAdminService
     Task EnsureSuperAdminGrantsAsync(CancellationToken cancellationToken = default);
     /// <summary>Accorde toutes les permissions actives d'une catégorie à un rôle (ex. User + Ferme).</summary>
     Task EnsureRoleCategoryGrantsAsync(string roleName, string category, CancellationToken cancellationToken = default);
-    /// <summary>Accorde une liste explicite de codes permission à un rôle (idempotent).</summary>
+    /// <summary>Aligne exactement les permissions d'un rôle sur la liste fournie (idempotent).</summary>
     Task EnsureRolePermissionCodesAsync(string roleName, IEnumerable<string> permissionCodes, CancellationToken cancellationToken = default);
 }

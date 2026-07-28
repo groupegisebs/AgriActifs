@@ -115,18 +115,21 @@ public static class SeedData
         await context.SaveChangesAsync();
 
         var permissionMap = await context.PermissionDefinitions.ToDictionaryAsync(p => p.Code, p => p.Id);
-        var endpoints = await context.SecuredEndpoints.AsNoTracking().ToListAsync();
+        var endpointKeys = await context.SecuredEndpoints.AsNoTracking()
+            .Select(e => new { e.Area, e.Controller, e.Action, e.HttpMethod })
+            .ToListAsync();
+        var knownEndpointKeys = endpointKeys
+            .Select(e => EndpointKey(e.Area, e.Controller, e.Action, e.HttpMethod))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
         foreach (var endpoint in CatalogSeedData.Endpoints)
         {
             if (!permissionMap.TryGetValue(endpoint.PermissionCode, out var permissionId))
                 continue;
 
-            var exists = endpoints.Any(e =>
-                e.Area == endpoint.Area &&
-                e.Controller == endpoint.Controller &&
-                e.Action == endpoint.Action &&
-                e.HttpMethod == endpoint.HttpMethod);
-            if (exists) continue;
+            var key = EndpointKey(endpoint.Area, endpoint.Controller, endpoint.Action, endpoint.HttpMethod);
+            if (!knownEndpointKeys.Add(key))
+                continue;
 
             context.SecuredEndpoints.Add(new SecuredEndpoint
             {
@@ -142,7 +145,7 @@ public static class SeedData
         var reportCodes = await context.ReportDefinitions.Select(r => r.Code).ToHashSetAsync();
         foreach (var report in CatalogSeedData.Reports)
         {
-            if (reportCodes.Contains(report.Code)) continue;
+            if (!reportCodes.Add(report.Code)) continue;
             context.ReportDefinitions.Add(new Models.ReportDefinition
             {
                 Code = report.Code,
@@ -155,6 +158,9 @@ public static class SeedData
 
         await context.SaveChangesAsync();
     }
+
+    private static string EndpointKey(string? area, string controller, string action, string? httpMethod) =>
+        $"{area ?? ""}\0{controller}\0{action}\0{httpMethod ?? ""}";
 
     private static async Task SeedDemoAsync(ApplicationDbContext db, UserManager<ApplicationUser> userManager)
     {

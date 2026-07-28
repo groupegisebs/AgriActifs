@@ -23,6 +23,15 @@ public class CatalogSeedDataTests
     }
 
     [Fact]
+    public void Catalog_EndpointKeysAreUnique()
+    {
+        var keys = CatalogSeedData.Endpoints
+            .Select(e => $"{e.Area}|{e.Controller}|{e.Action}|{e.HttpMethod}")
+            .ToList();
+        Assert.Equal(keys.Count, keys.Distinct(StringComparer.OrdinalIgnoreCase).Count());
+    }
+
+    [Fact]
     public void Catalog_EndpointPermissionCodesExistInCatalog()
     {
         var permissionCodes = CatalogSeedData.Permissions.Select(p => p.Code).ToHashSet(StringComparer.OrdinalIgnoreCase);

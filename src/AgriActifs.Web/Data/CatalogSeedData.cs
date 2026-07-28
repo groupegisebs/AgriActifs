@@ -127,7 +127,6 @@ public static class CatalogSeedData
         new("Admin", "SecuredEndpoints", "Edit", "POST", "SecuredEndpoints.Manage"),
         new("Admin", "SecuredEndpoints", "Discover", "GET", "SecuredEndpoints.Manage"),
         new("Admin", "SecuredEndpoints", "Create", "GET", "SecuredEndpoints.Manage"),
-        new("Admin", "Settings", "Index", "POST", "Settings.Manage"),
         new("Admin", "Themes", "Index", "GET", "Settings.Manage"),
         new("Admin", "Themes", "Create", "GET", "Settings.Manage"),
         new("Admin", "Themes", "Create", "POST", "Settings.Manage"),

@@ -13,6 +13,7 @@
         <a class="btn btn-sm @(filter == "today" ? "btn-primary" : "btn-outline-primary")" asp-action="Index" asp-route-filter="today">Aujourd'hui</a>
         <a class="btn btn-sm @(filter == "week" ? "btn-primary" : "btn-outline-primary")" asp-action="Index" asp-route-filter="week">Cette semaine</a>
         <a class="btn btn-sm @(filter == "late" ? "btn-primary" : "btn-outline-primary")" asp-action="Index" asp-route-filter="late">En retard</a>
+        <a class="btn btn-sm @(filter == "validation" ? "btn-primary" : "btn-outline-primary")" asp-action="Index" asp-route-filter="validation">À valider</a>
         <a class="btn btn-sm @(filter == "done" ? "btn-primary" : "btn-outline-primary")" asp-action="Index" asp-route-filter="done">Terminées</a>
     </div>
     <div class="table-responsive">
@@ -22,35 +23,68 @@
                     <th>Date</th>
                     <th>Actif</th>
                     <th>Type</th>
+                    <th>Priorité</th>
                     <th>Titre</th>
                     <th>État</th>
                     <th>Coût</th>
-                    <th></th>
+                    <th>Workflow</th>
                 </tr>
             </thead>
             <tbody>
             @foreach (var i in Model)
             {
                 var late = i.PlannedDate.Date < DateTime.UtcNow.Date
-                    && i.Statut is InterventionStatut.Ouverte or InterventionStatut.EnCours;
+                    && i.Statut is InterventionStatut.Ouverte or InterventionStatut.EnCours or InterventionStatut.EnAttenteValidation;
                 <tr class="@(late ? "table-warning" : null)">
                     <td>@i.PlannedDate.ToString("yyyy-MM-dd")</td>
                     <td>@(i.Actif?.Name ?? "—")</td>
                     <td>@i.Type</td>
-                    <td>@i.Title</td>
+                    <td>@i.Priorite</td>
+                    <td>
+                        <div>@i.Title</div>
+                        @if (!string.IsNullOrEmpty(i.AssignedToName))
+                        {
+                            <div class="small text-muted">@i.AssignedToName</div>
+                        }
+                    </td>
                     <td>
                         <span class="badge text-bg-@(i.Statut switch {
                             InterventionStatut.Cloturee => "success",
                             InterventionStatut.EnCours => "warning",
+                            InterventionStatut.EnAttenteValidation => "info",
                             InterventionStatut.Annulee => "secondary",
                             _ => "primary"
                         })">@i.Statut</span>
                         @if (late) { <span class="badge text-bg-danger">Retard</span> }
                     </td>
                     <td>@((i.LaborCost + i.PartsCost).ToString("C"))</td>
-                    <td class="text-nowrap">
+                    <td class="text-nowrap small">
                         <a asp-action="Edit" asp-route-id="@i.Id">Modifier</a>
+                        @if (i.Statut == InterventionStatut.Ouverte)
+                        {
+                            <form asp-action="Start" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@i.Id" />
+                                <button type="submit" class="btn btn-link btn-sm p-0 ms-1">Démarrer</button>
+                            </form>
+                        }
                         @if (i.Statut is InterventionStatut.Ouverte or InterventionStatut.EnCours)
+                        {
+                            <form asp-action="SubmitValidation" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@i.Id" />
+                                <button type="submit" class="btn btn-link btn-sm p-0 ms-1">Soumettre</button>
+                            </form>
+                        }
+                        @if (i.Statut == InterventionStatut.EnAttenteValidation)
+                        {
+                            <form asp-action="Validate" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@i.Id" />
+                                <button type="submit" class="btn btn-link btn-sm p-0 ms-1">Valider</button>
+                            </form>
+                        }
+                        @if (i.Statut is not (InterventionStatut.Cloturee or InterventionStatut.Annulee))
                         {
                             <form asp-action="Close" method="post" class="d-inline">
                                 @Html.AntiForgeryToken()

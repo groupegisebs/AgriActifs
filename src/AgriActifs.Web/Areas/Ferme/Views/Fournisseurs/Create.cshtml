@@ -1,14 +1,26 @@
 @model Fournisseur
 @{ ViewData["Title"] = Model.Id == 0 ? "Nouveau fournisseur" : "Modifier fournisseur"; }
-<div class="container py-4" style="max-width:640px">
+<div class="container py-4" style="max-width:720px">
     <h1 class="h3 mb-3">@ViewData["Title"]</h1>
     <form method="post">
         <input type="hidden" asp-for="Id" />
         <input type="hidden" asp-for="ExploitationId" />
-        <div class="mb-3"><label asp-for="Name" class="form-label"></label><input asp-for="Name" class="form-control" /></div>
+        <div class="mb-3"><label asp-for="Name" class="form-label">Nom</label><input asp-for="Name" class="form-control" /></div>
+        <div class="row">
+            <div class="col-md-6 mb-3"><label asp-for="Categorie" class="form-label">Catégorie</label><select asp-for="Categorie" class="form-select" asp-items="Html.GetEnumSelectList<FournisseurCategorie>()"></select></div>
+            <div class="col-md-6 mb-3"><label asp-for="Rating" class="form-label">Notation (0–5)</label><input asp-for="Rating" class="form-control" min="0" max="5" /></div>
+        </div>
         <div class="mb-3"><label asp-for="ContactName" class="form-label">Contact</label><input asp-for="ContactName" class="form-control" /></div>
-        <div class="mb-3"><label asp-for="Email" class="form-label"></label><input asp-for="Email" class="form-control" /></div>
-        <div class="mb-3"><label asp-for="Phone" class="form-label"></label><input asp-for="Phone" class="form-control" /></div>
+        <div class="row">
+            <div class="col-md-6 mb-3"><label asp-for="Email" class="form-label"></label><input asp-for="Email" class="form-control" /></div>
+            <div class="col-md-6 mb-3"><label asp-for="Phone" class="form-label"></label><input asp-for="Phone" class="form-control" /></div>
+        </div>
+        <div class="mb-3"><label asp-for="Website" class="form-label">Site web</label><input asp-for="Website" class="form-control" /></div>
+        <div class="mb-3"><label asp-for="Address" class="form-label">Adresse</label><input asp-for="Address" class="form-control" /></div>
+        <div class="row">
+            <div class="col-md-6 mb-3"><label asp-for="ContractRef" class="form-label">Réf. contrat</label><input asp-for="ContractRef" class="form-control" /></div>
+            <div class="col-md-6 mb-3"><label asp-for="ContractEndDate" class="form-label">Fin contrat</label><input asp-for="ContractEndDate" type="date" class="form-control" /></div>
+        </div>
         <div class="mb-3"><label asp-for="Notes" class="form-label"></label><textarea asp-for="Notes" class="form-control"></textarea></div>
         <div class="form-check mb-3"><input asp-for="IsActive" class="form-check-input" /><label asp-for="IsActive" class="form-check-label">Actif</label></div>
         <button type="submit" class="btn btn-primary">Enregistrer</button>

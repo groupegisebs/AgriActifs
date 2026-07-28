@@ -5,13 +5,30 @@
         <h1 class="h3">Fournisseurs</h1>
         <a class="btn btn-primary" asp-action="Create">Nouveau</a>
     </div>
-    <table class="table table-striped">
-        <thead><tr><th>Nom</th><th>Contact</th><th>Email</th><th>Téléphone</th><th></th></tr></thead>
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Catégorie</th>
+                <th>Contact</th>
+                <th>Téléphone</th>
+                <th>Email</th>
+                <th>Contrat</th>
+                <th>Note</th>
+                <th></th>
+            </tr>
+        </thead>
         <tbody>
         @foreach (var f in Model)
         {
             <tr>
-                <td>@f.Name</td><td>@f.ContactName</td><td>@f.Email</td><td>@f.Phone</td>
+                <td>@f.Name</td>
+                <td>@f.Categorie</td>
+                <td>@f.ContactName</td>
+                <td>@f.Phone</td>
+                <td>@f.Email</td>
+                <td class="small">@(f.ContractRef ?? "—") @(f.ContractEndDate is not null ? $"· fin {f.ContractEndDate:yyyy-MM-dd}" : "")</td>
+                <td>@(f.Rating > 0 ? $"{f.Rating}/5" : "—")</td>
                 <td><a asp-action="Edit" asp-route-id="@f.Id">Modifier</a></td>
             </tr>
         }

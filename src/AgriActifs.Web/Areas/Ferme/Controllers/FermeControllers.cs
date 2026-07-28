@@ -39,11 +39,13 @@ public class ContextController(IExploitationContextService exploitationContext) 
 [Area("Ferme")]
 public class DashboardController(
     IExploitationContextService exploitationContext,
-    ApplicationDbContext db) : FermeControllerBase(exploitationContext)
+    ApplicationDbContext db,
+    Services.IFermeNotificationService notifications) : FermeControllerBase(exploitationContext)
 {
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
         var exploitationId = await GetExploitationIdAsync(cancellationToken);
+        await notifications.SyncAlertsAsync(exploitationId, cancellationToken);
         var exploitation = await db.Exploitations.AsNoTracking()
             .FirstAsync(e => e.Id == exploitationId, cancellationToken);
 

@@ -92,7 +92,17 @@ public static class CatalogSeedData
         new(57, "Maintenance.Close", "Maintenance", PermissionAction.Edit, null, "Clôturer interventions", "Ferme"),
         new(58, "Fournisseurs.View", "Fournisseurs", PermissionAction.View, null, "Voir fournisseurs", "Ferme"),
         new(59, "Fournisseurs.Manage", "Fournisseurs", PermissionAction.Manage, null, "Gérer fournisseurs", "Ferme"),
-        new(60, "FermeDashboard.View", "FermeDashboard", PermissionAction.View, null, "Tableau de bord ferme", "Ferme")
+        new(60, "FermeDashboard.View", "FermeDashboard", PermissionAction.View, null, "Tableau de bord ferme", "Ferme"),
+        new(61, "Activites.View", "Activites", PermissionAction.View, null, "Voir activités", "Ferme"),
+        new(62, "Activites.Manage", "Activites", PermissionAction.Manage, null, "Gérer activités", "Ferme"),
+        new(63, "Documents.View", "Documents", PermissionAction.View, null, "Voir documents", "Ferme"),
+        new(64, "Documents.Manage", "Documents", PermissionAction.Manage, null, "Gérer documents", "Ferme"),
+        new(65, "Notifications.View", "Notifications", PermissionAction.View, null, "Voir notifications", "Ferme"),
+        new(66, "Irrigation.View", "Irrigation", PermissionAction.View, null, "Voir irrigation", "Ferme"),
+        new(67, "Irrigation.Manage", "Irrigation", PermissionAction.Manage, null, "Gérer irrigation", "Ferme"),
+        new(68, "Energie.View", "Energie", PermissionAction.View, null, "Voir énergie", "Ferme"),
+        new(69, "Energie.Manage", "Energie", PermissionAction.Manage, null, "Gérer énergie", "Ferme"),
+        new(70, "RapportsFerme.View", "RapportsFerme", PermissionAction.View, null, "Rapports ferme", "Ferme")
     ];
 
     public static IReadOnlyList<EndpointEntry> Endpoints { get; } =
@@ -177,7 +187,34 @@ public static class CatalogSeedData
         new("Ferme", "Fournisseurs", "Create", "GET", "Fournisseurs.Manage"),
         new("Ferme", "Fournisseurs", "Create", "POST", "Fournisseurs.Manage"),
         new("Ferme", "Fournisseurs", "Edit", "GET", "Fournisseurs.Manage"),
-        new("Ferme", "Fournisseurs", "Edit", "POST", "Fournisseurs.Manage")
+        new("Ferme", "Fournisseurs", "Edit", "POST", "Fournisseurs.Manage"),
+        new("Ferme", "Parcelles", "Details", "GET", "Parcelles.View"),
+        new("Ferme", "Activites", "Index", "GET", "Activites.View"),
+        new("Ferme", "Activites", "Create", "GET", "Activites.Manage"),
+        new("Ferme", "Activites", "Create", "POST", "Activites.Manage"),
+        new("Ferme", "Activites", "Edit", "GET", "Activites.Manage"),
+        new("Ferme", "Activites", "Edit", "POST", "Activites.Manage"),
+        new("Ferme", "Documents", "Index", "GET", "Documents.View"),
+        new("Ferme", "Documents", "Create", "GET", "Documents.Manage"),
+        new("Ferme", "Documents", "Create", "POST", "Documents.Manage"),
+        new("Ferme", "Documents", "Edit", "GET", "Documents.Manage"),
+        new("Ferme", "Documents", "Edit", "POST", "Documents.Manage"),
+        new("Ferme", "Notifications", "Index", "GET", "Notifications.View"),
+        new("Ferme", "Notifications", "MarkRead", "POST", "Notifications.View"),
+        new("Ferme", "Notifications", "MarkAllRead", "POST", "Notifications.View"),
+        new("Ferme", "Irrigation", "Index", "GET", "Irrigation.View"),
+        new("Ferme", "Irrigation", "Create", "GET", "Irrigation.Manage"),
+        new("Ferme", "Irrigation", "Create", "POST", "Irrigation.Manage"),
+        new("Ferme", "Irrigation", "Edit", "GET", "Irrigation.Manage"),
+        new("Ferme", "Irrigation", "Edit", "POST", "Irrigation.Manage"),
+        new("Ferme", "Energie", "Index", "GET", "Energie.View"),
+        new("Ferme", "Energie", "CreateReleve", "GET", "Energie.Manage"),
+        new("Ferme", "Energie", "CreateReleve", "POST", "Energie.Manage"),
+        new("Ferme", "Rapports", "Index", "GET", "RapportsFerme.View"),
+        new("Ferme", "Rapports", "ExportTco", "GET", "RapportsFerme.View"),
+        new("Ferme", "Maintenance", "Start", "POST", "Maintenance.Manage"),
+        new("Ferme", "Maintenance", "SubmitValidation", "POST", "Maintenance.Manage"),
+        new("Ferme", "Maintenance", "Validate", "POST", "Maintenance.Close")
     ];
 
     public static IReadOnlyList<ReportEntry> Reports { get; } =
@@ -187,6 +224,8 @@ public static class CatalogSeedData
         new(3, "LOGINS", "Rapport connexions", "Audit", "Audit.View"),
         new(4, "ACTIVITY", "Rapport activités", "Audit", "Audit.View"),
         new(5, "ACTIFS", "Inventaire des actifs agricoles", "Ferme", "Actifs.Export"),
-        new(6, "STOCKS", "Niveaux de stocks", "Ferme", "Stocks.View")
+        new(6, "STOCKS", "Niveaux de stocks", "Ferme", "Stocks.View"),
+        new(7, "TCO", "Coût total de possession (TCO)", "Ferme", "RapportsFerme.View"),
+        new(8, "MAINTENANCE", "Coûts de maintenance", "Ferme", "Maintenance.View")
     ];
 }

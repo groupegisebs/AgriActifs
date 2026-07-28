@@ -29,6 +29,16 @@
             <label asp-for="Intervention.ActifAgricoleId" class="form-label">Actif</label>
             <select asp-for="Intervention.ActifAgricoleId" class="form-select" asp-items="ViewBag.Actifs"><option value="">—</option></select>
         </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="Intervention.Priorite" class="form-label">Priorité</label>
+                <select asp-for="Intervention.Priorite" class="form-select" asp-items="Html.GetEnumSelectList<InterventionPriorite>()"></select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label asp-for="Intervention.AssignedToName" class="form-label">Technicien</label>
+                <input asp-for="Intervention.AssignedToName" class="form-control" />
+            </div>
+        </div>
         <div class="mb-3">
             <label asp-for="Intervention.PlannedDate" class="form-label">Date prévue</label>
             <input asp-for="Intervention.PlannedDate" type="date" class="form-control" />

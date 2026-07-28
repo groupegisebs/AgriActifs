@@ -45,6 +45,7 @@ public static class SeedData
         {
             await SeedDemoAsync(context, userManager);
             await EnsureDemoPatrimoineAsync(context);
+            await EnsureDemoPhase2Async(context);
         }
     }
 
@@ -450,6 +451,149 @@ public static class SeedData
             }
         };
         db.ActifsAgricoles.AddRange(actifs);
+        await db.SaveChangesAsync();
+    }
+
+    private static async Task EnsureDemoPhase2Async(ApplicationDbContext db)
+    {
+        var exploitation = await db.Exploitations.FirstOrDefaultAsync(e => e.Name == "Ferme des Érables");
+        if (exploitation is null) return;
+
+        var parcelles = await db.Parcelles.Where(p => p.ExploitationId == exploitation.Id).OrderBy(p => p.Code).ToListAsync();
+        var actifs = await db.ActifsAgricoles.Where(a => a.ExploitationId == exploitation.Id).OrderBy(a => a.InternalCode).ToListAsync();
+        var pompe = actifs.FirstOrDefault(a => a.Categorie == ActifCategorie.Irrigation);
+        var gen = actifs.FirstOrDefault(a => a.Categorie == ActifCategorie.Energie);
+        var tracteur = actifs.FirstOrDefault(a => a.InternalCode == "TR-01") ?? actifs.FirstOrDefault();
+
+        if (!await db.ActivitesAgricoles.AnyAsync(a => a.ExploitationId == exploitation.Id))
+        {
+            db.ActivitesAgricoles.AddRange(
+                new ActiviteAgricole
+                {
+                    ExploitationId = exploitation.Id,
+                    Title = "Semis maïs Champ Nord",
+                    Type = ActiviteType.Semis,
+                    Statut = ActiviteStatut.Planifiee,
+                    PlannedDate = DateTime.UtcNow.Date.AddDays(2),
+                    ParcelleId = parcelles.ElementAtOrDefault(0)?.Id,
+                    ActifAgricoleId = tracteur?.Id,
+                    AssignedTo = "Jean",
+                    Cost = 1200
+                },
+                new ActiviteAgricole
+                {
+                    ExploitationId = exploitation.Id,
+                    Title = "Irrigation Secteur A",
+                    Type = ActiviteType.Irrigation,
+                    Statut = ActiviteStatut.EnCours,
+                    PlannedDate = DateTime.UtcNow.Date,
+                    ParcelleId = parcelles.ElementAtOrDefault(0)?.Id,
+                    ActifAgricoleId = pompe?.Id,
+                    AssignedTo = "Luc"
+                },
+                new ActiviteAgricole
+                {
+                    ExploitationId = exploitation.Id,
+                    Title = "Traitement fongicide Sud",
+                    Type = ActiviteType.Traitement,
+                    Statut = ActiviteStatut.Planifiee,
+                    PlannedDate = DateTime.UtcNow.Date.AddDays(5),
+                    ParcelleId = parcelles.ElementAtOrDefault(1)?.Id
+                });
+        }
+
+        if (!await db.IrrigationSecteurs.AnyAsync(s => s.ExploitationId == exploitation.Id))
+        {
+            db.IrrigationSecteurs.AddRange(
+                new IrrigationSecteur
+                {
+                    ExploitationId = exploitation.Id,
+                    Code = "S-A",
+                    Name = "Secteur A",
+                    ParcelleId = parcelles.ElementAtOrDefault(0)?.Id,
+                    PompeActifId = pompe?.Id,
+                    ReservoirNote = "Réservoir principal",
+                    DebitM3H = 45,
+                    PressionBar = 3.2m,
+                    LastServiceDate = DateTime.UtcNow.Date.AddDays(-40)
+                },
+                new IrrigationSecteur
+                {
+                    ExploitationId = exploitation.Id,
+                    Code = "S-B",
+                    Name = "Secteur B",
+                    ParcelleId = parcelles.ElementAtOrDefault(2)?.Id,
+                    PompeActifId = pompe?.Id,
+                    DebitM3H = 30,
+                    PressionBar = 2.8m
+                });
+        }
+
+        if (gen is not null && !await db.EnergieReleves.AnyAsync(r => r.ExploitationId == exploitation.Id))
+        {
+            db.EnergieReleves.AddRange(
+                new EnergieReleve
+                {
+                    ExploitationId = exploitation.Id,
+                    ActifAgricoleId = gen.Id,
+                    ReadingDate = DateTime.UtcNow.Date.AddDays(-7),
+                    Kwh = 420,
+                    Cost = 95,
+                    Source = "Diesel"
+                },
+                new EnergieReleve
+                {
+                    ExploitationId = exploitation.Id,
+                    ActifAgricoleId = gen.Id,
+                    ReadingDate = DateTime.UtcNow.Date.AddDays(-1),
+                    Kwh = 85,
+                    Cost = 22,
+                    Source = "Diesel"
+                });
+        }
+
+        if (tracteur is not null && !await db.DocumentsFerme.AnyAsync(d => d.ExploitationId == exploitation.Id))
+        {
+            db.DocumentsFerme.AddRange(
+                new DocumentFerme
+                {
+                    ExploitationId = exploitation.Id,
+                    Title = "Garantie John Deere 6155M",
+                    Categorie = DocumentCategorie.Garantie,
+                    ActifAgricoleId = tracteur.Id,
+                    DocumentDate = new DateTime(2019, 4, 12),
+                    Tags = "garantie,tracteur",
+                    FileUrl = "#"
+                },
+                new DocumentFerme
+                {
+                    ExploitationId = exploitation.Id,
+                    Title = "Police assurance flotte 2026",
+                    Categorie = DocumentCategorie.Assurance,
+                    DocumentDate = new DateTime(2026, 1, 1),
+                    Tags = "assurance"
+                });
+        }
+
+        var fournisseurs = await db.Fournisseurs.Where(f => f.ExploitationId == exploitation.Id).ToListAsync();
+        foreach (var f in fournisseurs.Where(x => x.Rating == 0 && string.IsNullOrEmpty(x.ContractRef)))
+        {
+            if (f.Name.Contains("Machinerie", StringComparison.OrdinalIgnoreCase))
+            {
+                f.Categorie = FournisseurCategorie.Machinerie;
+                f.Rating = 4;
+                f.ContractRef = "CTR-MCQ-2025";
+                f.ContractEndDate = DateTime.UtcNow.Date.AddMonths(8);
+            }
+            else
+            {
+                f.Categorie = FournisseurCategorie.Intrants;
+                f.Rating = 5;
+                f.ContractRef = "CTR-AIP-2026";
+                f.ContractEndDate = DateTime.UtcNow.Date.AddMonths(14);
+            }
+        }
+
         await db.SaveChangesAsync();
     }
 

@@ -1,17 +1,3 @@
 @model Fournisseur
-@{ ViewData["Title"] = Model.Id == 0 ? "Nouveau fournisseur" : "Modifier fournisseur"; }
-<div class="container py-4" style="max-width:640px">
-    <h1 class="h3 mb-3">@ViewData["Title"]</h1>
-    <form method="post">
-        <input type="hidden" asp-for="Id" />
-        <input type="hidden" asp-for="ExploitationId" />
-        <div class="mb-3"><label asp-for="Name" class="form-label"></label><input asp-for="Name" class="form-control" /></div>
-        <div class="mb-3"><label asp-for="ContactName" class="form-label">Contact</label><input asp-for="ContactName" class="form-control" /></div>
-        <div class="mb-3"><label asp-for="Email" class="form-label"></label><input asp-for="Email" class="form-control" /></div>
-        <div class="mb-3"><label asp-for="Phone" class="form-label"></label><input asp-for="Phone" class="form-control" /></div>
-        <div class="mb-3"><label asp-for="Notes" class="form-label"></label><textarea asp-for="Notes" class="form-control"></textarea></div>
-        <div class="form-check mb-3"><input asp-for="IsActive" class="form-check-input" /><label asp-for="IsActive" class="form-check-label">Actif</label></div>
-        <button type="submit" class="btn btn-primary">Enregistrer</button>
-        <a asp-action="Index" class="btn btn-link">Annuler</a>
-    </form>
-</div>
+@{ ViewData["Title"] = "Modifier fournisseur"; }
+@await Html.PartialAsync("Create", Model)

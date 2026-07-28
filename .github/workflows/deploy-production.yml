@@ -47,7 +47,9 @@ jobs:
 
       - name: Verify EF migrations
         run: |
+          echo "Commit: $(git rev-parse --short HEAD)"
           dotnet tool restore
+          dotnet ef --version
           dotnet build src/AgriActifs.Web/AgriActifs.Web.csproj --configuration Release --no-restore
           dotnet ef migrations has-pending-model-changes --project src/AgriActifs.Web/AgriActifs.Web.csproj --configuration Release --no-build
 

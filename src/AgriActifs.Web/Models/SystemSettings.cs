@@ -3,7 +3,7 @@ namespace AgriActifs.Web.Models;
 public class SystemSettings
 {
     public int Id { get; set; }
-    public string AppName { get; set; } = "GISEBS Secure MVC Starter";
+    public string AppName { get; set; } = "AgriActifs";
     public string? Tagline { get; set; }
     public string? LogoUrl { get; set; }
     public int ActiveThemeId { get; set; } = 1;

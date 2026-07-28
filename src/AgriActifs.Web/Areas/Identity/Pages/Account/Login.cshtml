@@ -1,11 +1,16 @@
 @page
 @model AgriActifs.Web.Areas.Identity.Pages.Account.LoginModel
+@using AgriActifs.Web.Options
+@using Microsoft.Extensions.Options
 @inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@inject IOptions<DemoOptions> DemoOptionsAccessor
 @{
     ViewData["Title"] = Localizer["Auth.Login.Title"];
+    var demo = DemoOptionsAccessor.Value;
+    var showDemoAccounts = demo.Enabled;
 }
 
-<div class="row justify-content-center py-4">
+<div class="row justify-content-center align-items-start g-4 py-4 login-layout">
     <div class="col-md-5 col-lg-4">
         <div class="card auth-card border-0 shadow-sm">
             <div class="card-body p-4 p-md-5">
@@ -17,13 +22,13 @@
 
                     <div class="mb-3">
                         <label asp-for="Input.Email" class="form-label">@Localizer["Auth.Login.Email"]</label>
-                        <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" />
+                        <input asp-for="Input.Email" class="form-control" id="Input_Email" autocomplete="username" aria-required="true" />
                         <span asp-validation-for="Input.Email" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
                         <label asp-for="Input.Password" class="form-label">@Localizer["Auth.Login.Password"]</label>
-                        <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" />
+                        <input asp-for="Input.Password" class="form-control" id="Input_Password" autocomplete="current-password" aria-required="true" />
                         <span asp-validation-for="Input.Password" class="text-danger"></span>
                     </div>
 
@@ -46,8 +51,71 @@
             </div>
         </div>
     </div>
+
+    @if (showDemoAccounts)
+    {
+        <div class="col-md-6 col-lg-5">
+            <div class="demo-accounts-panel">
+                <div class="demo-accounts-panel-head">
+                    <span class="demo-mode-pill">Mode démo</span>
+                    <h2 class="h5 mb-1 mt-2">Comptes de démonstration</h2>
+                    <p class="small text-muted mb-0">Cliquez sur un compte pour remplir le formulaire, puis connectez-vous.</p>
+                </div>
+
+                <div class="demo-accounts-list">
+                    <button type="button" class="demo-account-btn" data-email="superadmin@agriactifs.local" data-password="Agri@Secure2026!">
+                        <span class="demo-account-role">Super Admin</span>
+                        <span class="demo-account-email">superadmin@agriactifs.local</span>
+                        <span class="demo-account-pass">Agri@Secure2026!</span>
+                    </button>
+                    <button type="button" class="demo-account-btn" data-email="admin@agriactifs.local" data-password="Agri@Admin2026!">
+                        <span class="demo-account-role">Administrateur</span>
+                        <span class="demo-account-email">admin@agriactifs.local</span>
+                        <span class="demo-account-pass">Agri@Admin2026!</span>
+                    </button>
+                    <button type="button" class="demo-account-btn" data-email="gerant@fermedeserables.demo" data-password="Demo@Agri2026!">
+                        <span class="demo-account-role">Gérant — Ferme des Érables</span>
+                        <span class="demo-account-email">gerant@fermedeserables.demo</span>
+                        <span class="demo-account-pass">Demo@Agri2026!</span>
+                    </button>
+                    <button type="button" class="demo-account-btn" data-email="tech@fermedeserables.demo" data-password="Demo@Agri2026!">
+                        <span class="demo-account-role">Technicien</span>
+                        <span class="demo-account-email">tech@fermedeserables.demo</span>
+                        <span class="demo-account-pass">Demo@Agri2026!</span>
+                    </button>
+                    <button type="button" class="demo-account-btn" data-email="ouvrier@fermedeserables.demo" data-password="Demo@Agri2026!">
+                        <span class="demo-account-role">Ouvrier</span>
+                        <span class="demo-account-email">ouvrier@fermedeserables.demo</span>
+                        <span class="demo-account-pass">Demo@Agri2026!</span>
+                    </button>
+                    <button type="button" class="demo-account-btn" data-email="lecture@fermedeserables.demo" data-password="Demo@Agri2026!">
+                        <span class="demo-account-role">Lecture seule</span>
+                        <span class="demo-account-email">lecture@fermedeserables.demo</span>
+                        <span class="demo-account-pass">Demo@Agri2026!</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    @if (showDemoAccounts)
+    {
+        <script>
+            document.querySelectorAll('.demo-account-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const email = document.getElementById('Input_Email');
+                    const password = document.getElementById('Input_Password');
+                    if (!email || !password) return;
+                    email.value = btn.dataset.email || '';
+                    password.value = btn.dataset.password || '';
+                    email.focus();
+                    document.querySelectorAll('.demo-account-btn').forEach(b => b.classList.remove('is-selected'));
+                    btn.classList.add('is-selected');
+                });
+            });
+        </script>
+    }
 }

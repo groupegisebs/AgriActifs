@@ -1733,3 +1733,70 @@ body {
   object-fit: cover;
   background: #000;
 }
+
+/* -- Demo login accounts panel -- */
+.demo-accounts-panel {
+  background: #fff;
+  border: 1px solid var(--gise-border, #e2e8f0);
+  border-radius: 12px;
+  padding: 1.25rem 1.35rem 1.35rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+
+.demo-accounts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.demo-account-btn {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 0.1rem 0.75rem;
+  text-align: left;
+  width: 100%;
+  border: 1px solid var(--gise-border, #e2e8f0);
+  background: var(--gise-bg, #f8fafc);
+  border-radius: 10px;
+  padding: 0.7rem 0.85rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+
+.demo-account-btn:hover {
+  border-color: #dc2626;
+  background: #fff;
+}
+
+.demo-account-btn.is-selected {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2);
+  background: #fff;
+}
+
+.demo-account-role {
+  grid-column: 1;
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: var(--gise-text, #0f172a);
+}
+
+.demo-account-email {
+  grid-column: 1;
+  font-size: 0.78rem;
+  color: var(--gise-text-muted, #64748b);
+  word-break: break-all;
+}
+
+.demo-account-pass {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+  color: #b91c1c;
+  font-weight: 600;
+  white-space: nowrap;
+}

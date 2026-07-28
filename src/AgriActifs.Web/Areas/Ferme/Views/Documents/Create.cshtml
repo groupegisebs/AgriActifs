@@ -1,0 +1,26 @@
+@model DocumentFerme
+@{ ViewData["Title"] = Model.Id == 0 ? "Nouveau document" : "Modifier document"; }
+<div class="container py-4" style="max-width:720px">
+    <h1 class="h3 mb-3">@ViewData["Title"]</h1>
+    <form method="post">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="ExploitationId" />
+        <input type="hidden" asp-for="UploadedAt" />
+        <input type="hidden" asp-for="UploadedByUserId" />
+        <div class="mb-3"><label asp-for="Title" class="form-label">Titre</label><input asp-for="Title" class="form-control" /></div>
+        <div class="row">
+            <div class="col-md-6 mb-3"><label asp-for="Categorie" class="form-label"></label><select asp-for="Categorie" class="form-select" asp-items="Html.GetEnumSelectList<DocumentCategorie>()"></select></div>
+            <div class="col-md-6 mb-3"><label asp-for="DocumentDate" class="form-label">Date</label><input asp-for="DocumentDate" type="date" class="form-control" /></div>
+        </div>
+        <div class="mb-3"><label asp-for="FileUrl" class="form-label">URL / chemin fichier</label><input asp-for="FileUrl" class="form-control" placeholder="https://… ou /uploads/…" /></div>
+        <div class="mb-3"><label asp-for="Tags" class="form-label">Tags</label><input asp-for="Tags" class="form-control" placeholder="garantie, 2026…" /></div>
+        <div class="row">
+            <div class="col-md-4 mb-3"><label asp-for="ActifAgricoleId" class="form-label">Actif</label><select asp-for="ActifAgricoleId" class="form-select" asp-items="ViewBag.Actifs"><option value="">—</option></select></div>
+            <div class="col-md-4 mb-3"><label asp-for="ParcelleId" class="form-label">Parcelle</label><select asp-for="ParcelleId" class="form-select" asp-items="ViewBag.Parcelles"><option value="">—</option></select></div>
+            <div class="col-md-4 mb-3"><label asp-for="FournisseurId" class="form-label">Fournisseur</label><select asp-for="FournisseurId" class="form-select" asp-items="ViewBag.Fournisseurs"><option value="">—</option></select></div>
+        </div>
+        <div class="mb-3"><label asp-for="Notes" class="form-label"></label><textarea asp-for="Notes" class="form-control"></textarea></div>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+        <a asp-action="Index" class="btn btn-link">Annuler</a>
+    </form>
+</div>

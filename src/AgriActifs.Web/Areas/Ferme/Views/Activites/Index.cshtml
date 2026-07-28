@@ -1,0 +1,59 @@
+@model IEnumerable<ActiviteAgricole>
+@{
+    ViewData["Title"] = "Activités agricoles";
+    var mode = (string?)ViewBag.ViewMode ?? "list";
+    var month = DateTime.UtcNow.Date;
+    var start = new DateTime(month.Year, month.Month, 1);
+    var days = DateTime.DaysInMonth(month.Year, month.Month);
+}
+<div class="container py-4">
+    <div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
+        <h1 class="h3">Activités / campagnes</h1>
+        <div class="d-flex gap-2">
+            <a class="btn btn-sm @(mode=="list"?"btn-primary":"btn-outline-primary")" asp-action="Index" asp-route-view="list">Liste</a>
+            <a class="btn btn-sm @(mode=="calendar"?"btn-primary":"btn-outline-primary")" asp-action="Index" asp-route-view="calendar">Calendrier</a>
+            <a class="btn btn-primary" asp-action="Create">+ Activité</a>
+        </div>
+    </div>
+    @if (mode == "calendar")
+    {
+        <p class="text-muted">@start.ToString("MMMM yyyy")</p>
+        <div class="row g-2">
+            @for (var d = 1; d <= days; d++)
+            {
+                var day = new DateTime(month.Year, month.Month, d);
+                var dayItems = Model.Where(a => a.PlannedDate.Date == day).ToList();
+                <div class="col-6 col-md-3 col-lg-2">
+                    <div class="border rounded p-2 h-100 @(day.Date == DateTime.UtcNow.Date ? "border-primary" : null)">
+                        <div class="fw-semibold small">@d</div>
+                        @foreach (var a in dayItems.Take(3))
+                        {
+                            <div class="small text-truncate"><a asp-action="Edit" asp-route-id="@a.Id">@a.Title</a></div>
+                        }
+                        @if (dayItems.Count > 3) { <div class="small text-muted">+@(dayItems.Count - 3)</div> }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <table class="table table-striped align-middle">
+            <thead><tr><th>Date</th><th>Titre</th><th>Type</th><th>Parcelle</th><th>Actif</th><th>État</th><th></th></tr></thead>
+            <tbody>
+            @foreach (var a in Model)
+            {
+                <tr>
+                    <td>@a.PlannedDate.ToString("yyyy-MM-dd")</td>
+                    <td>@a.Title</td>
+                    <td>@a.Type</td>
+                    <td>@(a.Parcelle?.Name ?? "—")</td>
+                    <td>@(a.Actif?.Name ?? "—")</td>
+                    <td>@a.Statut</td>
+                    <td><a asp-action="Edit" asp-route-id="@a.Id">Modifier</a></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+</div>

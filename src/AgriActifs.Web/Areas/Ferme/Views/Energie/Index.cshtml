@@ -1,0 +1,45 @@
+@model EnergieIndexViewModel
+@{ ViewData["Title"] = "Énergie"; }
+<div class="container py-4">
+    <div class="d-flex justify-content-between mb-3">
+        <h1 class="h3">Énergie</h1>
+        <a class="btn btn-primary" asp-action="CreateReleve">+ Relevé</a>
+    </div>
+    <div class="row g-3 mb-4">
+        <div class="col-md-4"><div class="border rounded p-3"><div class="small text-muted">kWh ce mois</div><strong class="fs-4">@Model.KwhMois.ToString("N0")</strong></div></div>
+        <div class="col-md-4"><div class="border rounded p-3"><div class="small text-muted">Coût ce mois</div><strong class="fs-4">@Model.CoutMois.ToString("C0")</strong></div></div>
+        <div class="col-md-4"><div class="border rounded p-3"><div class="small text-muted">Actifs énergie</div><strong class="fs-4">@Model.Actifs.Count</strong></div></div>
+    </div>
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <h2 class="h6">Équipements</h2>
+            <ul class="list-group">
+                @foreach (var a in Model.Actifs)
+                {
+                    <li class="list-group-item d-flex justify-content-between">
+                        <a asp-controller="Actifs" asp-action="Details" asp-route-id="@a.Id">@a.InternalCode — @a.Name</a>
+                        <span>@(a.EngineHours?.ToString("N0") ?? "—") h</span>
+                    </li>
+                }
+            </ul>
+        </div>
+        <div class="col-lg-7">
+            <h2 class="h6">Relevés récents</h2>
+            <table class="table table-sm table-striped">
+                <thead><tr><th>Date</th><th>Actif</th><th>kWh</th><th>Coût</th><th>Source</th></tr></thead>
+                <tbody>
+                @foreach (var r in Model.Releves)
+                {
+                    <tr>
+                        <td>@r.ReadingDate.ToString("yyyy-MM-dd")</td>
+                        <td>@(r.Actif?.Name ?? "—")</td>
+                        <td>@r.Kwh.ToString("N1")</td>
+                        <td>@r.Cost.ToString("C")</td>
+                        <td>@(r.Source ?? "—")</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

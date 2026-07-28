@@ -77,6 +77,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Services.Interfaces.IAppContextService, Services.AppContextService>();
         services.AddScoped<Services.Interfaces.IThemeService, Services.ThemeService>();
         services.AddScoped<Services.Interfaces.IExploitationContextService, Services.ExploitationContextService>();
+        services.AddScoped<Services.IFermeNotificationService, Services.FermeNotificationService>();
 
         return services;
     }

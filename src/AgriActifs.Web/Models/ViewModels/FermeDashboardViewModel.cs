@@ -59,6 +59,7 @@ public class ActifDetailsViewModel
 {
     public ActifAgricole Actif { get; set; } = null!;
     public IReadOnlyList<InterventionMaintenance> Interventions { get; set; } = [];
+    public IReadOnlyList<DocumentFerme> Documents { get; set; } = [];
     public decimal CoutMaintenanceTotal { get; set; }
     public bool ServiceDueByHours { get; set; }
     public bool ServiceDueByDate { get; set; }
@@ -83,3 +84,36 @@ public class ParcelleDetailsViewModel
     public IReadOnlyList<ActifAgricole> Actifs { get; set; } = [];
     public IReadOnlyList<InterventionMaintenance> Interventions { get; set; } = [];
 }
+
+public class IrrigationIndexViewModel
+{
+    public IReadOnlyList<IrrigationSecteur> Secteurs { get; set; } = [];
+    public IReadOnlyList<ActifAgricole> Pompes { get; set; } = [];
+}
+
+public class EnergieIndexViewModel
+{
+    public IReadOnlyList<ActifAgricole> Actifs { get; set; } = [];
+    public IReadOnlyList<EnergieReleve> Releves { get; set; } = [];
+    public decimal KwhMois { get; set; }
+    public decimal CoutMois { get; set; }
+}
+
+public class RapportsFermeViewModel
+{
+    public decimal ValeurParc { get; set; }
+    public decimal CoutMaintenanceAnnee { get; set; }
+    public int Pannes { get; set; }
+    public int InterventionsCloturees { get; set; }
+    public IReadOnlyList<TcoRow> TcoRows { get; set; } = [];
+}
+
+public record TcoRow(
+    int Id,
+    string Code,
+    string Name,
+    decimal Acquisition,
+    decimal Maintenance,
+    decimal Residual,
+    decimal Tco,
+    decimal Annualized);

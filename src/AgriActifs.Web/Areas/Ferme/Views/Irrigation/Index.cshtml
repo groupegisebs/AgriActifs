@@ -1,0 +1,44 @@
+@model IrrigationIndexViewModel
+@{ ViewData["Title"] = "Irrigation"; }
+<div class="container py-4">
+    <div class="d-flex justify-content-between mb-3">
+        <h1 class="h3">Irrigation</h1>
+        <a class="btn btn-primary" asp-action="Create">+ Secteur</a>
+    </div>
+    <div class="row g-3 mb-4">
+        <div class="col-lg-7">
+            <h2 class="h6">Secteurs</h2>
+            <table class="table table-sm table-striped">
+                <thead><tr><th>Code</th><th>Nom</th><th>Parcelle</th><th>Pompe</th><th>Débit</th><th>Pression</th><th></th></tr></thead>
+                <tbody>
+                @foreach (var s in Model.Secteurs)
+                {
+                    <tr>
+                        <td>@s.Code</td>
+                        <td>@s.Name</td>
+                        <td>@(s.Parcelle?.Name ?? "—")</td>
+                        <td>@(s.Pompe?.Name ?? "—")</td>
+                        <td>@(s.DebitM3H is not null ? $"{s.DebitM3H} m³/h" : "—")</td>
+                        <td>@(s.PressionBar is not null ? $"{s.PressionBar} bar" : "—")</td>
+                        <td><a asp-action="Edit" asp-route-id="@s.Id">Modifier</a></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+            @if (Model.Secteurs.Count == 0) { <p class="text-muted">Aucun secteur — créez Secteur A, etc.</p> }
+        </div>
+        <div class="col-lg-5">
+            <h2 class="h6">Pompes &amp; actifs irrigation</h2>
+            <ul class="list-group">
+                @foreach (var p in Model.Pompes)
+                {
+                    <li class="list-group-item d-flex justify-content-between">
+                        <a asp-controller="Actifs" asp-action="Details" asp-route-id="@p.Id">@p.InternalCode — @p.Name</a>
+                        <span class="badge text-bg-secondary">@p.Statut</span>
+                    </li>
+                }
+            </ul>
+            @if (Model.Pompes.Count == 0) { <p class="text-muted small mt-2">Ajoutez des actifs catégorie Irrigation.</p> }
+        </div>
+    </div>
+</div>

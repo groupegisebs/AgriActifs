@@ -1,0 +1,29 @@
+@model ActiviteAgricole
+@{ ViewData["Title"] = Model.Id == 0 ? "Nouvelle activité" : "Modifier activité"; }
+<div class="container py-4" style="max-width:720px">
+    <h1 class="h3 mb-3">@ViewData["Title"]</h1>
+    <form method="post">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="ExploitationId" />
+        <div class="mb-3"><label asp-for="Title" class="form-label">Titre</label><input asp-for="Title" class="form-control" /></div>
+        <div class="row">
+            <div class="col-md-6 mb-3"><label asp-for="Type" class="form-label"></label><select asp-for="Type" class="form-select" asp-items="Html.GetEnumSelectList<ActiviteType>()"></select></div>
+            <div class="col-md-6 mb-3"><label asp-for="Statut" class="form-label"></label><select asp-for="Statut" class="form-select" asp-items="Html.GetEnumSelectList<ActiviteStatut>()"></select></div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3"><label asp-for="PlannedDate" class="form-label">Date prévue</label><input asp-for="PlannedDate" type="date" class="form-control" /></div>
+            <div class="col-md-6 mb-3"><label asp-for="CompletedDate" class="form-label">Terminée le</label><input asp-for="CompletedDate" type="date" class="form-control" /></div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3"><label asp-for="ParcelleId" class="form-label">Parcelle</label><select asp-for="ParcelleId" class="form-select" asp-items="ViewBag.Parcelles"><option value="">—</option></select></div>
+            <div class="col-md-6 mb-3"><label asp-for="ActifAgricoleId" class="form-label">Actif</label><select asp-for="ActifAgricoleId" class="form-select" asp-items="ViewBag.Actifs"><option value="">—</option></select></div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3"><label asp-for="AssignedTo" class="form-label">Assigné à</label><input asp-for="AssignedTo" class="form-control" /></div>
+            <div class="col-md-6 mb-3"><label asp-for="Cost" class="form-label">Coût</label><input asp-for="Cost" class="form-control" /></div>
+        </div>
+        <div class="mb-3"><label asp-for="Description" class="form-label"></label><textarea asp-for="Description" class="form-control"></textarea></div>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+        <a asp-action="Index" class="btn btn-link">Annuler</a>
+    </form>
+</div>

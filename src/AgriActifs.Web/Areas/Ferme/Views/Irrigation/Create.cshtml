@@ -1,0 +1,27 @@
+@model IrrigationSecteur
+@{ ViewData["Title"] = Model.Id == 0 ? "Nouveau secteur" : "Modifier secteur"; }
+<div class="container py-4" style="max-width:720px">
+    <h1 class="h3 mb-3">@ViewData["Title"]</h1>
+    <form method="post">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="ExploitationId" />
+        <div class="row">
+            <div class="col-md-4 mb-3"><label asp-for="Code" class="form-label"></label><input asp-for="Code" class="form-control" /></div>
+            <div class="col-md-8 mb-3"><label asp-for="Name" class="form-label"></label><input asp-for="Name" class="form-control" /></div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3"><label asp-for="ParcelleId" class="form-label">Parcelle</label><select asp-for="ParcelleId" class="form-select" asp-items="ViewBag.Parcelles"><option value="">—</option></select></div>
+            <div class="col-md-6 mb-3"><label asp-for="PompeActifId" class="form-label">Pompe</label><select asp-for="PompeActifId" class="form-select" asp-items="ViewBag.Pompes"><option value="">—</option></select></div>
+        </div>
+        <div class="mb-3"><label asp-for="ReservoirNote" class="form-label">Réservoir</label><input asp-for="ReservoirNote" class="form-control" /></div>
+        <div class="row">
+            <div class="col-md-4 mb-3"><label asp-for="DebitM3H" class="form-label">Débit m³/h</label><input asp-for="DebitM3H" class="form-control" /></div>
+            <div class="col-md-4 mb-3"><label asp-for="PressionBar" class="form-label">Pression bar</label><input asp-for="PressionBar" class="form-control" /></div>
+            <div class="col-md-4 mb-3"><label asp-for="LastServiceDate" class="form-label">Dernier entretien</label><input asp-for="LastServiceDate" type="date" class="form-control" /></div>
+        </div>
+        <div class="mb-3"><label asp-for="Notes" class="form-label"></label><textarea asp-for="Notes" class="form-control"></textarea></div>
+        <div class="form-check mb-3"><input asp-for="IsActive" class="form-check-input" /><label asp-for="IsActive" class="form-check-label">Actif</label></div>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+        <a asp-action="Index" class="btn btn-link">Annuler</a>
+    </form>
+</div>

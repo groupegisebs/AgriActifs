@@ -37,6 +37,11 @@ public class ApplicationDbContext(
     public DbSet<InterventionMaintenance> Interventions => Set<InterventionMaintenance>();
     public DbSet<InterventionPiece> InterventionPieces => Set<InterventionPiece>();
     public DbSet<Fournisseur> Fournisseurs => Set<Fournisseur>();
+    public DbSet<ActiviteAgricole> ActivitesAgricoles => Set<ActiviteAgricole>();
+    public DbSet<DocumentFerme> DocumentsFerme => Set<DocumentFerme>();
+    public DbSet<FermeNotification> FermeNotifications => Set<FermeNotification>();
+    public DbSet<IrrigationSecteur> IrrigationSecteurs => Set<IrrigationSecteur>();
+    public DbSet<EnergieReleve> EnergieReleves => Set<EnergieReleve>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -240,6 +245,85 @@ public class ApplicationDbContext(
                 .WithMany(x => x.Fournisseurs)
                 .HasForeignKey(x => x.ExploitationId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<ActiviteAgricole>(entity =>
+        {
+            entity.Property(x => x.Cost).HasPrecision(18, 2);
+            entity.HasOne(x => x.Exploitation)
+                .WithMany(x => x.Activites)
+                .HasForeignKey(x => x.ExploitationId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(x => x.Parcelle)
+                .WithMany()
+                .HasForeignKey(x => x.ParcelleId)
+                .OnDelete(DeleteBehavior.SetNull);
+            entity.HasOne(x => x.Actif)
+                .WithMany()
+                .HasForeignKey(x => x.ActifAgricoleId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        builder.Entity<DocumentFerme>(entity =>
+        {
+            entity.HasOne(x => x.Exploitation)
+                .WithMany(x => x.Documents)
+                .HasForeignKey(x => x.ExploitationId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(x => x.Actif)
+                .WithMany(x => x.Documents)
+                .HasForeignKey(x => x.ActifAgricoleId)
+                .OnDelete(DeleteBehavior.SetNull);
+            entity.HasOne(x => x.Parcelle)
+                .WithMany()
+                .HasForeignKey(x => x.ParcelleId)
+                .OnDelete(DeleteBehavior.SetNull);
+            entity.HasOne(x => x.Fournisseur)
+                .WithMany(x => x.Documents)
+                .HasForeignKey(x => x.FournisseurId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        builder.Entity<FermeNotification>(entity =>
+        {
+            entity.HasIndex(x => new { x.ExploitationId, x.DedupeKey });
+            entity.HasOne(x => x.Exploitation)
+                .WithMany(x => x.Notifications)
+                .HasForeignKey(x => x.ExploitationId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<IrrigationSecteur>(entity =>
+        {
+            entity.HasIndex(x => new { x.ExploitationId, x.Code }).IsUnique();
+            entity.Property(x => x.DebitM3H).HasPrecision(18, 2);
+            entity.Property(x => x.PressionBar).HasPrecision(18, 2);
+            entity.HasOne(x => x.Exploitation)
+                .WithMany(x => x.IrrigationSecteurs)
+                .HasForeignKey(x => x.ExploitationId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(x => x.Parcelle)
+                .WithMany()
+                .HasForeignKey(x => x.ParcelleId)
+                .OnDelete(DeleteBehavior.SetNull);
+            entity.HasOne(x => x.Pompe)
+                .WithMany()
+                .HasForeignKey(x => x.PompeActifId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        builder.Entity<EnergieReleve>(entity =>
+        {
+            entity.Property(x => x.Kwh).HasPrecision(18, 2);
+            entity.Property(x => x.Cost).HasPrecision(18, 2);
+            entity.HasOne(x => x.Exploitation)
+                .WithMany(x => x.EnergieReleves)
+                .HasForeignKey(x => x.ExploitationId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(x => x.Actif)
+                .WithMany()
+                .HasForeignKey(x => x.ActifAgricoleId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         builder.Entity<Exploitation>(entity =>

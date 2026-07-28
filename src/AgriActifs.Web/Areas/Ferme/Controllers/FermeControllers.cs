@@ -392,11 +392,17 @@ public class ActifsController(
             .OrderByDescending(i => i.PlannedDate)
             .ToListAsync(cancellationToken);
 
+        var docs = await db.DocumentsFerme.AsNoTracking()
+            .Where(d => d.ActifAgricoleId == id && d.ExploitationId == exploitationId)
+            .OrderByDescending(d => d.DocumentDate)
+            .ToListAsync(cancellationToken);
+
         var today = DateTime.UtcNow.Date;
         return View(new ActifDetailsViewModel
         {
             Actif = item,
             Interventions = interventions,
+            Documents = docs,
             CoutMaintenanceTotal = interventions.Sum(i => i.LaborCost + i.PartsCost),
             ServiceDueByHours = item.EngineHours is not null && item.NextServiceHours is not null
                                 && item.EngineHours >= item.NextServiceHours,
@@ -599,6 +605,7 @@ public class MaintenanceController(
                 && i.Statut != InterventionStatut.Cloturee
                 && i.Statut != InterventionStatut.Annulee),
             "done" => query.Where(i => i.Statut == InterventionStatut.Cloturee),
+            "validation" => query.Where(i => i.Statut == InterventionStatut.EnAttenteValidation),
             _ => query
         };
 
@@ -691,6 +698,61 @@ public class MaintenanceController(
     }
 
     [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Start(int id, CancellationToken cancellationToken)
+    {
+        var exploitationId = await GetExploitationIdAsync(cancellationToken);
+        var item = await db.Interventions.FirstOrDefaultAsync(i => i.Id == id && i.ExploitationId == exploitationId, cancellationToken);
+        if (item is null) return NotFound();
+        if (item.Statut is not (InterventionStatut.Ouverte or InterventionStatut.EnCours))
+        {
+            TempData["Success"] = "Transition non autorisée.";
+            return RedirectToAction(nameof(Index));
+        }
+        item.Statut = InterventionStatut.EnCours;
+        item.StartedAt ??= DateTime.UtcNow;
+        await db.SaveChangesAsync(cancellationToken);
+        TempData["Success"] = "Intervention démarrée.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> SubmitValidation(int id, string? report, CancellationToken cancellationToken)
+    {
+        var exploitationId = await GetExploitationIdAsync(cancellationToken);
+        var item = await db.Interventions.FirstOrDefaultAsync(i => i.Id == id && i.ExploitationId == exploitationId, cancellationToken);
+        if (item is null) return NotFound();
+        if (item.Statut is not (InterventionStatut.EnCours or InterventionStatut.Ouverte))
+        {
+            TempData["Success"] = "Soumettre à validation uniquement depuis Ouverte/En cours.";
+            return RedirectToAction(nameof(Index));
+        }
+        item.Statut = InterventionStatut.EnAttenteValidation;
+        item.SubmittedForValidationAt = DateTime.UtcNow;
+        if (!string.IsNullOrWhiteSpace(report)) item.Report = report;
+        await db.SaveChangesAsync(cancellationToken);
+        TempData["Success"] = "Soumise pour validation.";
+        return RedirectToAction(nameof(Index), new { filter = "validation" });
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Validate(int id, CancellationToken cancellationToken)
+    {
+        var exploitationId = await GetExploitationIdAsync(cancellationToken);
+        var item = await db.Interventions
+            .Include(i => i.Pieces)
+            .FirstOrDefaultAsync(i => i.Id == id && i.ExploitationId == exploitationId, cancellationToken);
+        if (item is null) return NotFound();
+        if (item.Statut != InterventionStatut.EnAttenteValidation)
+        {
+            TempData["Success"] = "Validation réservée aux interventions en attente.";
+            return RedirectToAction(nameof(Index));
+        }
+        item.ValidatedAt = DateTime.UtcNow;
+        item.ValidatedByUserId = CurrentUserId;
+        return await FinalizeCloseAsync(item, exploitationId, cancellationToken);
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Close(int id, string? report, CancellationToken cancellationToken)
     {
         var exploitationId = await GetExploitationIdAsync(cancellationToken);
@@ -698,11 +760,15 @@ public class MaintenanceController(
             .Include(i => i.Pieces)
             .FirstOrDefaultAsync(i => i.Id == id && i.ExploitationId == exploitationId, cancellationToken);
         if (item is null) return NotFound();
+        if (!string.IsNullOrWhiteSpace(report)) item.Report = report;
+        // Raccourci : clôture directe (bypass validation) pour urgences
+        return await FinalizeCloseAsync(item, exploitationId, cancellationToken);
+    }
 
+    private async Task<IActionResult> FinalizeCloseAsync(InterventionMaintenance item, int exploitationId, CancellationToken cancellationToken)
+    {
         item.Statut = InterventionStatut.Cloturee;
         item.CompletedDate = DateTime.UtcNow;
-        item.Report = report;
-
         await DeductPiecesAsync(item, cancellationToken);
 
         if (item.ActifAgricoleId is int actifId)

@@ -1,0 +1,19 @@
+@model EnergieReleve
+@{ ViewData["Title"] = "Nouveau relevé énergie"; }
+<div class="container py-4" style="max-width:640px">
+    <h1 class="h3 mb-3">@ViewData["Title"]</h1>
+    <form method="post">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="ExploitationId" />
+        <div class="mb-3"><label asp-for="ActifAgricoleId" class="form-label">Actif</label><select asp-for="ActifAgricoleId" class="form-select" asp-items="ViewBag.Actifs"><option value="">—</option></select></div>
+        <div class="mb-3"><label asp-for="ReadingDate" class="form-label">Date</label><input asp-for="ReadingDate" type="date" class="form-control" /></div>
+        <div class="row">
+            <div class="col-md-6 mb-3"><label asp-for="Kwh" class="form-label">kWh</label><input asp-for="Kwh" class="form-control" /></div>
+            <div class="col-md-6 mb-3"><label asp-for="Cost" class="form-label">Coût</label><input asp-for="Cost" class="form-control" /></div>
+        </div>
+        <div class="mb-3"><label asp-for="Source" class="form-label">Source</label><input asp-for="Source" class="form-control" placeholder="Réseau, diesel…" /></div>
+        <div class="mb-3"><label asp-for="Notes" class="form-label"></label><textarea asp-for="Notes" class="form-control"></textarea></div>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+        <a asp-action="Index" class="btn btn-link">Annuler</a>
+    </form>
+</div>

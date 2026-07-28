@@ -1,0 +1,33 @@
+@model IEnumerable<DocumentFerme>
+@{ ViewData["Title"] = "Documents"; }
+<div class="container py-4">
+    <div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
+        <h1 class="h3">Centre documentaire</h1>
+        <a class="btn btn-primary" asp-action="Create">+ Document</a>
+    </div>
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-4"><input name="q" value="@ViewBag.Q" class="form-control" placeholder="Recherche, tags…" /></div>
+        <div class="col-auto"><select name="categorie" class="form-select" asp-items="Html.GetEnumSelectList<DocumentCategorie>()"><option value="">Toutes catégories</option></select></div>
+        <div class="col-auto"><button class="btn btn-outline-primary">Filtrer</button></div>
+    </form>
+    <table class="table table-striped">
+        <thead><tr><th>Date</th><th>Titre</th><th>Catégorie</th><th>Actif</th><th>Tags</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var d in Model)
+        {
+            <tr>
+                <td>@d.DocumentDate.ToString("yyyy-MM-dd")</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(d.FileUrl))
+                    { <a href="@d.FileUrl" target="_blank" rel="noopener">@d.Title</a> }
+                    else { @d.Title }
+                </td>
+                <td>@d.Categorie</td>
+                <td>@(d.Actif?.Name ?? "—")</td>
+                <td class="small text-muted">@(d.Tags ?? "—")</td>
+                <td><a asp-action="Edit" asp-route-id="@d.Id">Modifier</a></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

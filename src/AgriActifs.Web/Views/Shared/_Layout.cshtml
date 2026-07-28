@@ -152,14 +152,36 @@
                    asp-area="Ferme" asp-controller="Dashboard" asp-action="Index">
                     <i class="bi bi-speedometer2"></i> Tableau de bord
                 </a>
+                <a class="app-sidebar-link @(controller == "Notifications" ? "active" : "")"
+                   asp-area="Ferme" asp-controller="Notifications" asp-action="Index">
+                    <i class="bi bi-bell"></i> Notifications
+                </a>
+
+                <div class="app-sidebar-label mt-3">Exploitation</div>
                 <a class="app-sidebar-link @(controller == "Parcelles" ? "active" : "")"
                    asp-area="Ferme" asp-controller="Parcelles" asp-action="Index">
                     <i class="bi bi-grid-3x3"></i> Parcelles
                 </a>
+                <a class="app-sidebar-link @(controller == "Activites" ? "active" : "")"
+                   asp-area="Ferme" asp-controller="Activites" asp-action="Index">
+                    <i class="bi bi-calendar3"></i> Activités
+                </a>
+
+                <div class="app-sidebar-label mt-3">Actifs</div>
                 <a class="app-sidebar-link @(controller == "Actifs" ? "active" : "")"
                    asp-area="Ferme" asp-controller="Actifs" asp-action="Index">
-                    <i class="bi bi-truck"></i> Actifs
+                    <i class="bi bi-truck"></i> Machines &amp; équipements
                 </a>
+                <a class="app-sidebar-link @(controller == "Irrigation" ? "active" : "")"
+                   asp-area="Ferme" asp-controller="Irrigation" asp-action="Index">
+                    <i class="bi bi-droplet"></i> Irrigation
+                </a>
+                <a class="app-sidebar-link @(controller == "Energie" ? "active" : "")"
+                   asp-area="Ferme" asp-controller="Energie" asp-action="Index">
+                    <i class="bi bi-lightning-charge"></i> Énergie
+                </a>
+
+                <div class="app-sidebar-label mt-3">Opérations</div>
                 <a class="app-sidebar-link @(controller == "Maintenance" ? "active" : "")"
                    asp-area="Ferme" asp-controller="Maintenance" asp-action="Index">
                     <i class="bi bi-wrench"></i> Maintenance
@@ -171,6 +193,14 @@
                 <a class="app-sidebar-link @(controller == "Fournisseurs" ? "active" : "")"
                    asp-area="Ferme" asp-controller="Fournisseurs" asp-action="Index">
                     <i class="bi bi-shop"></i> Fournisseurs
+                </a>
+                <a class="app-sidebar-link @(controller == "Documents" ? "active" : "")"
+                   asp-area="Ferme" asp-controller="Documents" asp-action="Index">
+                    <i class="bi bi-folder2-open"></i> Documents
+                </a>
+                <a class="app-sidebar-link @(controller == "Rapports" ? "active" : "")"
+                   asp-area="Ferme" asp-controller="Rapports" asp-action="Index">
+                    <i class="bi bi-graph-up"></i> Rapports
                 </a>
                 <a class="app-sidebar-link @(controller == "Exploitations" ? "active" : "")"
                    asp-area="Ferme" asp-controller="Exploitations" asp-action="Index">

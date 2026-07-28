@@ -7,6 +7,8 @@
     var area = ViewContext.RouteData.Values["area"]?.ToString();
     var controller = ViewContext.RouteData.Values["controller"]?.ToString();
     var isAdmin = area == "Admin";
+    var isFerme = area == "Ferme";
+    var hasSidebar = isAdmin || isFerme;
     var isAuthenticated = User.Identity?.IsAuthenticated == true;
     var app = await AppContext.GetSnapshotAsync();
     var pageTitle = ViewData["Title"]?.ToString() ?? app.AppName;
@@ -31,7 +33,7 @@
     <header class="app-topbar">
         <div class="app-topbar-inner">
             <div class="d-flex align-items-center gap-2">
-                @if (isAdmin)
+                @if (hasSidebar)
                 {
                     <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Menu">
                         <i class="bi bi-list"></i>
@@ -40,7 +42,7 @@
                 @await Component.InvokeAsync("AppBranding")
             </div>
 
-            @if (!isAdmin)
+            @if (!hasSidebar)
             {
                 <ul class="app-nav">
                     <li>
@@ -52,7 +54,7 @@
                     @if (isAuthenticated)
                     {
                         <li>
-                            <a class="app-nav-link @(area == "Ferme" ? "active" : "")"
+                            <a class="app-nav-link"
                                asp-area="Ferme" asp-controller="Dashboard" asp-action="Index">
                                 <i class="bi bi-tree"></i> Ferme
                             </a>
@@ -73,6 +75,10 @@
                     }
                 </ul>
             }
+            else if (isFerme)
+            {
+                <div class="app-topbar-title">@pageTitle</div>
+            }
 
             <div class="d-flex align-items-center gap-2">
                 @await Component.InvokeAsync("LanguageSelector")
@@ -81,7 +87,7 @@
         </div>
     </header>
 
-    <div class="app-shell @(isAdmin ? "has-sidebar" : "")">
+    <div class="app-shell @(hasSidebar ? "has-sidebar" : "")">
         @if (isAdmin)
         {
             <aside class="app-sidebar" id="appSidebar">
@@ -134,6 +140,57 @@
                 </a>
             </aside>
         }
+        else if (isFerme)
+        {
+            <aside class="app-sidebar app-sidebar--ferme" id="appSidebar">
+                <div class="app-sidebar-brand">
+                    <span class="app-sidebar-brand-name">AgriActifs</span>
+                    <span class="app-sidebar-brand-sub">Exploitation</span>
+                </div>
+                <div class="app-sidebar-label">Pilotage</div>
+                <a class="app-sidebar-link @(controller == "Dashboard" ? "active" : "")"
+                   asp-area="Ferme" asp-controller="Dashboard" asp-action="Index">
+                    <i class="bi bi-speedometer2"></i> Tableau de bord
+                </a>
+                <a class="app-sidebar-link @(controller == "Parcelles" ? "active" : "")"
+                   asp-area="Ferme" asp-controller="Parcelles" asp-action="Index">
+                    <i class="bi bi-grid-3x3"></i> Parcelles
+                </a>
+                <a class="app-sidebar-link @(controller == "Actifs" ? "active" : "")"
+                   asp-area="Ferme" asp-controller="Actifs" asp-action="Index">
+                    <i class="bi bi-truck"></i> Actifs
+                </a>
+                <a class="app-sidebar-link @(controller == "Maintenance" ? "active" : "")"
+                   asp-area="Ferme" asp-controller="Maintenance" asp-action="Index">
+                    <i class="bi bi-wrench"></i> Maintenance
+                </a>
+                <a class="app-sidebar-link @(controller == "Stocks" ? "active" : "")"
+                   asp-area="Ferme" asp-controller="Stocks" asp-action="Index">
+                    <i class="bi bi-box-seam"></i> Stocks
+                </a>
+                <a class="app-sidebar-link @(controller == "Fournisseurs" ? "active" : "")"
+                   asp-area="Ferme" asp-controller="Fournisseurs" asp-action="Index">
+                    <i class="bi bi-shop"></i> Fournisseurs
+                </a>
+                <a class="app-sidebar-link @(controller == "Exploitations" ? "active" : "")"
+                   asp-area="Ferme" asp-controller="Exploitations" asp-action="Index">
+                    <i class="bi bi-building"></i> Exploitations
+                </a>
+
+                <div class="app-sidebar-label mt-3">Compte</div>
+                <a class="app-sidebar-link" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-house"></i> Accueil
+                </a>
+                <a class="app-sidebar-link" asp-controller="Profile" asp-action="Index">
+                    <i class="bi bi-person-circle"></i> @Localizer["Nav.MyProfile"]
+                </a>
+                <gise-permission resource="Dashboard" action="View">
+                    <a class="app-sidebar-link" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                        <i class="bi bi-grid"></i> @Localizer["Nav.Admin"]
+                    </a>
+                </gise-permission>
+            </aside>
+        }
 
         <main class="app-content @(fullBleedLanding ? "app-content--landing" : null)" role="main">
             @if (fullBleedLanding)
@@ -142,7 +199,7 @@
             }
             else
             {
-                <div class="app-container">
+                <div class="app-container @(isFerme ? "app-container--ferme" : null)">
                     @RenderBody()
                 </div>
             }

@@ -1,45 +1,248 @@
+@model AgriActifs.Web.Models.ViewModels.FermeDashboardViewModel
 @{
-    ViewData["Title"] = "Tableau de bord ferme";
-    var accessible = (IReadOnlyList<AgriActifs.Web.Services.Interfaces.ExploitationOption>)ViewBag.Accessible;
+    ViewData["Title"] = "Tableau de bord";
+    var total = Math.Max(Model.ActifsTotal, 1);
+    string Pct(int n) => $"{(100.0 * n / total):0.#}%";
 }
-<div class="container py-4">
-    @if (TempData["Success"] is string ok) { <div class="alert alert-success">@ok</div> }
 
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+<div class="ferme-dash">
+    <div class="ferme-dash-header">
         <div>
-            <h1 class="h3 mb-1">@ViewBag.ExploitationName</h1>
-            <p class="text-muted mb-0">Pilotage des actifs agricoles</p>
+            <p class="ferme-dash-kicker">Tableau de bord</p>
+            <h1 class="ferme-dash-title">@Model.ExploitationName</h1>
+            <p class="ferme-dash-sub">Pilotage des actifs agricoles</p>
         </div>
-        @if (accessible.Count > 1)
+        @if (Model.Accessible.Count > 1)
         {
-            <form asp-area="Ferme" asp-controller="Context" asp-action="SetExploitation" method="post" class="d-flex gap-2">
+            <form asp-area="Ferme" asp-controller="Context" asp-action="SetExploitation" method="post" class="ferme-dash-switch">
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="returnUrl" value="@Url.Action("Index")" />
-                <select name="exploitationId" class="form-select" onchange="this.form.submit()">
-                    @foreach (var e in accessible)
+                <label class="visually-hidden" for="exploitationId">Exploitation</label>
+                <select id="exploitationId" name="exploitationId" class="form-select" onchange="this.form.submit()">
+                    @foreach (var e in Model.Accessible)
                     {
-                        <option value="@e.Id" selected="@(e.Id == (int)ViewBag.CurrentId)">@e.Name</option>
+                        <option value="@e.Id" selected="@(e.Id == Model.CurrentExploitationId)">@e.Name</option>
                     }
                 </select>
             </form>
         }
     </div>
 
-    <div class="row g-3 mb-4">
-        <div class="col-md-4 col-lg-2"><div class="card h-100"><div class="card-body"><div class="text-muted small">Parcelles</div><div class="fs-3 fw-bold">@ViewBag.Parcelles</div></div></div></div>
-        <div class="col-md-4 col-lg-2"><div class="card h-100"><div class="card-body"><div class="text-muted small">Actifs</div><div class="fs-3 fw-bold">@ViewBag.ActifsTotal</div></div></div></div>
-        <div class="col-md-4 col-lg-2"><div class="card h-100"><div class="card-body"><div class="text-muted small">En maintenance</div><div class="fs-3 fw-bold text-warning">@ViewBag.ActifsMaintenance</div></div></div></div>
-        <div class="col-md-4 col-lg-2"><div class="card h-100"><div class="card-body"><div class="text-muted small">Valeur parc</div><div class="fs-4 fw-bold">@(((decimal)ViewBag.ValeurParc).ToString("C"))</div></div></div></div>
-        <div class="col-md-4 col-lg-2"><div class="card h-100"><div class="card-body"><div class="text-muted small">Stocks bas</div><div class="fs-3 fw-bold text-danger">@ViewBag.StocksBas</div></div></div></div>
-        <div class="col-md-4 col-lg-2"><div class="card h-100"><div class="card-body"><div class="text-muted small">Interventions</div><div class="fs-3 fw-bold">@ViewBag.InterventionsOuvertes</div></div></div></div>
+    @if (TempData["Success"] is string ok)
+    {
+        <div class="alert alert-success">@ok</div>
+    }
+
+    <div class="ferme-kpi-grid">
+        <div class="ferme-kpi">
+            <div class="ferme-kpi-icon"><i class="bi bi-truck"></i></div>
+            <div>
+                <div class="ferme-kpi-label">Actifs totaux</div>
+                <div class="ferme-kpi-value">@Model.ActifsTotal</div>
+            </div>
+        </div>
+        <div class="ferme-kpi">
+            <div class="ferme-kpi-icon ferme-kpi-icon--ok"><i class="bi bi-check-circle"></i></div>
+            <div>
+                <div class="ferme-kpi-label">Opérationnels</div>
+                <div class="ferme-kpi-value">@Model.ActifsOperationnels <span class="ferme-kpi-meta">@Pct(Model.ActifsOperationnels)</span></div>
+            </div>
+        </div>
+        <div class="ferme-kpi">
+            <div class="ferme-kpi-icon ferme-kpi-icon--warn"><i class="bi bi-wrench"></i></div>
+            <div>
+                <div class="ferme-kpi-label">Maintenance</div>
+                <div class="ferme-kpi-value">@Model.ActifsMaintenance <span class="ferme-kpi-meta">@Pct(Model.ActifsMaintenance)</span></div>
+            </div>
+        </div>
+        <div class="ferme-kpi">
+            <div class="ferme-kpi-icon ferme-kpi-icon--danger"><i class="bi bi-exclamation-triangle"></i></div>
+            <div>
+                <div class="ferme-kpi-label">Hors service</div>
+                <div class="ferme-kpi-value">@Model.ActifsHorsService <span class="ferme-kpi-meta">@Pct(Model.ActifsHorsService)</span></div>
+            </div>
+        </div>
+        <div class="ferme-kpi">
+            <div class="ferme-kpi-icon"><i class="bi bi-dash-circle"></i></div>
+            <div>
+                <div class="ferme-kpi-label">Réformés / loués</div>
+                <div class="ferme-kpi-value">@Model.ActifsReforme</div>
+            </div>
+        </div>
+        <div class="ferme-kpi">
+            <div class="ferme-kpi-icon ferme-kpi-icon--gold"><i class="bi bi-currency-dollar"></i></div>
+            <div>
+                <div class="ferme-kpi-label">Valeur du parc</div>
+                <div class="ferme-kpi-value ferme-kpi-value--sm">@Model.ValeurParc.ToString("C0")</div>
+            </div>
+        </div>
     </div>
 
-    <div class="d-flex flex-wrap gap-2">
-        <a class="btn btn-primary" asp-action="Index" asp-controller="Actifs">Actifs</a>
-        <a class="btn btn-outline-primary" asp-action="Index" asp-controller="Parcelles">Parcelles</a>
-        <a class="btn btn-outline-primary" asp-action="Index" asp-controller="Stocks">Stocks</a>
-        <a class="btn btn-outline-primary" asp-action="Index" asp-controller="Maintenance">Maintenance</a>
-        <a class="btn btn-outline-primary" asp-action="Index" asp-controller="Fournisseurs">Fournisseurs</a>
-        <a class="btn btn-outline-secondary" asp-action="Index" asp-controller="Exploitations">Exploitations</a>
+    <div class="ferme-dash-grid">
+        <section class="ferme-panel">
+            <header class="ferme-panel-head">
+                <h2>Répartition par catégorie</h2>
+                <a asp-controller="Actifs" asp-action="Index">Voir actifs</a>
+            </header>
+            @if (Model.ActifsParCategorie.Count == 0)
+            {
+                <p class="ferme-empty">Aucun actif encore — créez le premier tracteur ou outil.</p>
+                <a class="btn agri-landing-btn agri-landing-btn--primary" style="display:inline-flex" asp-controller="Actifs" asp-action="Create">Ajouter un actif</a>
+            }
+            else
+            {
+                <ul class="ferme-bars">
+                    @foreach (var slice in Model.ActifsParCategorie)
+                    {
+                        var w = 100.0 * slice.Count / total;
+                        <li>
+                            <div class="ferme-bars-label">
+                                <span>@slice.Label</span>
+                                <strong>@slice.Count</strong>
+                            </div>
+                            <div class="ferme-bars-track">
+                                <span style="width:@w.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)%; background:@slice.Color"></span>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+
+        <section class="ferme-panel">
+            <header class="ferme-panel-head">
+                <h2>Actifs par état</h2>
+                <span class="ferme-panel-meta">@Model.CoutMaintenanceMois.ToString("C0") maint. ce mois</span>
+            </header>
+            <div class="ferme-status-stack">
+                <div class="ferme-status-row">
+                    <span class="ferme-dot ferme-dot--ok"></span> Opérationnels
+                    <strong>@Model.ActifsOperationnels</strong>
+                </div>
+                <div class="ferme-status-row">
+                    <span class="ferme-dot ferme-dot--warn"></span> Maintenance
+                    <strong>@Model.ActifsMaintenance</strong>
+                </div>
+                <div class="ferme-status-row">
+                    <span class="ferme-dot ferme-dot--danger"></span> Hors service
+                    <strong>@Model.ActifsHorsService</strong>
+                </div>
+                <div class="ferme-status-row">
+                    <span class="ferme-dot"></span> Autres
+                    <strong>@Model.ActifsReforme</strong>
+                </div>
+            </div>
+            <div class="ferme-mini-stats">
+                <div><span>Parcelles</span><strong>@Model.Parcelles</strong></div>
+                <div><span>Interventions ouvertes</span><strong>@Model.InterventionsOuvertes</strong></div>
+                <div><span>Stocks bas</span><strong class="@(Model.StocksBas > 0 ? "text-danger" : null)">@Model.StocksBas</strong></div>
+            </div>
+        </section>
+
+        <section class="ferme-panel">
+            <header class="ferme-panel-head">
+                <h2>Maintenances à venir</h2>
+                <a asp-controller="Maintenance" asp-action="Index">Agenda</a>
+            </header>
+            @if (Model.MaintenancesAVenir.Count == 0)
+            {
+                <p class="ferme-empty">Aucune intervention planifiée.</p>
+            }
+            else
+            {
+                <ul class="ferme-list">
+                    @foreach (var m in Model.MaintenancesAVenir)
+                    {
+                        var days = (m.PlannedDate.Date - DateTime.UtcNow.Date).Days;
+                        <li>
+                            <div>
+                                <strong>@m.Title</strong>
+                                <span>@(m.ActifName ?? "—") · @m.Type</span>
+                            </div>
+                            <span class="ferme-chip @(days <= 3 ? "ferme-chip--warn" : null)">
+                                @(days <= 0 ? "Aujourd'hui" : $"Dans {days} j")
+                            </span>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+
+        <section class="ferme-panel">
+            <header class="ferme-panel-head">
+                <h2>Actifs critiques</h2>
+                <a asp-controller="Actifs" asp-action="Index" asp-route-statut="EnMaintenance">Filtrer</a>
+            </header>
+            @if (Model.ActifsCritiques.Count == 0)
+            {
+                <p class="ferme-empty">Aucun actif en maintenance ou hors service.</p>
+            }
+            else
+            {
+                <ul class="ferme-list">
+                    @foreach (var a in Model.ActifsCritiques)
+                    {
+                        <li>
+                            <div>
+                                <strong>@a.Code</strong>
+                                <span>@a.Name</span>
+                            </div>
+                            <span class="ferme-chip ferme-chip--@a.Tone">@a.Statut</span>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+
+        <section class="ferme-panel">
+            <header class="ferme-panel-head">
+                <h2>Alertes stocks</h2>
+                <a asp-controller="Stocks" asp-action="Index">Stocks</a>
+            </header>
+            @if (Model.AlertesStock.Count == 0)
+            {
+                <p class="ferme-empty">Niveaux de stock OK.</p>
+            }
+            else
+            {
+                <ul class="ferme-list">
+                    @foreach (var s in Model.AlertesStock)
+                    {
+                        <li>
+                            <div>
+                                <strong>@s.Name</strong>
+                                <span>@s.Sku · seuil @s.ReorderLevel</span>
+                            </div>
+                            <span class="ferme-chip ferme-chip--danger">@s.Quantity</span>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+
+        <section class="ferme-panel">
+            <header class="ferme-panel-head">
+                <h2>Activité récente</h2>
+            </header>
+            @if (Model.ActiviteRecente.Count == 0)
+            {
+                <p class="ferme-empty">Pas encore d’interventions clôturées.</p>
+            }
+            else
+            {
+                <ul class="ferme-list">
+                    @foreach (var a in Model.ActiviteRecente)
+                    {
+                        <li>
+                            <div>
+                                <strong>@a.Title</strong>
+                                <span>@a.Detail</span>
+                            </div>
+                            <span class="ferme-chip">@a.At.ToString("dd MMM")</span>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
     </div>
 </div>

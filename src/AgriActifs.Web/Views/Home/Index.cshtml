@@ -6,13 +6,16 @@
 }
 
 <section class="agri-landing" aria-label="@Localizer["Home.Brand"]">
-    <div class="agri-landing-sky" aria-hidden="true"></div>
-    <div class="agri-landing-fields" aria-hidden="true">
-        <svg class="agri-landing-horizon" viewBox="0 0 1440 320" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            <path class="agri-landing-hill agri-landing-hill--far" d="M0,224 C240,160 360,280 720,200 C1080,120 1200,240 1440,180 L1440,320 L0,320 Z" />
-            <path class="agri-landing-hill agri-landing-hill--near" d="M0,260 C200,200 480,300 780,230 C1080,160 1260,250 1440,220 L1440,320 L0,320 Z" />
-        </svg>
-        <div class="agri-landing-furrows"></div>
+    <div class="agri-landing-media" aria-hidden="true">
+        <img class="agri-landing-photo"
+             src="~/img/landing-hero.png"
+             asp-append-version="true"
+             alt=""
+             width="1920"
+             height="1080"
+             decoding="async"
+             fetchpriority="high" />
+        <div class="agri-landing-scrim"></div>
     </div>
 
     <div class="agri-landing-content">

@@ -1,5 +1,6 @@
 using AgriActifs.Web.Data;
 using AgriActifs.Web.Models.Ferme;
+using AgriActifs.Web.Models.ViewModels;
 using AgriActifs.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -45,17 +46,112 @@ public class DashboardController(
         var exploitation = await db.Exploitations.AsNoTracking()
             .FirstAsync(e => e.Id == exploitationId, cancellationToken);
 
-        ViewBag.ExploitationName = exploitation.Name;
-        ViewBag.ActifsTotal = await db.ActifsAgricoles.CountAsync(a => a.ExploitationId == exploitationId && a.IsActive, cancellationToken);
-        ViewBag.ActifsMaintenance = await db.ActifsAgricoles.CountAsync(a => a.ExploitationId == exploitationId && a.Statut == ActifStatut.EnMaintenance, cancellationToken);
-        ViewBag.ValeurParc = await db.ActifsAgricoles.Where(a => a.ExploitationId == exploitationId && a.IsActive).SumAsync(a => a.AcquisitionValue, cancellationToken);
-        ViewBag.StocksBas = await db.StockArticles.CountAsync(s => s.ExploitationId == exploitationId && s.IsActive && s.QuantityOnHand <= s.ReorderLevel, cancellationToken);
-        ViewBag.InterventionsOuvertes = await db.Interventions.CountAsync(i => i.ExploitationId == exploitationId && i.Statut != InterventionStatut.Cloturee && i.Statut != InterventionStatut.Annulee, cancellationToken);
-        ViewBag.Parcelles = await db.Parcelles.CountAsync(p => p.ExploitationId == exploitationId && p.IsActive, cancellationToken);
-        ViewBag.Accessible = await exploitationContext.GetAccessibleExploitationsAsync(cancellationToken);
-        ViewBag.CurrentId = exploitationId;
-        return View();
+        var actifs = await db.ActifsAgricoles.AsNoTracking()
+            .Where(a => a.ExploitationId == exploitationId && a.IsActive)
+            .ToListAsync(cancellationToken);
+
+        var monthStart = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+        var coutMois = await db.Interventions.AsNoTracking()
+            .Where(i => i.ExploitationId == exploitationId
+                        && i.CompletedDate != null
+                        && i.CompletedDate >= monthStart)
+            .SumAsync(i => i.LaborCost + i.PartsCost, cancellationToken);
+
+        var upcoming = await db.Interventions.AsNoTracking()
+            .Include(i => i.Actif)
+            .Where(i => i.ExploitationId == exploitationId
+                        && i.Statut != InterventionStatut.Cloturee
+                        && i.Statut != InterventionStatut.Annulee
+                        && i.PlannedDate >= DateTime.UtcNow.Date)
+            .OrderBy(i => i.PlannedDate)
+            .Take(6)
+            .Select(i => new UpcomingMaintenanceItem(
+                i.Id,
+                i.Title,
+                i.Actif != null ? i.Actif.Name : null,
+                i.PlannedDate,
+                i.Type.ToString()))
+            .ToListAsync(cancellationToken);
+
+        var critiques = actifs
+            .Where(a => a.Statut is ActifStatut.EnMaintenance or ActifStatut.HorsService)
+            .OrderBy(a => a.Statut)
+            .ThenBy(a => a.InternalCode)
+            .Take(6)
+            .Select(a => new CriticalActifItem(
+                a.Id,
+                a.InternalCode,
+                a.Name,
+                a.Statut.ToString(),
+                a.Statut == ActifStatut.HorsService ? "danger" : "warning"))
+            .ToList();
+
+        var stocksBas = await db.StockArticles.AsNoTracking()
+            .Where(s => s.ExploitationId == exploitationId && s.IsActive && s.QuantityOnHand <= s.ReorderLevel)
+            .OrderBy(s => s.QuantityOnHand)
+            .Take(5)
+            .Select(s => new StockAlertItem(s.Id, s.Sku, s.Name, s.QuantityOnHand, s.ReorderLevel))
+            .ToListAsync(cancellationToken);
+
+        var recent = await db.Interventions.AsNoTracking()
+            .Include(i => i.Actif)
+            .Where(i => i.ExploitationId == exploitationId && i.CompletedDate != null)
+            .OrderByDescending(i => i.CompletedDate)
+            .Take(5)
+            .Select(i => new RecentActivityItem(
+                i.Title,
+                i.Actif != null ? $"{i.Actif.InternalCode} · {i.Actif.Name}" : "Sans actif",
+                i.CompletedDate!.Value))
+            .ToListAsync(cancellationToken);
+
+        var byCat = actifs
+            .GroupBy(a => a.Categorie)
+            .Select(g => new CategorySlice(
+                g.Key.ToString(),
+                g.Count(),
+                CategoryColor(g.Key)))
+            .OrderByDescending(x => x.Count)
+            .ToList();
+
+        var accessible = await exploitationContext.GetAccessibleExploitationsAsync(cancellationToken);
+        var model = new FermeDashboardViewModel
+        {
+            ExploitationName = exploitation.Name,
+            CurrentExploitationId = exploitationId,
+            Accessible = accessible.Select(e => new ExploitationOptionItem(e.Id, e.Name)).ToList(),
+            Parcelles = await db.Parcelles.CountAsync(p => p.ExploitationId == exploitationId && p.IsActive, cancellationToken),
+            ActifsTotal = actifs.Count,
+            ActifsOperationnels = actifs.Count(a => a.Statut == ActifStatut.EnService),
+            ActifsMaintenance = actifs.Count(a => a.Statut == ActifStatut.EnMaintenance),
+            ActifsHorsService = actifs.Count(a => a.Statut == ActifStatut.HorsService),
+            ActifsReforme = actifs.Count(a => a.Statut is ActifStatut.Reforme or ActifStatut.Loue),
+            ValeurParc = actifs.Sum(a => a.AcquisitionValue),
+            StocksBas = stocksBas.Count,
+            InterventionsOuvertes = await db.Interventions.CountAsync(
+                i => i.ExploitationId == exploitationId
+                     && i.Statut != InterventionStatut.Cloturee
+                     && i.Statut != InterventionStatut.Annulee,
+                cancellationToken),
+            CoutMaintenanceMois = coutMois,
+            ActifsParCategorie = byCat,
+            MaintenancesAVenir = upcoming,
+            ActifsCritiques = critiques,
+            AlertesStock = stocksBas,
+            ActiviteRecente = recent
+        };
+
+        return View(model);
     }
+
+    private static string CategoryColor(ActifCategorie c) => c switch
+    {
+        ActifCategorie.MaterielRoulant => "#1b4d3e",
+        ActifCategorie.Outillage => "#c4a35a",
+        ActifCategorie.Irrigation => "#2a7d9b",
+        ActifCategorie.Batiment => "#5c7268",
+        ActifCategorie.Infrastructure => "#3d6b5a",
+        _ => "#94a3b8"
+    };
 }
 
 [Area("Ferme")]

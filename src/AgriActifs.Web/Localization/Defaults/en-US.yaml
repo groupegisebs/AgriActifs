@@ -26,7 +26,7 @@ Auth:
 Home:
   Brand: AgriActifs
   Title: Fields, assets and stock — clearly tracked
-  Description: Run your farm operation: agricultural inventory, maintenance and stock in one place.
+  Description: "Run your farm operation: agricultural inventory, maintenance and stock in one place."
   LoginButton: Sign in
   FarmButton: Farm dashboard
   AdminButton: Administration

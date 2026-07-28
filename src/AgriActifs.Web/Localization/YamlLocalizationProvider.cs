@@ -119,7 +119,8 @@ public class YamlLocalizationProvider(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Erreur lecture YAML {Path}", path);
+            // YAML invalide (ex. ':' non quoté) → dictionnaire vide → UI affiche [clé].
+            logger.LogError(ex, "Erreur lecture YAML {Path}. Vérifiez les guillemets autour des textes contenant ':'.", path);
         }
     }
 

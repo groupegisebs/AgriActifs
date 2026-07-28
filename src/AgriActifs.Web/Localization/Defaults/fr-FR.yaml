@@ -8,7 +8,7 @@ Nav:
   MyProfile: Mon profil
   Security2Fa: Sécurité & 2FA
 Brand:
-  Subtitle: Gestion d'actifs agricoles
+  Subtitle: "Gestion d'actifs agricoles"
 Footer:
   Copyright: "© {0} {1}"
 Auth:
@@ -26,7 +26,7 @@ Auth:
 Home:
   Brand: AgriActifs
   Title: Parcelles, actifs et stocks — clairement suivis
-  Description: Pilotez votre exploitation : inventaire agricole, maintenance et stocks au même endroit.
+  Description: "Pilotez votre exploitation : inventaire agricole, maintenance et stocks au même endroit."
   LoginButton: Se connecter
   FarmButton: Tableau de bord ferme
   AdminButton: Administration

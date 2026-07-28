@@ -1,0 +1,32 @@
+@model CapteurIoT
+@{ ViewData["Title"] = Model.Id == 0 ? "Nouveau capteur" : "Modifier capteur"; }
+<div class="container py-4" style="max-width:720px">
+    <h1 class="h3 mb-3">@ViewData["Title"]</h1>
+    <form method="post">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="ExploitationId" />
+        <div class="row">
+            <div class="col-md-4 mb-3"><label asp-for="Code" class="form-label"></label><input asp-for="Code" class="form-control" /></div>
+            <div class="col-md-8 mb-3"><label asp-for="Name" class="form-label"></label><input asp-for="Name" class="form-control" /></div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-3"><label asp-for="Type" class="form-label"></label><select asp-for="Type" class="form-select" asp-items="Html.GetEnumSelectList<CapteurType>()"></select></div>
+            <div class="col-md-4 mb-3"><label asp-for="Statut" class="form-label"></label><select asp-for="Statut" class="form-select" asp-items="Html.GetEnumSelectList<CapteurStatut>()"></select></div>
+            <div class="col-md-4 mb-3"><label asp-for="Unit" class="form-label">Unité</label><input asp-for="Unit" class="form-control" placeholder="%, °C, mm…" /></div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3"><label asp-for="ParcelleId" class="form-label">Parcelle</label><select asp-for="ParcelleId" class="form-select" asp-items="ViewBag.Parcelles"><option value="">—</option></select></div>
+            <div class="col-md-6 mb-3"><label asp-for="ActifAgricoleId" class="form-label">Actif</label><select asp-for="ActifAgricoleId" class="form-select" asp-items="ViewBag.Actifs"><option value="">—</option></select></div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-3"><label asp-for="AlertMin" class="form-label">Alerte min</label><input asp-for="AlertMin" class="form-control" /></div>
+            <div class="col-md-4 mb-3"><label asp-for="AlertMax" class="form-label">Alerte max</label><input asp-for="AlertMax" class="form-control" /></div>
+            <div class="col-md-2 mb-3"><label asp-for="GpsLat" class="form-label">Lat</label><input asp-for="GpsLat" class="form-control" /></div>
+            <div class="col-md-2 mb-3"><label asp-for="GpsLng" class="form-label">Lng</label><input asp-for="GpsLng" class="form-control" /></div>
+        </div>
+        <div class="mb-3"><label asp-for="Notes" class="form-label"></label><textarea asp-for="Notes" class="form-control"></textarea></div>
+        <div class="form-check mb-3"><input asp-for="IsActive" class="form-check-input" /><label asp-for="IsActive" class="form-check-label">Actif</label></div>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+        <a asp-action="Index" class="btn btn-link">Annuler</a>
+    </form>
+</div>

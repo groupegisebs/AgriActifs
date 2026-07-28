@@ -1,0 +1,52 @@
+@model CarteFermeViewModel
+@{
+    ViewData["Title"] = "Carte intelligente";
+    ViewData["FullBleedLanding"] = false;
+}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<div class="container-fluid py-3">
+    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+        <div>
+            <h1 class="h3 mb-0">Carte — @Model.ExploitationName</h1>
+            <p class="text-muted small mb-0">Actifs, parcelles, capteurs IoT, irrigation</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap small">
+            <span class="badge text-bg-success">Actifs</span>
+            <span class="badge text-bg-warning text-dark">Parcelles</span>
+            <span class="badge text-bg-info">Capteurs</span>
+            <span class="badge text-bg-primary">Irrigation</span>
+        </div>
+    </div>
+    <div id="fermeMap" class="ferme-map"></div>
+</div>
+@section Scripts {
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+(() => {
+  const center = [@Model.CenterLat.ToString(System.Globalization.CultureInfo.InvariantCulture), @Model.CenterLng.ToString(System.Globalization.CultureInfo.InvariantCulture)];
+  const map = L.map('fermeMap').setView(center, 14);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Tiles &copy; Esri',
+    maxZoom: 19
+  }).addTo(map);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png', {
+    attribution: '&copy; CARTO',
+    maxZoom: 19
+  }).addTo(map);
+
+  const colors = { ok:'#16a34a', warning:'#ea580c', danger:'#dc2626', parcelle:'#ca8a04', iot:'#0ea5e9', water:'#2563eb' };
+  function pin(tone) {
+    const c = colors[tone] || '#334155';
+    return L.divIcon({ className:'', html:`<span style="background:${c};width:14px;height:14px;border-radius:50%;display:block;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4)"></span>`, iconSize:[14,14], iconAnchor:[7,7] });
+  }
+  function add(m) {
+    const popup = `<strong>${m.label}</strong><br/><span class="small">${m.detail}</span>` + (m.link ? `<br/><a href="${m.link}">Ouvrir</a>` : '');
+    L.marker([m.lat, m.lng], { icon: pin(m.tone) }).addTo(map).bindPopup(popup);
+  }
+  const data = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+    Model.Actifs.Concat(Model.Parcelles).Concat(Model.Capteurs).Concat(Model.Irrigation)
+      .Select(m => new { label = m.Label, detail = m.Detail, lat = m.Lat, lng = m.Lng, tone = m.Tone, link = m.Link })));
+  data.forEach(add);
+})();
+</script>
+}

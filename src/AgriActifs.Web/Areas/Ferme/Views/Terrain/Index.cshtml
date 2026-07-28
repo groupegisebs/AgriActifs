@@ -1,0 +1,34 @@
+@model TerrainDashboardViewModel
+@{ ViewData["Title"] = "Terrain"; }
+<div class="terrain-hero">
+    <p class="mb-1 text-muted">Bonjour</p>
+    <h1 class="h4">@Model.ExploitationName</h1>
+</div>
+<div class="terrain-kpi">
+    <div><strong>@Model.Alertes</strong><span>Alertes</span></div>
+    <div><strong>@Model.InterventionsOuvertes</strong><span>Interventions</span></div>
+    <div><strong>@Model.EnPanne</strong><span>En panne</span></div>
+    <div><strong>@Model.StocksBas</strong><span>Stocks bas</span></div>
+</div>
+<div class="d-grid gap-2 mb-3">
+    <a class="btn btn-lg btn-success" asp-action="Scan"><i class="bi bi-qr-code-scan"></i> Scanner un actif</a>
+    <a class="btn btn-outline-danger" asp-action="Scan">Déclarer une panne (via QR)</a>
+</div>
+<h2 class="h6">Aujourd'hui</h2>
+@if (Model.Aujourdhui.Count == 0)
+{
+    <p class="text-muted">Rien de planifié.</p>
+}
+else
+{
+    <ul class="list-group mb-3">
+        @foreach (var m in Model.Aujourdhui)
+        {
+            <li class="list-group-item">
+                <strong>@m.Title</strong>
+                <div class="small text-muted">@(m.ActifName ?? "—") · @m.Type</div>
+            </li>
+        }
+    </ul>
+}
+<a class="btn btn-outline-secondary w-100" asp-controller="Notifications" asp-action="Index" asp-area="Ferme">Notifications</a>

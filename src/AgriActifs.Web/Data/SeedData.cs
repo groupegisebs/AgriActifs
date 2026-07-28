@@ -46,6 +46,7 @@ public static class SeedData
             await SeedDemoAsync(context, userManager);
             await EnsureDemoPatrimoineAsync(context);
             await EnsureDemoPhase2Async(context);
+            await EnsureDemoPhase34Async(context);
         }
     }
 
@@ -591,6 +592,85 @@ public static class SeedData
                 f.Rating = 5;
                 f.ContractRef = "CTR-AIP-2026";
                 f.ContractEndDate = DateTime.UtcNow.Date.AddMonths(14);
+            }
+        }
+
+        await db.SaveChangesAsync();
+    }
+
+    private static async Task EnsureDemoPhase34Async(ApplicationDbContext db)
+    {
+        var exploitation = await db.Exploitations.FirstOrDefaultAsync(e => e.Name == "Ferme des Érables");
+        if (exploitation is null) return;
+
+        exploitation.MapCenterLat ??= 45.6308;
+        exploitation.MapCenterLng ??= -72.9569;
+
+        var parcelles = await db.Parcelles.Where(p => p.ExploitationId == exploitation.Id).OrderBy(p => p.Code).ToListAsync();
+        double[,] coords =
+        {
+            { 45.6330, -72.9600 },
+            { 45.6285, -72.9550 },
+            { 45.6315, -72.9480 },
+            { 45.6260, -72.9620 },
+            { 45.6350, -72.9520 }
+        };
+        for (var i = 0; i < parcelles.Count && i < coords.GetLength(0); i++)
+        {
+            parcelles[i].GpsLat ??= coords[i, 0];
+            parcelles[i].GpsLng ??= coords[i, 1];
+        }
+
+        var actifs = await db.ActifsAgricoles.Where(a => a.ExploitationId == exploitation.Id).ToListAsync();
+        var offsets = new (double Lat, double Lng)[]
+        {
+            (45.6322, -72.9585), (45.6310, -72.9570), (45.6298, -72.9545),
+            (45.6305, -72.9610), (45.6328, -72.9530), (45.6335, -72.9595),
+            (45.6290, -72.9500), (45.6280, -72.9565)
+        };
+        for (var i = 0; i < actifs.Count && i < offsets.Length; i++)
+        {
+            actifs[i].GpsLat ??= offsets[i].Lat;
+            actifs[i].GpsLng ??= offsets[i].Lng;
+        }
+
+        if (!await db.CapteursIoT.AnyAsync(c => c.ExploitationId == exploitation.Id))
+        {
+            var p0 = parcelles.ElementAtOrDefault(0);
+            var pompe = actifs.FirstOrDefault(a => a.Categorie == ActifCategorie.Irrigation);
+            var capteurs = new[]
+            {
+                new CapteurIoT
+                {
+                    ExploitationId = exploitation.Id, Code = "IOT-HUM-01", Name = "Humidité Champ Nord",
+                    Type = CapteurType.HumiditeSol, Unit = "%", LastValue = 28.5m, LastReadingAt = DateTime.UtcNow.AddHours(-2),
+                    AlertMin = 20m, AlertMax = 45m, ParcelleId = p0?.Id,
+                    GpsLat = p0?.GpsLat ?? 45.633, GpsLng = p0?.GpsLng ?? -72.96
+                },
+                new CapteurIoT
+                {
+                    ExploitationId = exploitation.Id, Code = "IOT-TEMP-01", Name = "Température sol Nord",
+                    Type = CapteurType.Temperature, Unit = "°C", LastValue = 17.2m, LastReadingAt = DateTime.UtcNow.AddHours(-1),
+                    AlertMin = 5m, AlertMax = 32m, ParcelleId = p0?.Id,
+                    GpsLat = (p0?.GpsLat ?? 45.633) + 0.001, GpsLng = (p0?.GpsLng ?? -72.96) + 0.001
+                },
+                new CapteurIoT
+                {
+                    ExploitationId = exploitation.Id, Code = "IOT-PRESS-01", Name = "Pression pompe",
+                    Type = CapteurType.Pression, Unit = "bar", LastValue = 3.1m, LastReadingAt = DateTime.UtcNow.AddMinutes(-40),
+                    AlertMin = 2m, AlertMax = 4.5m, ActifAgricoleId = pompe?.Id,
+                    GpsLat = pompe?.GpsLat ?? 45.6335, GpsLng = pompe?.GpsLng ?? -72.9595, Statut = CapteurStatut.EnLigne
+                }
+            };
+            db.CapteursIoT.AddRange(capteurs);
+            await db.SaveChangesAsync();
+
+            foreach (var c in capteurs)
+            {
+                db.CapteurLectures.AddRange(
+                    new CapteurLecture { CapteurIoTId = c.Id, Value = c.LastValue ?? 0, RecordedAt = DateTime.UtcNow.AddDays(-1) },
+                    new CapteurLecture { CapteurIoTId = c.Id, Value = (c.LastValue ?? 0) - 1.2m, RecordedAt = DateTime.UtcNow.AddHours(-6) },
+                    new CapteurLecture { CapteurIoTId = c.Id, Value = c.LastValue ?? 0, RecordedAt = c.LastReadingAt ?? DateTime.UtcNow });
             }
         }
 

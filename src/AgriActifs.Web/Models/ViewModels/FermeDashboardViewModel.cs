@@ -117,3 +117,58 @@ public record TcoRow(
     decimal Residual,
     decimal Tco,
     decimal Annualized);
+
+public class CarteFermeViewModel
+{
+    public string ExploitationName { get; set; } = string.Empty;
+    public double CenterLat { get; set; } = 45.6308;
+    public double CenterLng { get; set; } = -72.9569;
+    public IReadOnlyList<MapMarker> Actifs { get; set; } = [];
+    public IReadOnlyList<MapMarker> Parcelles { get; set; } = [];
+    public IReadOnlyList<MapMarker> Capteurs { get; set; } = [];
+    public IReadOnlyList<MapMarker> Irrigation { get; set; } = [];
+}
+
+public record MapMarker(
+    int Id,
+    string Kind,
+    string Label,
+    string Detail,
+    double Lat,
+    double Lng,
+    string Tone,
+    string? Link);
+
+public class ReadinessViewModel
+{
+    public IReadOnlyList<ReadinessItem> Items { get; set; } = [];
+    public int ReadyCount { get; set; }
+    public int BlockedCount { get; set; }
+}
+
+public record ReadinessItem(
+    int ActiviteId,
+    string Title,
+    string Type,
+    DateTime PlannedDate,
+    string? Parcelle,
+    string? Actif,
+    bool Ready,
+    string StatusLabel,
+    string Reason);
+
+public class TerrainDashboardViewModel
+{
+    public string ExploitationName { get; set; } = string.Empty;
+    public int Alertes { get; set; }
+    public int InterventionsOuvertes { get; set; }
+    public int StocksBas { get; set; }
+    public int EnPanne { get; set; }
+    public IReadOnlyList<UpcomingMaintenanceItem> Aujourdhui { get; set; } = [];
+}
+
+public class CapteurDetailsViewModel
+{
+    public CapteurIoT Capteur { get; set; } = null!;
+    public IReadOnlyList<CapteurLecture> Lectures { get; set; } = [];
+}

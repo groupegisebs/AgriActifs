@@ -64,6 +64,7 @@
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-pieces" type="button">Pièces</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-couts" type="button">Coûts</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-docs" type="button">Documents</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-iot" type="button">Capteurs IoT</button></li>
     </ul>
     <div class="tab-content border border-top-0 rounded-bottom p-3 bg-white">
         <div class="tab-pane fade show active" id="tab-info">
@@ -177,6 +178,10 @@
                     }
                 </ul>
             }
+        </div>
+        <div class="tab-pane fade" id="tab-iot">
+            <a class="btn btn-sm btn-outline-primary" asp-controller="Capteurs" asp-action="Index">Voir tous les capteurs</a>
+            <p class="text-muted small mt-2 mb-0">Les capteurs liés à cet actif apparaissent sur la carte et dans IoT.</p>
         </div>
     </div>
 </div>

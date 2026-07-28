@@ -1,0 +1,22 @@
+@model IEnumerable<Parcelle>
+@{ ViewData["Title"] = "Parcelles"; }
+<h1 class="h4 mb-3">Parcelles</h1>
+<ul class="list-group">
+@foreach (var p in Model)
+{
+    <li class="list-group-item">
+        <div class="d-flex justify-content-between">
+            <strong>@p.Name</strong>
+            <span>@p.AreaHa ha</span>
+        </div>
+        <div class="small text-muted">@p.Code · @(p.CurrentCulture ?? "—") · @p.Etat</div>
+        @if (p.GpsLat is double lat && p.GpsLng is double lng)
+        {
+            var latS = lat.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            var lngS = lng.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            <a class="small" href="https://www.openstreetmap.org/?mlat=@latS&mlon=@lngS#map=16/@latS/@lngS" target="_blank" rel="noopener">Carte</a>
+        }
+    </li>
+}
+</ul>
+<a class="btn btn-outline-primary w-100 mt-3" asp-controller="Carte" asp-action="Index" asp-area="Ferme">Carte ferme complète</a>

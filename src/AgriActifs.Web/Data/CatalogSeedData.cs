@@ -102,7 +102,13 @@ public static class CatalogSeedData
         new(67, "Irrigation.Manage", "Irrigation", PermissionAction.Manage, null, "Gérer irrigation", "Ferme"),
         new(68, "Energie.View", "Energie", PermissionAction.View, null, "Voir énergie", "Ferme"),
         new(69, "Energie.Manage", "Energie", PermissionAction.Manage, null, "Gérer énergie", "Ferme"),
-        new(70, "RapportsFerme.View", "RapportsFerme", PermissionAction.View, null, "Rapports ferme", "Ferme")
+        new(70, "RapportsFerme.View", "RapportsFerme", PermissionAction.View, null, "Rapports ferme", "Ferme"),
+        new(71, "Carte.View", "Carte", PermissionAction.View, null, "Carte intelligente", "Ferme"),
+        new(72, "Capteurs.View", "Capteurs", PermissionAction.View, null, "Voir capteurs IoT", "Ferme"),
+        new(73, "Capteurs.Manage", "Capteurs", PermissionAction.Manage, null, "Gérer capteurs IoT", "Ferme"),
+        new(74, "Readiness.View", "Readiness", PermissionAction.View, null, "Readiness agricole", "Ferme"),
+        new(75, "Terrain.View", "Terrain", PermissionAction.View, null, "Mode terrain", "Ferme"),
+        new(76, "Terrain.Manage", "Terrain", PermissionAction.Manage, null, "Actions terrain", "Ferme")
     ];
 
     public static IReadOnlyList<EndpointEntry> Endpoints { get; } =
@@ -214,7 +220,26 @@ public static class CatalogSeedData
         new("Ferme", "Rapports", "ExportTco", "GET", "RapportsFerme.View"),
         new("Ferme", "Maintenance", "Start", "POST", "Maintenance.Manage"),
         new("Ferme", "Maintenance", "SubmitValidation", "POST", "Maintenance.Manage"),
-        new("Ferme", "Maintenance", "Validate", "POST", "Maintenance.Close")
+        new("Ferme", "Maintenance", "Validate", "POST", "Maintenance.Close"),
+        new("Ferme", "Carte", "Index", "GET", "Carte.View"),
+        new("Ferme", "Capteurs", "Index", "GET", "Capteurs.View"),
+        new("Ferme", "Capteurs", "Details", "GET", "Capteurs.View"),
+        new("Ferme", "Capteurs", "Create", "GET", "Capteurs.Manage"),
+        new("Ferme", "Capteurs", "Create", "POST", "Capteurs.Manage"),
+        new("Ferme", "Capteurs", "Edit", "GET", "Capteurs.Manage"),
+        new("Ferme", "Capteurs", "Edit", "POST", "Capteurs.Manage"),
+        new("Ferme", "Capteurs", "AddLecture", "POST", "Capteurs.Manage"),
+        new("Ferme", "Readiness", "Index", "GET", "Readiness.View"),
+        new("Ferme", "Terrain", "Index", "GET", "Terrain.View"),
+        new("Ferme", "Terrain", "Scan", "GET", "Terrain.View"),
+        new("Ferme", "Terrain", "Scan", "POST", "Terrain.View"),
+        new("Ferme", "Terrain", "Actif", "GET", "Terrain.View"),
+        new("Ferme", "Terrain", "DeclarerPanne", "POST", "Terrain.Manage"),
+        new("Ferme", "Terrain", "AjouterPhoto", "POST", "Terrain.Manage"),
+        new("Ferme", "Terrain", "Stocks", "GET", "Terrain.View"),
+        new("Ferme", "Terrain", "Maintenance", "GET", "Terrain.View"),
+        new("Ferme", "Terrain", "ValiderMaintenance", "POST", "Terrain.Manage"),
+        new("Ferme", "Terrain", "Parcelles", "GET", "Terrain.View")
     ];
 
     public static IReadOnlyList<ReportEntry> Reports { get; } =

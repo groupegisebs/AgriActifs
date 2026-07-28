@@ -1,0 +1,24 @@
+@model IEnumerable<InterventionMaintenance>
+@{ ViewData["Title"] = "Maintenance terrain"; }
+<h1 class="h4 mb-3">Maintenances ouvertes</h1>
+@foreach (var i in Model)
+{
+    <div class="card mb-2">
+        <div class="card-body">
+            <div class="d-flex justify-content-between">
+                <strong>@i.Title</strong>
+                <span class="badge text-bg-secondary">@i.Statut</span>
+            </div>
+            <div class="small text-muted">@(i.Actif?.Name ?? "—") · @i.PlannedDate.ToString("yyyy-MM-dd") · @i.Priorite</div>
+            <form asp-action="ValiderMaintenance" method="post" class="mt-2">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@i.Id" />
+                <button type="submit" class="btn btn-success btn-sm w-100">Valider / clôturer</button>
+            </form>
+        </div>
+    </div>
+}
+@if (!Model.Any())
+{
+    <p class="text-muted">Aucune intervention ouverte.</p>
+}

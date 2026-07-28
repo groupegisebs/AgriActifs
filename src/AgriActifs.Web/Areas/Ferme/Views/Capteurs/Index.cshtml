@@ -1,0 +1,27 @@
+@model IEnumerable<CapteurIoT>
+@{ ViewData["Title"] = "Capteurs IoT"; }
+<div class="container py-4">
+    <div class="d-flex justify-content-between mb-3">
+        <h1 class="h3">Capteurs IoT</h1>
+        <a class="btn btn-primary" asp-action="Create">+ Capteur</a>
+    </div>
+    <table class="table table-striped align-middle">
+        <thead><tr><th>Code</th><th>Nom</th><th>Type</th><th>Valeur</th><th>État</th><th>Lien</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var c in Model)
+        {
+            <tr>
+                <td>@c.Code</td>
+                <td>@c.Name</td>
+                <td>@c.Type</td>
+                <td>@(c.LastValue is not null ? $"{c.LastValue:0.##} {c.Unit}" : "—")
+                    <div class="small text-muted">@(c.LastReadingAt?.ToLocalTime().ToString("g") ?? "")</div>
+                </td>
+                <td><span class="badge text-bg-@(c.Statut == CapteurStatut.Alerte ? "danger" : c.Statut == CapteurStatut.HorsLigne ? "secondary" : "success")">@c.Statut</span></td>
+                <td class="small">@(c.Parcelle?.Name ?? c.Actif?.Name ?? "—")</td>
+                <td><a asp-action="Details" asp-route-id="@c.Id">Fiche</a></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

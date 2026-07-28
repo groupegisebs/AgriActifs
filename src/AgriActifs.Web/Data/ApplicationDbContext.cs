@@ -42,6 +42,8 @@ public class ApplicationDbContext(
     public DbSet<FermeNotification> FermeNotifications => Set<FermeNotification>();
     public DbSet<IrrigationSecteur> IrrigationSecteurs => Set<IrrigationSecteur>();
     public DbSet<EnergieReleve> EnergieReleves => Set<EnergieReleve>();
+    public DbSet<CapteurIoT> CapteursIoT => Set<CapteurIoT>();
+    public DbSet<CapteurLecture> CapteurLectures => Set<CapteurLecture>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -324,6 +326,35 @@ public class ApplicationDbContext(
                 .WithMany()
                 .HasForeignKey(x => x.ActifAgricoleId)
                 .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        builder.Entity<CapteurIoT>(entity =>
+        {
+            entity.HasIndex(x => new { x.ExploitationId, x.Code }).IsUnique();
+            entity.Property(x => x.LastValue).HasPrecision(18, 3);
+            entity.Property(x => x.AlertMin).HasPrecision(18, 3);
+            entity.Property(x => x.AlertMax).HasPrecision(18, 3);
+            entity.HasOne(x => x.Exploitation)
+                .WithMany(x => x.Capteurs)
+                .HasForeignKey(x => x.ExploitationId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(x => x.Actif)
+                .WithMany()
+                .HasForeignKey(x => x.ActifAgricoleId)
+                .OnDelete(DeleteBehavior.SetNull);
+            entity.HasOne(x => x.Parcelle)
+                .WithMany()
+                .HasForeignKey(x => x.ParcelleId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        builder.Entity<CapteurLecture>(entity =>
+        {
+            entity.Property(x => x.Value).HasPrecision(18, 3);
+            entity.HasOne(x => x.Capteur)
+                .WithMany(x => x.Lectures)
+                .HasForeignKey(x => x.CapteurIoTId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         builder.Entity<Exploitation>(entity =>

@@ -156,6 +156,14 @@
                    asp-area="Ferme" asp-controller="Notifications" asp-action="Index">
                     <i class="bi bi-bell"></i> Notifications
                 </a>
+                <a class="app-sidebar-link @(controller == "Carte" ? "active" : "")"
+                   asp-area="Ferme" asp-controller="Carte" asp-action="Index">
+                    <i class="bi bi-map"></i> Carte
+                </a>
+                <a class="app-sidebar-link @(controller == "Terrain" ? "active" : "")"
+                   asp-area="Ferme" asp-controller="Terrain" asp-action="Index">
+                    <i class="bi bi-phone"></i> Mode terrain
+                </a>
 
                 <div class="app-sidebar-label mt-3">Exploitation</div>
                 <a class="app-sidebar-link @(controller == "Parcelles" ? "active" : "")"
@@ -165,6 +173,10 @@
                 <a class="app-sidebar-link @(controller == "Activites" ? "active" : "")"
                    asp-area="Ferme" asp-controller="Activites" asp-action="Index">
                     <i class="bi bi-calendar3"></i> Activités
+                </a>
+                <a class="app-sidebar-link @(controller == "Readiness" ? "active" : "")"
+                   asp-area="Ferme" asp-controller="Readiness" asp-action="Index">
+                    <i class="bi bi-shield-check"></i> Readiness
                 </a>
 
                 <div class="app-sidebar-label mt-3">Actifs</div>
@@ -179,6 +191,10 @@
                 <a class="app-sidebar-link @(controller == "Energie" ? "active" : "")"
                    asp-area="Ferme" asp-controller="Energie" asp-action="Index">
                     <i class="bi bi-lightning-charge"></i> Énergie
+                </a>
+                <a class="app-sidebar-link @(controller == "Capteurs" ? "active" : "")"
+                   asp-area="Ferme" asp-controller="Capteurs" asp-action="Index">
+                    <i class="bi bi-broadcast"></i> Capteurs IoT
                 </a>
 
                 <div class="app-sidebar-label mt-3">Opérations</div>

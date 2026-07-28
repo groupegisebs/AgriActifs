@@ -1,0 +1,53 @@
+@{ ViewData["Title"] = "Scan QR"; }
+<h1 class="h4 mb-3">Scan QR Code</h1>
+<p class="text-muted">Saisissez le code QR / code interne (ex. TR-01), ou utilisez l’appareil photo si disponible.</p>
+<form method="post" class="mb-3">
+    @Html.AntiForgeryToken()
+    <div class="mb-3">
+        <label class="form-label" for="code">Code</label>
+        <input id="code" name="code" class="form-control form-control-lg" autocomplete="off" autofocus placeholder="TR-01" />
+    </div>
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <button type="submit" class="btn btn-success btn-lg w-100">Ouvrir l'actif</button>
+</form>
+<video id="terrainCam" class="terrain-cam d-none w-100 rounded mb-2" playsinline></video>
+<button type="button" id="btnCam" class="btn btn-outline-secondary w-100">Activer la caméra (BarcodeDetector)</button>
+@section Scripts {
+<script>
+(async () => {
+  const btn = document.getElementById('btnCam');
+  const video = document.getElementById('terrainCam');
+  const input = document.getElementById('code');
+  if (!('BarcodeDetector' in window)) {
+    btn.textContent = 'Caméra QR non supportée — saisie manuelle';
+    btn.disabled = true;
+    return;
+  }
+  btn.addEventListener('click', async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      video.srcObject = stream;
+      video.classList.remove('d-none');
+      await video.play();
+      const detector = new BarcodeDetector({ formats: ['qr_code'] });
+      const tick = async () => {
+        if (video.readyState >= 2) {
+          const codes = await detector.detect(video);
+          if (codes.length) {
+            input.value = codes[0].rawValue;
+            stream.getTracks().forEach(t => t.stop());
+            video.classList.add('d-none');
+            input.form.submit();
+            return;
+          }
+        }
+        requestAnimationFrame(tick);
+      };
+      tick();
+    } catch (e) {
+      btn.textContent = 'Caméra indisponible';
+    }
+  });
+})();
+</script>
+}

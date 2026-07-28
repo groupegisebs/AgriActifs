@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>@ViewData["Title"] — Terrain</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="terrain-body">
+    <header class="terrain-top">
+        <a asp-action="Index" class="terrain-brand">AgriActifs Terrain</a>
+        <a asp-area="Ferme" asp-controller="Dashboard" asp-action="Index" class="terrain-link-desk">Bureau</a>
+    </header>
+    <main class="terrain-main">
+        @if (TempData["Success"] is string ok)
+        {
+            <div class="alert alert-success py-2">@ok</div>
+        }
+        @RenderBody()
+    </main>
+    <nav class="terrain-nav">
+        <a asp-action="Index" class="@(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : null)"><i class="bi bi-house"></i><span>Accueil</span></a>
+        <a asp-action="Scan" class="@(ViewContext.RouteData.Values["action"]?.ToString() == "Scan" ? "active" : null)"><i class="bi bi-qr-code-scan"></i><span>QR</span></a>
+        <a asp-action="Maintenance" class="@(ViewContext.RouteData.Values["action"]?.ToString() == "Maintenance" ? "active" : null)"><i class="bi bi-wrench"></i><span>Maint.</span></a>
+        <a asp-action="Stocks" class="@(ViewContext.RouteData.Values["action"]?.ToString() == "Stocks" ? "active" : null)"><i class="bi bi-box"></i><span>Stocks</span></a>
+        <a asp-action="Parcelles" class="@(ViewContext.RouteData.Values["action"]?.ToString() == "Parcelles" ? "active" : null)"><i class="bi bi-map"></i><span>Parcelles</span></a>
+    </nav>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

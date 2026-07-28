@@ -1,0 +1,31 @@
+@model ActifAgricole
+@{ ViewData["Title"] = Model.Name; }
+<h1 class="h4">@Model.Name</h1>
+<p class="text-muted">@Model.InternalCode · QR @(Model.QrPayload ?? Model.InternalCode)</p>
+<div class="mb-3">
+    <span class="badge text-bg-@(Model.Statut == ActifStatut.EnPanne ? "danger" : Model.Statut == ActifStatut.EnService ? "success" : "warning")">@Model.Statut</span>
+</div>
+<ul class="list-group mb-3">
+    <li class="list-group-item d-flex justify-content-between"><span>Heures</span><strong>@(Model.EngineHours?.ToString("N0") ?? "—")</strong></li>
+    <li class="list-group-item d-flex justify-content-between"><span>Localisation</span><strong>@(Model.Building ?? Model.LocationNote ?? Model.Parcelle?.Name ?? "—")</strong></li>
+    <li class="list-group-item d-flex justify-content-between"><span>Prochain service</span><strong>@(Model.NextServiceDate?.ToString("yyyy-MM-dd") ?? "—")</strong></li>
+</ul>
+
+<form asp-action="DeclarerPanne" method="post" class="mb-4">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" value="@Model.Id" />
+    <label class="form-label">Déclarer une panne</label>
+    <textarea name="description" class="form-control mb-2" rows="2" placeholder="Symptômes…"></textarea>
+    <button type="submit" class="btn btn-danger w-100">Signaler panne</button>
+</form>
+
+<form asp-action="AjouterPhoto" method="post" class="mb-3">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" value="@Model.Id" />
+    <label class="form-label">Photo d'intervention (URL)</label>
+    <input name="title" class="form-control mb-2" placeholder="Titre" />
+    <input name="photoUrl" class="form-control mb-2" placeholder="https://… ou chemin" required />
+    <button type="submit" class="btn btn-outline-primary w-100">Ajouter photo</button>
+</form>
+
+<a class="btn btn-outline-secondary w-100" asp-area="Ferme" asp-controller="Actifs" asp-action="Details" asp-route-id="@Model.Id">Fiche complète</a>

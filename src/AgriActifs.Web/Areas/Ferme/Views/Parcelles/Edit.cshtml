@@ -32,6 +32,10 @@
             <div class="col-md-6 mb-3"><label asp-for="EstimatedYieldPerHa" class="form-label">Rendement estimé (t/ha)</label><input asp-for="EstimatedYieldPerHa" class="form-control" /></div>
             <div class="col-md-6 mb-3"><label asp-for="ActualYieldPerHa" class="form-label">Rendement réel (t/ha)</label><input asp-for="ActualYieldPerHa" class="form-control" /></div>
         </div>
+        <div class="row">
+            <div class="col-md-6 mb-3"><label asp-for="GpsLat" class="form-label">GPS lat</label><input asp-for="GpsLat" class="form-control" /></div>
+            <div class="col-md-6 mb-3"><label asp-for="GpsLng" class="form-label">GPS lng</label><input asp-for="GpsLng" class="form-control" /></div>
+        </div>
         <div class="mb-3"><label asp-for="Notes" class="form-label">Notes</label><textarea asp-for="Notes" class="form-control"></textarea></div>
         <div class="form-check mb-3"><input asp-for="IsActive" class="form-check-input" /><label asp-for="IsActive" class="form-check-label">Active</label></div>
         <button type="submit" class="btn btn-primary">Enregistrer</button>

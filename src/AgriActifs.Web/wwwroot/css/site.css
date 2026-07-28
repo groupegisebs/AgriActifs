@@ -1489,3 +1489,107 @@ body {
 .ferme-chip--warn { background: #ffedd5; color: #9a3412; }
 .ferme-chip--danger { background: #fee2e2; color: #991b1b; }
 .ferme-chip--warning { background: #ffedd5; color: #9a3412; }
+
+.ferme-map {
+  height: min(70vh, 720px);
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid var(--gise-border);
+  z-index: 1;
+}
+
+/* Mode terrain (P4) */
+.terrain-body {
+  margin: 0;
+  background: #f3f6f4;
+  min-height: 100vh;
+  padding-bottom: 4.5rem;
+}
+
+.terrain-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: #1b4d3e;
+  color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.terrain-brand {
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.terrain-link-desk {
+  color: #c4e0d4;
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.terrain-main {
+  padding: 1rem;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.terrain-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  background: #fff;
+  border-top: 1px solid #d7e0db;
+  padding: 0.35rem 0 calc(0.35rem + env(safe-area-inset-bottom));
+  z-index: 30;
+}
+
+.terrain-nav a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  font-size: 0.68rem;
+  color: #5c7268;
+  text-decoration: none;
+  padding: 0.35rem 0;
+}
+
+.terrain-nav a i { font-size: 1.2rem; }
+.terrain-nav a.active { color: #1b4d3e; font-weight: 700; }
+
+.terrain-kpi {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.65rem;
+  margin: 1rem 0;
+}
+
+.terrain-kpi div {
+  background: #fff;
+  border-radius: 12px;
+  padding: 0.85rem;
+  border: 1px solid #d7e0db;
+}
+
+.terrain-kpi strong {
+  display: block;
+  font-size: 1.4rem;
+  color: #1b4d3e;
+}
+
+.terrain-kpi span {
+  font-size: 0.78rem;
+  color: #5c7268;
+}
+
+.terrain-cam {
+  max-height: 240px;
+  object-fit: cover;
+  background: #000;
+}

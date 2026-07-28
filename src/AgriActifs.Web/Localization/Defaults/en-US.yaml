@@ -8,7 +8,7 @@ Nav:
   MyProfile: My profile
   Security2Fa: Security & 2FA
 Brand:
-  Subtitle: Secure MVC Template
+  Subtitle: Farm asset management
 Footer:
   Copyright: "© {0} {1}"
 Auth:
@@ -24,10 +24,11 @@ Auth:
     InvalidCredentials: Invalid email or password.
     AccountNotActivated: Account not activated. Confirm your email or contact an administrator.
 Home:
-  Badge: GISEBS RBAC MVC Template
-  Title: "Security & roles,\n100% configurable in DB"
-  Description: ASP.NET Core MVC starter with Identity, dynamic permissions, secured endpoints and full administration — ready for MetaDoc, WarrantySafe and your business apps.
+  Brand: AgriActifs
+  Title: Fields, assets and stock — clearly tracked
+  Description: Run your farm operation: agricultural inventory, maintenance and stock in one place.
   LoginButton: Sign in
+  FarmButton: Farm dashboard
   AdminButton: Administration
   ProfileButton: My profile
 Admin:

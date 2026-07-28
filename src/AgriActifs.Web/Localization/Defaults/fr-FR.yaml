@@ -8,7 +8,7 @@ Nav:
   MyProfile: Mon profil
   Security2Fa: Sécurité & 2FA
 Brand:
-  Subtitle: Secure MVC Template
+  Subtitle: Gestion d'actifs agricoles
 Footer:
   Copyright: "© {0} {1}"
 Auth:
@@ -24,10 +24,11 @@ Auth:
     InvalidCredentials: Email ou mot de passe incorrect.
     AccountNotActivated: Compte non activé. Confirmez votre email ou contactez un administrateur.
 Home:
-  Badge: GISEBS RBAC MVC Template
-  Title: "Sécurité & rôles,\n100% configurables en BD"
-  Description: Socle ASP.NET Core MVC avec Identity, permissions dynamiques, endpoints sécurisés et administration complète — prêt pour MetaDoc, WarrantySafe et vos apps métier.
+  Brand: AgriActifs
+  Title: Parcelles, actifs et stocks — clairement suivis
+  Description: Pilotez votre exploitation : inventaire agricole, maintenance et stocks au même endroit.
   LoginButton: Se connecter
+  FarmButton: Tableau de bord ferme
   AdminButton: Administration
   ProfileButton: Mon profil
 Admin:

@@ -1,54 +1,43 @@
 ﻿@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 @{
-    ViewData["Title"] = Localizer["Home.Badge"];
+    ViewData["Title"] = Localizer["Home.Brand"];
+    ViewData["FullBleedLanding"] = true;
     var isAuthenticated = User.Identity?.IsAuthenticated == true;
 }
 
-<div class="landing-hero">
-    <div class="mb-3">
-        <span class="badge text-bg-primary px-3 py-2 rounded-pill">
-            <i class="bi bi-shield-lock me-1"></i> @Localizer["Home.Badge"]
-        </span>
+<section class="agri-landing" aria-label="@Localizer["Home.Brand"]">
+    <div class="agri-landing-sky" aria-hidden="true"></div>
+    <div class="agri-landing-fields" aria-hidden="true">
+        <svg class="agri-landing-horizon" viewBox="0 0 1440 320" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path class="agri-landing-hill agri-landing-hill--far" d="M0,224 C240,160 360,280 720,200 C1080,120 1200,240 1440,180 L1440,320 L0,320 Z" />
+            <path class="agri-landing-hill agri-landing-hill--near" d="M0,260 C200,200 480,300 780,230 C1080,160 1260,250 1440,220 L1440,320 L0,320 Z" />
+        </svg>
+        <div class="agri-landing-furrows"></div>
     </div>
-    <h1>@Html.Raw(Localizer["Home.Title"].Value.Replace("\\n", "<br />"))</h1>
-    <p>@Localizer["Home.Description"]</p>
-    @if (isAuthenticated)
-    {
-        <div class="d-flex flex-wrap gap-2 justify-content-center">
-            <gise-permission resource="Dashboard" action="View">
-                <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="btn btn-glow btn-lg">
-                    <i class="bi bi-grid me-2"></i> @Localizer["Home.AdminButton"]
-                </a>
-            </gise-permission>
-            <a asp-controller="Profile" asp-action="Index" class="btn btn-outline-primary btn-lg">
-                <i class="bi bi-person me-2"></i> @Localizer["Home.ProfileButton"]
-            </a>
-        </div>
-    }
-    else
-    {
-        <div class="d-flex flex-wrap gap-2 justify-content-center">
-            <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-glow btn-lg">
-                <i class="bi bi-box-arrow-in-right me-2"></i> @Localizer["Home.LoginButton"]
-            </a>
-        </div>
-    }
-</div>
 
-<div class="landing-features">
-    <div class="feature-card">
-        <i class="bi bi-people-fill"></i>
-        <h3>Identity + RBAC</h3>
-        <p>Utilisateurs, rôles et habilitations configurables en base.</p>
+    <div class="agri-landing-content">
+        <p class="agri-landing-brand agri-landing-anim agri-landing-anim--1">@Localizer["Home.Brand"]</p>
+        <h1 class="agri-landing-title agri-landing-anim agri-landing-anim--2">@Localizer["Home.Title"]</h1>
+        <p class="agri-landing-lead agri-landing-anim agri-landing-anim--3">@Localizer["Home.Description"]</p>
+
+        <div class="agri-landing-cta agri-landing-anim agri-landing-anim--4">
+            @if (isAuthenticated)
+            {
+                <gise-permission resource="FermeDashboard" action="View">
+                    <a asp-area="Ferme" asp-controller="Dashboard" asp-action="Index" class="btn agri-landing-btn agri-landing-btn--primary">
+                        @Localizer["Home.FarmButton"]
+                    </a>
+                </gise-permission>
+                <a asp-controller="Profile" asp-action="Index" class="btn agri-landing-btn agri-landing-btn--ghost">
+                    @Localizer["Home.ProfileButton"]
+                </a>
+            }
+            else
+            {
+                <a asp-area="Identity" asp-page="/Account/Login" class="btn agri-landing-btn agri-landing-btn--primary">
+                    @Localizer["Home.LoginButton"]
+                </a>
+            }
+        </div>
     </div>
-    <div class="feature-card">
-        <i class="bi bi-translate"></i>
-        <h3>Multilingue YAML</h3>
-        <p>Traductions externalisées, téléchargeables et surchargeables.</p>
-    </div>
-    <div class="feature-card">
-        <i class="bi bi-palette"></i>
-        <h3>Thèmes dynamiques</h3>
-        <p>Chartes graphiques sélectionnables ou créables par projet.</p>
-    </div>
-</div>
+</section>

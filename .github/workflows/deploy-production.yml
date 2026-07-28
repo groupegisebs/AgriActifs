@@ -1,0 +1,174 @@
+name: Deploy Production
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+    inputs:
+      server:
+        description: Serveur cible
+        required: true
+        default: ubuntu1
+        type: choice
+        options:
+          - ubuntu1
+
+concurrency:
+  group: deploy-agriactifs-${{ github.event.inputs.server || 'ubuntu1' }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_VERSION: "10.0.x"
+  PROJECT_PATH: src/AgriActifs.Web/AgriActifs.Web.csproj
+  DLL_NAME: AgriActifs.Web.dll
+  TARGET_SERVER: ${{ github.event.inputs.server || 'ubuntu1' }}
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore AgriActifs.slnx
+
+      - name: Test
+        run: dotnet test AgriActifs.slnx --configuration Release --no-restore
+
+      - name: Verify EF migrations
+        run: |
+          dotnet tool restore
+          dotnet build src/AgriActifs.Web/AgriActifs.Web.csproj --configuration Release --no-restore
+          dotnet ef migrations has-pending-model-changes --project src/AgriActifs.Web/AgriActifs.Web.csproj --configuration Release --no-build
+
+      - name: Publish
+        run: dotnet publish ${{ env.PROJECT_PATH }} -c Release -o publish --no-self-contained --no-restore
+
+      # --- Secrets org BedigaCorps : SSH_*_UBUNTU1 ---
+      # --- Secrets repo : UBUNTU1_* ---
+
+      - name: Load configuration
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY_UBUNTU1 }}
+          SSH_HOST_RAW: ${{ vars.SSH_HOST_UBUNTU1 || secrets.SSH_HOST_UBUNTU1 }}
+          SSH_USER_RAW: ${{ vars.SSH_USER_UBUNTU1 || secrets.SSH_USER_UBUNTU1 }}
+          SSH_PORT_RAW: ${{ vars.SSH_PORT_UBUNTU1 || secrets.SSH_PORT_UBUNTU1 || '22' }}
+          APP_ROOT_RAW: ${{ secrets.UBUNTU1_APP_ROOT }}
+          SERVICE_NAME_RAW: ${{ secrets.UBUNTU1_SERVICE_NAME }}
+          APP_NAME_RAW: ${{ secrets.UBUNTU1_APP_NAME || 'AgriActifs' }}
+          LISTEN_PORT_RAW: ${{ secrets.UBUNTU1_LISTEN_PORT || '5051' }}
+          CONNECTION_STRING_RAW: ${{ secrets.UBUNTU1_CONNECTION_STRING }}
+        run: |
+          source deploy/gha-env.sh
+          missing=0
+          if [ -z "$SSH_PRIVATE_KEY" ]; then
+            echo "::error::SSH_PRIVATE_KEY_UBUNTU1 manquant (org BedigaCorps → Repository access → AgriActifs)"
+            missing=1
+          fi
+          if [ -z "$SSH_HOST_RAW" ]; then
+            echo "::error::SSH_HOST_UBUNTU1 manquant (secret ou variable org)"
+            missing=1
+          fi
+          if [ -z "$SSH_USER_RAW" ]; then
+            echo "::error::SSH_USER_UBUNTU1 manquant (secret ou variable org)"
+            missing=1
+          fi
+          if [ -z "$APP_ROOT_RAW" ]; then
+            echo "::error::UBUNTU1_APP_ROOT manquant (secret repo) — ex. /opt/apps/agriactifs"
+            missing=1
+          fi
+          if [ -z "$SERVICE_NAME_RAW" ]; then
+            echo "::error::UBUNTU1_SERVICE_NAME manquant (secret repo) — ex. agriactifs"
+            missing=1
+          fi
+          if [ -z "$CONNECTION_STRING_RAW" ]; then
+            echo "::error::UBUNTU1_CONNECTION_STRING manquant (secret repo)"
+            missing=1
+          fi
+          if [ "$missing" -eq 1 ]; then exit 1; fi
+
+          SSH_HOST=$(gha_sanitize_host "$SSH_HOST_RAW")
+          SSH_USER=$(gha_sanitize "$SSH_USER_RAW")
+          SSH_PORT=$(gha_sanitize "$SSH_PORT_RAW")
+          APP_ROOT=$(gha_sanitize "$APP_ROOT_RAW")
+          SERVICE_NAME=$(gha_sanitize "$SERVICE_NAME_RAW")
+          APP_NAME=$(gha_sanitize "$APP_NAME_RAW")
+          LISTEN_PORT=$(gha_sanitize "$LISTEN_PORT_RAW")
+          CONNECTION_STRING=$(gha_sanitize "$CONNECTION_STRING_RAW")
+
+          if [[ ! "$SSH_HOST" =~ ^[0-9a-zA-Z.-]+$ ]]; then
+            echo "::error::SSH_HOST_UBUNTU1 format invalide — IP seule (ex. 51.79.53.197)"
+            exit 1
+          fi
+          if [[ ! "$SSH_PORT" =~ ^[0-9]+$ ]]; then
+            echo "::error::SSH_PORT_UBUNTU1 invalide (ex. 22)"
+            exit 1
+          fi
+          if [[ ! "$SSH_USER" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+            echo "::error::SSH_USER_UBUNTU1 invalide (ex. ubuntu)"
+            exit 1
+          fi
+
+          gha_write_env SSH_HOST "$SSH_HOST"
+          gha_write_env SSH_USER "$SSH_USER"
+          gha_write_env SSH_PORT "$SSH_PORT"
+          gha_write_env APP_ROOT "$APP_ROOT"
+          gha_write_env SERVICE_NAME "$SERVICE_NAME"
+          gha_write_env APP_NAME "$APP_NAME"
+          gha_write_env LISTEN_PORT "$LISTEN_PORT"
+          gha_write_env CONNECTION_STRING "$CONNECTION_STRING"
+          echo "Configuration OK (host=${SSH_HOST}, user=${SSH_USER}, port=${SSH_PORT}, app=${APP_ROOT})"
+
+      - name: Setup SSH key
+        id: ssh
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY_UBUNTU1 }}
+        run: |
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          printf '%s\n' "$SSH_PRIVATE_KEY" > "$HOME/.ssh/deploy_key"
+          chmod 600 "$HOME/.ssh/deploy_key"
+          if ! ssh-keygen -y -f "$HOME/.ssh/deploy_key" > /dev/null 2>&1; then
+            echo "::error::SSH_PRIVATE_KEY_UBUNTU1 invalide (format clé incorrect)."
+            exit 1
+          fi
+          echo "SSH_KEY_PATH=$HOME/.ssh/deploy_key" >> "$GITHUB_ENV"
+
+      - name: Add server to known_hosts
+        run: ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> "$HOME/.ssh/known_hosts"
+
+      - name: Deploy to ${{ env.TARGET_SERVER }}
+        env:
+          SSH_KEY_PATH: ${{ env.SSH_KEY_PATH }}
+          DATABASE_PROVIDER: PostgreSQL
+          DATABASE_SCHEMA: agriactifs
+          DLL_NAME: ${{ env.DLL_NAME }}
+          PUBLISH_DIR: publish
+        run: bash deploy/deploy-gha.sh
+
+      - name: Service status
+        if: success() || failure()
+        env:
+          SSH_KEY_PATH: ${{ env.SSH_KEY_PATH }}
+        run: |
+          if [ "${{ steps.ssh.outcome }}" != "success" ]; then
+            echo "SSH non configuré — étape ignorée."
+            exit 0
+          fi
+          if [ -z "${SSH_HOST:-}" ] || [ -z "${SSH_USER:-}" ]; then
+            echo "Configuration SSH absente — étape ignorée."
+            exit 0
+          fi
+          ssh -i "$SSH_KEY_PATH" -p "$SSH_PORT" -o BatchMode=yes -o StrictHostKeyChecking=yes \
+            "${SSH_USER}@${SSH_HOST}" \
+            "sudo systemctl status ${SERVICE_NAME} --no-pager || true"

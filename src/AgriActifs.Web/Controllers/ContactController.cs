@@ -19,7 +19,7 @@ public class ContactController(
     ILogger<ContactController> logger) : Controller
 {
     /// <summary>Toutes les demandes promoteur sont adressées à ce destinataire.</summary>
-    public const string ContactInbox = "CEO@GISEBS.COM";
+    public const string ContactInbox = "ceo@gisebs.com";
 
     private readonly DemoOptions _demo = demoOptions.Value;
     private readonly AuthMessageSenderOptions _email = emailOptions.Value;
@@ -51,7 +51,7 @@ public class ContactController(
         if (!_mailGateway.IsConfigured && string.IsNullOrWhiteSpace(_email.SendGridKey))
         {
             ModelState.AddModelError(string.Empty,
-                "L'envoi courriel n'est pas configuré (Email:MailGateway:ApiKey SecureMail ou Email:SendGridKey). La demande n'a pas pu être transmise à CEO@GISEBS.COM.");
+                "L'envoi courriel n'est pas configuré (Email:MailGateway:ApiKey SecureMail ou Email:SendGridKey). La demande n'a pas pu être transmise à ceo@gisebs.com.");
             return View(model);
         }
 

@@ -56,7 +56,7 @@ jobs:
       - name: Publish
         run: dotnet publish ${{ env.PROJECT_PATH }} -c Release -o publish --no-self-contained --no-restore
 
-      # --- Secrets org BedigaCorps : SSH_*_UBUNTU1 ---
+      # --- Secrets org/repo groupegisebs : SSH_*_UBUNTU1 ---
       # --- Secrets repo : UBUNTU1_* ---
 
       - name: Load configuration
@@ -74,15 +74,20 @@ jobs:
           source deploy/gha-env.sh
           missing=0
           if [ -z "$SSH_PRIVATE_KEY" ]; then
-            echo "::error::SSH_PRIVATE_KEY_UBUNTU1 manquant (org BedigaCorps → Repository access → AgriActifs)"
+            echo "::error::SSH_PRIVATE_KEY_UBUNTU1 manquant."
+            echo "Les repos AgriActifs/ElevageActifs sont sous l'org groupegisebs (pas BedigaCorps)."
+            echo "Ajoutez le secret ici :"
+            echo "  • Org : https://github.com/organizations/groupegisebs/settings/secrets/actions"
+            echo "    → SSH_PRIVATE_KEY_UBUNTU1 + Repository access → AgriActifs"
+            echo "  • Ou dépôt : https://github.com/groupegisebs/AgriActifs/settings/secrets/actions"
             missing=1
           fi
           if [ -z "$SSH_HOST_RAW" ]; then
-            echo "::error::SSH_HOST_UBUNTU1 manquant (secret ou variable org)"
+            echo "::error::SSH_HOST_UBUNTU1 manquant (secret ou variable org/repo groupegisebs) — ex. 51.79.53.197"
             missing=1
           fi
           if [ -z "$SSH_USER_RAW" ]; then
-            echo "::error::SSH_USER_UBUNTU1 manquant (secret ou variable org)"
+            echo "::error::SSH_USER_UBUNTU1 manquant (secret ou variable org/repo groupegisebs) — ex. ubuntu"
             missing=1
           fi
           if [ -z "$APP_ROOT_RAW" ]; then

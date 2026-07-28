@@ -1,6 +1,9 @@
 # Serveur UBUNTU1 — configuration GitHub (AgriActifs)
 
-Convention : **`SSH_*_UBUNTU1`** à l’organisation, **`UBUNTU1_*`** au dépôt.
+> **Org GitHub :** [`groupegisebs`](https://github.com/groupegisebs)  
+> (ComptaDoc est sous `BedigaCorps` — ses secrets org **ne s’appliquent pas** ici.)
+
+Convention : **`SSH_*_UBUNTU1`** à l’organisation **groupegisebs** (ou en secret dépôt), **`UBUNTU1_*`** au dépôt.
 
 | Serveur | ID | IP |
 |---------|-----|-----|
@@ -8,26 +11,35 @@ Convention : **`SSH_*_UBUNTU1`** à l’organisation, **`UBUNTU1_*`** au dépôt
 
 ---
 
-## Organisation BedigaCorps
+## 1. Secrets SSH (obligatoire)
 
-**https://github.com/organizations/BedigaCorps/settings/secrets/actions**
+### Option A — Organisation groupegisebs (recommandé)
+
+1. Ouvrir https://github.com/organizations/groupegisebs/settings/secrets/actions  
+2. Créer / vérifier :
 
 | Secret | Valeur |
 |--------|--------|
-| `SSH_PRIVATE_KEY_UBUNTU1` | Clé privée deploy (multiligne) |
+| `SSH_PRIVATE_KEY_UBUNTU1` | Même clé privée que pour ComptaDoc/CogniDoc (multiligne) |
 | `SSH_HOST_UBUNTU1` | `51.79.53.197` |
 | `SSH_USER_UBUNTU1` | `ubuntu` |
-| `SSH_PORT_UBUNTU1` | `22` |
+| `SSH_PORT_UBUNTU1` | `22` *(secret ou variable)* |
 
-**Repository access** → autoriser le dépôt **AgriActifs**.
+3. Sur le secret `SSH_PRIVATE_KEY_UBUNTU1` → **Repository access** → cocher **AgriActifs** (et **ElevageActifs**).
+
+### Option B — Secrets au niveau du dépôt
+
+https://github.com/groupegisebs/AgriActifs/settings/secrets/actions  
+
+Créer les mêmes noms (`SSH_PRIVATE_KEY_UBUNTU1`, `SSH_HOST_UBUNTU1`, `SSH_USER_UBUNTU1`, …) en collant les valeurs depuis BedigaCorps / votre gestionnaire de secrets.
 
 ---
 
-## Dépôt AgriActifs — Secrets
+## 2. Secrets applicatifs (dépôt AgriActifs)
 
 | Secret | Valeur |
 |--------|--------|
-| `UBUNTU1_CONNECTION_STRING` | Chaîne PostgreSQL (même host BD, schéma `agriactifs`) |
+| `UBUNTU1_CONNECTION_STRING` | Chaîne PostgreSQL (schéma `agriactifs`) |
 | `UBUNTU1_APP_ROOT` | `/opt/apps/agriactifs` |
 | `UBUNTU1_SERVICE_NAME` | `agriactifs` |
 | `UBUNTU1_LISTEN_PORT` | `5071` |
@@ -56,4 +68,4 @@ dotnet --list-runtimes   # Microsoft.AspNetCore.App 10.x
 
 ## Déploiement
 
-Push sur `main` / `master`, ou **Actions → Deploy Production → Run workflow**.
+**Actions → Deploy Production → Run workflow**
